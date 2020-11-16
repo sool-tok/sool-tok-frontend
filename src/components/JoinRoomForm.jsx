@@ -6,8 +6,7 @@ function JoinRoomForm({ onSubmit }) {
 
   const submitRoomData = ev => {
     ev.preventDefault();
-
-    onSubmit(input);
+    onSubmit(input.split('/rooms/')[1]);
   };
 
   const handleInputChange = ev => {
@@ -27,8 +26,8 @@ function JoinRoomForm({ onSubmit }) {
           name='roomUrl'
           id='roomUrl'
           required
-          placeholder='http://localhost:8080/rooms/'
-          pattern='http://localhost:8080/rooms/.*'
+          placeholder='http://localhost:3000/rooms/'
+          pattern='http://localhost:3000/rooms/.*'
           title='The URL must be in a Sool-tok domain.'
           value={input}
           size='36'

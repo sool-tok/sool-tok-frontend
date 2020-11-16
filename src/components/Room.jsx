@@ -8,8 +8,6 @@ import Video from './Video';
 function Room({ user, socket, room, joinRoom, leaveRoom, updateMember }) {
   const history = useHistory();
   const { room_id: roomId } = useParams();
-  const [leftMemberList, setLeftMemberList] = useState([]);
-  const [rightMemberList, setRightMemberList] = useState([]);
   const [isHost, setHost] = useState(false);
   const [error, setError] = useState('');
 
@@ -27,39 +25,20 @@ function Room({ user, socket, room, joinRoom, leaveRoom, updateMember }) {
     socket.on('update memberList', ({ memberList }) => {
       updateMember(memberList);
     });
-  }, [socket]);
 
-  useEffect(() => {
     return () => {
+      if (!socket) return;
       socket.emit('leave room', { roomId, userId: user.id });
       leaveRoom();
     };
-  }, []);
+  }, [socket]);
 
   useEffect(() => {
     if (!room) return;
-
     if (user.id === room.memberList?.[0].id) {
       setHost(true);
     }
-
-    const leftMember = [];
-    const rightMember = [];
-
-    if (room.memberList.length >= 1) {
-      room.memberList.forEach((member, idx) => {
-        if ((idx + 1) % 2) {
-          leftMember.push(member);
-        } else {
-          rightMember.push(member);
-        }
-      });
-
-      setLeftMemberList(leftMember);
-      setRightMemberList(rightMember);
-    }
   }, [room]);
-
 
   if (!room) {
     return (
@@ -72,58 +51,52 @@ function Room({ user, socket, room, joinRoom, leaveRoom, updateMember }) {
 
   return (
     <div style={{ backgroundColor: 'lightskyblue', width: '100vw', height: '100vh', ...flexConfig }}>
-      {
-        room &&
-        <>
-          <div style={{ position: 'fixed', top: '0', left: '0' }}>
-            <h1>{room.roomName}</h1>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', width: '100vw', height: '80vh' }}>
-            <div style={{ order: '1', ...flexConfig  }}>
-              {/* {leftMemberList.map((member, idx) => (
+      <div style={{ position: 'fixed', top: '0', left: '0' }}>
+        <h1>{room.roomName}</h1>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', width: '100vw', height: '80vh' }}>
+        <div style={{ order: '1', ...flexConfig  }}>
+          {room.memberList.map((member, idx) => {
+            if ((idx + 1) % 2) {
+              return (
                 <Video
                   key={idx}
                   src=''
+                  id={member.id}
                   username={member.name}
                   photoUrl={member.photoUrl}
-                />)
-              )} */}
-              {/* {room.memberList.map((member, idx) => {
-
-                return (
-                  <Video
-                    key={idx}
-                    src=''
-                    username={member.name}
-                    photoUrl={member.photoUrl}
-                  />
-                );
-              })} */}
-            </div>
-            <div style={{ order: '3', ...flexConfig }}>
-              {rightMemberList.map((member, idx) => (
+                />
+              );
+            }
+          })}
+        </div>
+        <div style={{ order: '3', ...flexConfig }}>
+          {room.memberList.map((member, idx) => {
+            if (!((idx + 1) % 2)) {
+              return (
                 <Video
                   key={idx}
                   src=''
+                  id={member.id}
                   username={member.name}
                   photoUrl={member.photoUrl}
-                />)
-              )}
-            </div>
-            <div style={{ backgroundColor: 'lightsalmon', order: '2', ...flexConfig  }}>
-              <div style={{ backgroundColor: 'lightseagreen', width: '300px', height: '500px' }}>
-                Game Center
-              </div>
-            </div>
+                />
+              );
+            }
+          })}
+        </div>
+        <div style={{ backgroundColor: 'lightsalmon', order: '2', ...flexConfig  }}>
+          <div style={{ backgroundColor: 'lightseagreen', width: '300px', height: '500px' }}>
+            Game Center
           </div>
-          <div style={{ backgroundColor: 'lightyellow', width: '300px', height: '50px' }}>
-            {isHost && <Button onClick={() => {}} text='방 잠금' />}
-            <Button onClick={() => {}} text='음소거' />
-            <Button onClick={() => {}} text='비디오 켜기' />
-            <Button onClick={() => history.push('/')} text='방 나가기' />
-          </div>
-        </>
-      }
+        </div>
+      </div>
+      <div style={{ backgroundColor: 'lightyellow', width: '300px', height: '50px' }}>
+        {isHost && <Button onClick={() => {}} text='방 잠금' />}
+        <Button onClick={() => {}} text='음소거' />
+        <Button onClick={() => {}} text='비디오 켜기' />
+        <Button onClick={() => history.push('/')} text='방 나가기' />
+      </div>
     </div>
   );
 }
