@@ -6,7 +6,7 @@ import { userService } from '../utils/api';
 import { loginUser } from '../actions/actionCreator';
 import * as socketAction from '../actions/socketAction';
 
-const mapStateToProps = state => ({ user: state.user });
+const mapStateToProps = state => ({ user: state.user, socket: state.socket });
 
 const mapDispatchToProps = dispatch => ({
   async onLoad() {

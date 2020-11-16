@@ -17,6 +17,9 @@ const mapDispatchToProps = dispatch => {
     leaveRoom() {
       dispatch(roomAction.leaveRoom());
     },
+    updateMember(memberList) {
+      dispatch(roomAction.updateMember(memberList));
+    },
   };
 };
 
