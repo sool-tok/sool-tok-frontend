@@ -13,8 +13,8 @@ function FriendCell({ onSubmit, name, photoUrl, isOnline, isRequest, requestId, 
         {
           isRequest &&
           <div style={{ backgroundColor: 'lightpink' }}>
-            <Button onClick={() => { onSubmit(userId, true, requestId); }} text='수락' />
-            <Button onClick={() => { onSubmit(userId, false, requestId); }} text='거절' />
+            <Button onClick={() => onSubmit(userId, true, requestId)} text='수락' />
+            <Button onClick={() => onSubmit(userId, false, requestId)} text='거절' />
           </div>
         }
       </div>

@@ -38,16 +38,16 @@ function MyPage({ onLoad, onLogout, onLoadRequestList, onSubmit, onRequest, user
           <h3>{user.name}</h3>
           <p>{user.email}</p>
         </div>
-        <Button onClick={() => { onLogout(user); }} text='로그아웃' />
+        <Button onClick={() => onLogout(user)} text='로그아웃' />
       </div>
       <div>
-        { !isRequestList &&
+        {!isRequestList &&
           <Button
             text='친구 추가하기'
-            onClick={() => openModal(<AddFriendForm onSubmit={input => { onRequest(user, input); }}/>)}
+            onClick={() => openModal(<AddFriendForm onSubmit={input => onRequest(user, input)}/>)}
           />
         }
-        { isModalOpen && (
+        {isModalOpen && (
           <ModalPortal>
             <Modal closeModal={closeModal}>{modalContent}</Modal>
           </ModalPortal>
@@ -55,8 +55,7 @@ function MyPage({ onLoad, onLogout, onLoadRequestList, onSubmit, onRequest, user
         {
           !isRequestList ?
             user.friendList?.length > 0 ?
-              user.friendList.map(friend => {
-                return (
+              user.friendList.map(friend => (
                   <FriendCell
                     isRequest={false}
                     key={friend._id}
@@ -64,14 +63,12 @@ function MyPage({ onLoad, onLogout, onLoadRequestList, onSubmit, onRequest, user
                     photoUrl={friend.photoUrl}
                     isOnline={friend.isOnline}
                   />
-                );
-              })
+              ))
             :
               <div>친구를 추가해보세요..!</div>
           :
             user.friendRequestList?.length > 0 ?
-              user.friendRequestList.map(request => {
-                return (
+              user.friendRequestList.map(request => (
                   <FriendCell
                     isRequest={true}
                     key={request._id}
@@ -82,14 +79,13 @@ function MyPage({ onLoad, onLogout, onLoadRequestList, onSubmit, onRequest, user
                     requestId={request._id}
                     userId={user._id}
                   />
-                );
-              })
+                ))
             :
               <div>친구 요청 목록이 없습니다..</div>
         }
       </div>
       <Button
-        onClick={() => { setRequestList(!isRequestList); }}
+        onClick={() => setRequestList(!isRequestList)}
         text={isRequestList ? '친구 목록 보기' : '요청 목록 보기'}
       />
     </div>

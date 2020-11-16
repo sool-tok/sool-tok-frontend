@@ -9,36 +9,31 @@ import FloatingButton from './FloatingButton';
 import Login from './Login';
 
 function App({ socket, user, onLogin, onLoad }) {
-  const [isOpenedMyPage, setOpenMyPage] = useState(false);
+  const [isMyPageOpen, setMyPageOpen] = useState(false);
 
   useEffect(() => {
     onLoad();
   }, []);
 
   useEffect(() => {
-    if (!user) {
-      setOpenMyPage(false);
-    } else {
+    if (!user) return setMyPageOpen(false);
+
+    if (socket) {
       socket.emit('new user', { userId: user._id });
     }
-  }, [user]);
+  }, [socket, user]);
 
   return (
     <>
-      {user && isOpenedMyPage && <MyPageContainer />}
-      {user && (
-        <FloatingButton
-          onClick={() => {
-            setOpenMyPage(!isOpenedMyPage);
-          }}
-          text='나'
-        />
-      )}
+      {user && isMyPageOpen && <MyPageContainer />}
+      {user && <FloatingButton onClick={() => setMyPageOpen(!isMyPageOpen)} text='나' />}
       <Switch>
         <Route exact path='/'>
           {user ? <LobbyContainer /> : <Login onLogin={onLogin} />}
         </Route>
-        <Route path='/rooms/:room_id'>{user && <RoomContainer />}</Route>
+        <Route path='/rooms/:room_id'>
+          {user && <RoomContainer />}
+        </Route>
         <Redirect to='/' />
       </Switch>
     </>
@@ -48,8 +43,14 @@ function App({ socket, user, onLogin, onLoad }) {
 export default App;
 
 App.propTypes = {
-  socket: PropTypes.oneOfType([PropTypes.oneOf([null]), PropTypes.object]),
-  user: PropTypes.oneOfType([PropTypes.oneOf([null]), PropTypes.object]),
+  socket: PropTypes.oneOfType([
+    PropTypes.oneOf([null]),
+    PropTypes.object,
+  ]),
+  user: PropTypes.oneOfType([
+    PropTypes.oneOf([null]),
+    PropTypes.object,
+  ]),
   onLogin: PropTypes.func.isRequired,
   onLoad: PropTypes.func.isRequired,
 };

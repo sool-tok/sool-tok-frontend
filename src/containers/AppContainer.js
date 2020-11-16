@@ -17,7 +17,6 @@ const mapDispatchToProps = dispatch => ({
     if (token) {
       const { user } = await userService.tokenLogin(token);
       dispatch(loginUser(user));
-      socket.emit('new user', { userId: user._id });
     }
   },
   async onLogin() {
