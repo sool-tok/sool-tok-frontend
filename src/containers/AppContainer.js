@@ -11,14 +11,14 @@ const mapStateToProps = state => ({ user: state.user });
 const mapDispatchToProps = dispatch => ({
   async onLoad() {
     const token = localStorage.getItem('jwt-token');
+    const socket = io(process.env.REACT_APP_PROXY_URL);
+    dispatch(socketAction.openSocket(socket));
 
     if (token) {
       const { user } = await userService.tokenLogin(token);
       dispatch(loginUser(user));
+      socket.emit('new user', { userId: user._id });
     }
-
-    const socket = io(process.env.REACT_APP_PROXY_URL);
-    dispatch(socketAction.openSocket(socket));
   },
   async onLogin() {
     try {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
@@ -8,20 +8,16 @@ import Modal from './Modal';
 import CreateRoomForm from './CreateRoomForm';
 import JoinRoomForm from './JoinRoomForm';
 
-function Lobby({ user, socket, createRoom }) {
+function Lobby({ socket }) {
   const [isModalOpen, setModalOpen] = useState(false);
   const [modalContent, setmodalContent] = useState(null);
   const history = useHistory();
 
-  useEffect(() => {
-    if (!socket) return;
-
-    socket.on('success create room', ({ room }) => {
-      console.log('success create room :', room);
-      createRoom(room);
+  const createRoom = roomData => {
+    socket.emit('create room', { roomData }, ({ room }) => {
       history.push(`/rooms/${room.id}`);
     });
-  }, [socket]);
+  };
 
   const openModal = element => {
     setmodalContent(element);
@@ -34,22 +30,14 @@ function Lobby({ user, socket, createRoom }) {
     <div>
       <h1>LOBBY</h1>
       <Button
-        onClick={() =>
-          openModal(
-            <CreateRoomForm
-              onSubmit={roomData =>
-                socket.emit('create room', { user, roomData })
-              }
-            />,
-          )
-        }
+        onClick={() => openModal(<CreateRoomForm onSubmit={createRoom} />)}
         text='+ 테이블 잡기'
       />
       <Button
         onClick={() => openModal(<JoinRoomForm onSubmit={console.log} />)}
         text='URL로 참여하기'
       />
-      { isModalOpen && (
+      {isModalOpen && (
         <ModalPortal>
           <Modal closeModal={closeModal}>{modalContent}</Modal>
         </ModalPortal>
@@ -61,8 +49,5 @@ function Lobby({ user, socket, createRoom }) {
 export default Lobby;
 
 Lobby.propTypes = {
-  user: PropTypes.object,
-  room: PropTypes.object,
   socket: PropTypes.object,
-  createRoom: PropTypes.func.isRequired,
 };
