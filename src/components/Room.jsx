@@ -24,7 +24,7 @@ function Room({ user, socket, room, joinRoom, leaveRoom, updateMember }) {
       }
     });
 
-    socket.on('update room', ({ memberList }) => {
+    socket.on('update memberList', ({ memberList }) => {
       updateMember(memberList);
     });
   }, [socket]);

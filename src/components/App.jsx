@@ -17,11 +17,7 @@ function App({ socket, user, onLogin, onLoad }) {
 
   useEffect(() => {
     if (!user) return setMyPageOpen(false);
-
-    if (socket) {
-      socket.emit('new user', { userId: user._id });
-    }
-  }, [socket, user]);
+  }, [user]);
 
   return (
     <>
