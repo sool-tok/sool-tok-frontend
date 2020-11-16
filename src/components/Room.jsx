@@ -1,31 +1,31 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useHistory, useParams } from 'react-router-dom';
+import Button from './Button';
 
-function Room({ user, socket, joinRoom, room }) {
+function Room({ user, socket, room, joinRoom, leaveRoom, updateMember }) {
+  const { room_id: roomId } = useParams();
   const history = useHistory();
-  const { room_id } = useParams();
 
   useEffect(() => {
     if (!socket) return;
 
-    if (!user) {
-      history.push('/');
-    }
-
-    socket.emit('join room', { room_id, user });
-    socket.on('success join room', ({ room }) => {
-      /* room 객체 구조
-          {
-            roomName: '방제목은 이걸로 해주세요',
-            maxNum: 5,
-            memberList: [ { id : "5fae43b50e45151660ac462e", name : "Carrot Cold" } ],
-            isLocked: false
-          }
-      */
+    socket.emit('join room', { roomId, user }, ({ room }) => {
+      // if (!room) no room Error Handling
       joinRoom(room);
     });
+
+    socket.on('update room', ({ memberList }) => {
+      updateMember(memberList);
+    });
   }, [socket]);
+
+  useEffect(() => {
+    return () => {
+      socket.emit('leave room', { roomId, userId: user.id });
+      leaveRoom();
+    };
+  }, []);
 
   return (
     <div>
@@ -35,6 +35,10 @@ function Room({ user, socket, joinRoom, room }) {
           <p>{room.id}</p>
           <p>{room.roomName}</p>
           <p>{room.maxNum}</p>
+          {room.memberList.map(member => (
+            <p key={member.id}>{member.name}</p>
+          ))}
+          <Button text='방나가기' onClick={() => history.push('/')} />
         </>
       )}
     </div>
@@ -48,4 +52,6 @@ Room.propTypes = {
   socket: PropTypes.object,
   room: PropTypes.object,
   joinRoom: PropTypes.func.isRequired,
+  leaveRoom: PropTypes.func.isRequired,
+  updateMember: PropTypes.func.isRequired,
 };

@@ -1,28 +1,13 @@
-import {
-  CREATE_ROOM,
-  JOIN_ROOM,
-  LEAVE_ROOM,
-  ADD_MEMBER,
-  DELETE_MEMBER,
-} from '../constants/actionTypes';
+import { JOIN_ROOM, LEAVE_ROOM, UPDATE_MEMBER } from '../constants/actionTypes';
 
 const roomReducer = (state = null, action) => {
   switch (action.type) {
-    case CREATE_ROOM:
-      return { ...action.payload.room };
     case JOIN_ROOM:
-      return { ...action.payload.room };
-    case ADD_MEMBER:
+      return action.payload.room;
+    case UPDATE_MEMBER:
       return {
         ...state,
-        memberList: [...state.memberList, action.payload.user],
-      };
-    case DELETE_MEMBER:
-      return {
-        ...state,
-        memberList: state.memberList.filter(
-          member => member.id !== action.payload.user.id,
-        ),
+        memberList: action.payload.memberList,
       };
     case LEAVE_ROOM:
       return null;

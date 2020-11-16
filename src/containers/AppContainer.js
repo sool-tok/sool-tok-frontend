@@ -6,19 +6,18 @@ import { userService } from '../utils/api';
 import { loginUser } from '../actions/actionCreator';
 import * as socketAction from '../actions/socketAction';
 
-const mapStateToProps = state => ({ user: state.user });
+const mapStateToProps = state => ({ user: state.user, socket: state.socket });
 
 const mapDispatchToProps = dispatch => ({
   async onLoad() {
     const token = localStorage.getItem('jwt-token');
+    const socket = io(process.env.REACT_APP_PROXY_URL);
+    dispatch(socketAction.openSocket(socket));
 
     if (token) {
       const { user } = await userService.tokenLogin(token);
       dispatch(loginUser(user));
     }
-
-    const socket = io(process.env.REACT_APP_PROXY_URL);
-    dispatch(socketAction.openSocket(socket));
   },
   async onLogin() {
     try {
