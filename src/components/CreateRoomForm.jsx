@@ -6,7 +6,7 @@ import Button from './Button';
 function CreateRoomForm({ onSubmit }) {
   const [inputs, setInputs] = useState({
     roomName: '',
-    maxNum: '',
+    maxNum: '2',
   });
 
   const submitRoomData = ev => {
