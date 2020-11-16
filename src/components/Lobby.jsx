@@ -34,7 +34,7 @@ function Lobby({ socket }) {
         text='+ 테이블 잡기'
       />
       <Button
-        onClick={() => openModal(<JoinRoomForm onSubmit={console.log} />)}
+        onClick={() => openModal(<JoinRoomForm onSubmit={roomId => history.push(`rooms/${roomId}`)} />)}
         text='URL로 참여하기'
       />
       {isModalOpen && (
