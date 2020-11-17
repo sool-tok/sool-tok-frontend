@@ -24,8 +24,6 @@ function Lobby({ socket }) {
     setModalOpen(true);
   };
 
-  const closeModal = () => setModalOpen(false);
-
   return (
     <div>
       <h1>LOBBY</h1>
@@ -38,9 +36,9 @@ function Lobby({ socket }) {
         text='URL로 참여하기'
       />
       {isModalOpen && (
-        <ModalPortal>
-          <Modal closeModal={closeModal}>{modalContent}</Modal>
-        </ModalPortal>
+        // <ModalPortal>
+          <Modal setModalOpen={setModalOpen}>{modalContent}</Modal>
+        // </ModalPortal>
       )}
     </div>
   );

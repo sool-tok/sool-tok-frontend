@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import Button from './Button';
 
-function Modal({ children, closeModal }) {
+function Modal({ children, setModalOpen }) {
   const tempStyle = {
     background:'rgba(0, 0, 0, 0.25)',
     position: 'fixed',
@@ -19,7 +19,7 @@ function Modal({ children, closeModal }) {
 
   return (
     <div style={tempStyle}>
-      <Button onClick={closeModal} text='모달닫기' />
+      <Button onClick={() => setModalOpen(false)} text='모달닫기' />
       {children}
     </div>
   );
@@ -29,5 +29,5 @@ export default Modal;
 
 Modal.propTypes = {
   children: PropTypes.node,
-  closeModal: PropTypes.func.isRequired,
+  setModalOpen: PropTypes.func.isRequired,
 };
