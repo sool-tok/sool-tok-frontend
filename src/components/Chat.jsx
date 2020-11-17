@@ -1,35 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-function Chat({ addMessage, author, message, socket }) {
-  const [chatMessage, setChatMessage] = useState('');
-  const [messageList, setMessageList] = useState([]);
+import format from 'date-fns/format';
 
-  const submitMessage = ev => {
-    ev.preventDefault();
-    setChatMessage(chatMessage);
-  };
+// TODO: chatList.map key unique 한걸로 설정해주기.
+// TODO: chatList visibility: hidden 설정해주기?
+function Chat({ addChat, user, chatList, socket }) {
+  const [input, setInput] = useState('');
 
-  //       text => addMessage({
-  //   id: user._id,
-  // });
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on('recieve message', ({ chat }) => addChat(chat));
+
+    return () => socket.off('recieve message');
+  }, [socket]);
 
   const handleInputChange = ev => {
     const { value } = ev.target;
-    setChatMessage(value);
-    addMessage(value);
+
+    setInput(value);
+  };
+
+  const handleMessageSubmit = ev => {
+    ev.preventDefault();
+
+    const time = format(new Date(), 'HH:mm');
+    const newChat = {
+      author: user.name,
+      photoUrl: user.photoUrl,
+      content: input,
+      date: time,
+    };
+
+    socket.emit('send message', ({ chat: newChat }));
+
+    setInput('');
   };
 
   return (
     <div style={{ backgroundColor: 'powderblue' }}>
-      <div>Message</div>
-      {chatMessage && <p>{chatMessage}</p>}
-      <form onSubmit={submitMessage}>
+      <form onSubmit={handleMessageSubmit}>
         <section id='messages-list'>
           <ul>
-            {messageList.map(message => (
-              <div key={message.id} {...message}></div>
-            ))}
+            {chatList &&
+              chatList.map((chat, i) => (
+                <div key={i}>
+                  <img src={chat.photoUrl} />
+                  <span>{chat.author}</span>
+                  <span>{chat.content}</span>
+                  <span>{chat.date}</span>
+                </div>
+              ))
+            }
           </ul>
         </section>
         <section id='new-message'>
@@ -37,7 +60,7 @@ function Chat({ addMessage, author, message, socket }) {
             onChange={handleInputChange}
             type='text'
             name='message'
-            value={chatMessage}
+            value={input}
           />
         </section>
         <input type='submit' value='SEND' />
@@ -49,8 +72,8 @@ function Chat({ addMessage, author, message, socket }) {
 export default Chat;
 
 Chat.propTypes = {
-  author: PropTypes.string,
-  message: PropTypes.string,
+  user: PropTypes.object,
   socket: PropTypes.object,
-  addMessage: PropTypes.func.isRequired,
+  chatList: PropTypes.array,
+  addChat: PropTypes.func.isRequired,
 };

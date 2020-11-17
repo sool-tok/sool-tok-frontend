@@ -4,15 +4,14 @@ import Chat from '../components/Chat';
 import * as chatAction from '../actions/chatAction';
 
 const mapStateToProps = state => ({
-  author: state.author,
-  message: state.message,
-  id: state.id,
+  user: state.user,
+  chatList: state.chatList,
   socket: state.socket,
 });
 
 const mapDispatchToProps = dispatch => ({
-  addMessage(message) {
-    dispatch(chatAction.addMessage(message));
+  addChat(chat) {
+    dispatch(chatAction.addChat(chat));
   },
 });
 
