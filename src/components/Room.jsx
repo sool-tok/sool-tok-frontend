@@ -5,9 +5,13 @@ import { useHistory, useParams } from 'react-router-dom';
 import Button from './Button';
 import Video from './Video';
 
+import FloatingButton from './FloatingButton';
+import ChatContainer from '../containers/ChatContainer';
+
 function Room({ user, socket, room, joinRoom, leaveRoom, updateMember }) {
   const history = useHistory();
   const { room_id: roomId } = useParams();
+  const [isOpenedChatRoom, setOpenChatRoom] = useState(false);
   const [isHost, setHost] = useState(false);
   const [error, setError] = useState('');
 
@@ -97,6 +101,8 @@ function Room({ user, socket, room, joinRoom, leaveRoom, updateMember }) {
         <Button onClick={() => {}} text='비디오 켜기' />
         <Button onClick={() => history.push('/')} text='방 나가기' />
       </div>
+      <FloatingButton text='채팅하기' onClick={() => setOpenChatRoom(!isOpenedChatRoom)} />
+      {isOpenedChatRoom && <ChatContainer />}
     </div>
   );
 }
