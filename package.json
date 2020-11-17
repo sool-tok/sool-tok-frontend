@@ -2,6 +2,7 @@
   "name": "sool-tok-frontend",
   "version": "0.1.0",
   "private": true,
+  "proxy": "https://192.168.0.98",
   "dependencies": {
     "@testing-library/jest-dom": "^5.11.5",
     "@testing-library/react": "^11.1.2",
@@ -15,6 +16,7 @@
     "react-scripts": "4.0.0",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
+    "simple-peer": "^9.9.3",
     "socket.io-client": "^3.0.1",
     "styled-components": "^5.2.1"
   },

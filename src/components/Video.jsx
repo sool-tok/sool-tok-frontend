@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 const flexConfig = {
@@ -16,15 +16,17 @@ const videoStyle = {
 };
 
 function Video({ id, src, username, photoUrl }) {
+  const ref = useRef();
+
+  // useEffect(() => {
+  //   peer.on('stream', stream => {
+  //     ref.current.srcObject = stream;
+  //   });
+  // }, []);
+
   return (
     <div style={flexConfig}>
-      <video
-        id={id}
-        src={src}
-        poster={photoUrl}
-        autoPlay
-        style={videoStyle}
-      />
+      <video id={id} src={src} poster={photoUrl} style={videoStyle} ref={ref} autoPlay />
       <p>{username}</p>
     </div>
   );
