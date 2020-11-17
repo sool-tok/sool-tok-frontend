@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Switch, Route, Redirect } from 'react-router-dom';
-import styled, { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from 'styled-components';
 import { Reset } from 'styled-reset';
 
 import MyPageContainer from '../containers/MyPageContainer';
@@ -11,6 +11,7 @@ import FloatingButton from './FloatingButton';
 import Login from './Login';
 
 import theme from './styles/theme';
+import GlobalStyle from './styles/globalStyle';
 
 function App({ socket, user, onLogin, onLoad }) {
   const [isMyPageOpen, setMyPageOpen] = useState(false);
@@ -26,6 +27,7 @@ function App({ socket, user, onLogin, onLoad }) {
   return (
     <ThemeProvider theme={theme}>
       <Reset />
+      <GlobalStyle />
       {user && isMyPageOpen && <MyPageContainer />}
       {user && <FloatingButton onClick={() => setMyPageOpen(!isMyPageOpen)} text='나' />}
       <Switch>

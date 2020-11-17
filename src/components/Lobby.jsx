@@ -7,6 +7,7 @@ import ModalPortal from './ModalPortal';
 import Modal from './Modal';
 import CreateRoomForm from './CreateRoomForm';
 import JoinRoomForm from './JoinRoomForm';
+import styled from 'styled-components';
 
 function Lobby({ socket }) {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -27,24 +28,51 @@ function Lobby({ socket }) {
   const closeModal = () => setModalOpen(false);
 
   return (
-    <div>
+    <Container>
       <h1>LOBBY</h1>
-      <Button
-        onClick={() => openModal(<CreateRoomForm onSubmit={createRoom} />)}
-        text='+ 테이블 잡기'
-      />
-      <Button
-        onClick={() => openModal(<JoinRoomForm onSubmit={roomId => history.push(`rooms/${roomId}`)} />)}
-        text='URL로 참여하기'
-      />
+      <Wrapper>
+        <Button
+          onClick={() => openModal(<CreateRoomForm onSubmit={createRoom} />)}
+          text='+ 테이블 잡기'
+        />
+        <Button
+          onClick={() => openModal(<JoinRoomForm onSubmit={roomId => history.push(`rooms/${roomId}`)} />)}
+          text='URL로 참여하기'
+        />
+      </Wrapper>
       {isModalOpen && (
         <ModalPortal>
           <Modal closeModal={closeModal}>{modalContent}</Modal>
         </ModalPortal>
       )}
-    </div>
+    </Container>
   );
 }
+
+const Container = styled.div`
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #49007d;
+
+  h1 {
+    font-size: 400px;
+    color: #ffd32a;
+  }
+`;
+
+const Wrapper = styled.div`
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+
+  button {
+    margin-right: 16px;
+  }
+`;
 
 export default Lobby;
 
