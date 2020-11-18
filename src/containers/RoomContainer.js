@@ -2,6 +2,7 @@ import { connect } from 'react-redux';
 
 import Room from '../components/Room';
 import * as roomAction from '../actions/roomAction';
+import * as chatAction from '../actions/chatAction';
 
 const mapStateToProps = state => ({
   user: state.user && {
@@ -11,6 +12,7 @@ const mapStateToProps = state => ({
   },
   socket: state.socket,
   room: state.room,
+  chatList: state.chatList,
 });
 
 const mapDispatchToProps = dispatch => {
@@ -26,6 +28,9 @@ const mapDispatchToProps = dispatch => {
     },
     leaveRoom() {
       dispatch(roomAction.leaveRoom());
+    },
+    addChat(chat) {
+      dispatch(chatAction.addChat(chat));
     },
   };
 };
