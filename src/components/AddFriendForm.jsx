@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
-function AddFriendForm({ onSubmit }) {
-  const [input, setInput] = useState('');
+import { userService } from '../utils/api';
 
-  const submitRoomData = ev => {
+function AddFriendForm({ user }) {
+  const [input, setInput] = useState('');
+  const [requestResult, setRequestResult] = useState('');
+
+  const submitRoomData = async ev => {
     ev.preventDefault();
 
     // Email validation
-    onSubmit(input);
+    const token = localStorage.getItem('jwt-token');
+    const { message } = await userService.requestFriend(user._id, token, input);
+    setRequestResult(message);
   };
 
   const handleInputChange = ev => {
@@ -19,6 +24,7 @@ function AddFriendForm({ onSubmit }) {
   return (
     <div style={{ backgroundColor: 'white' }}>
       <h2>Form</h2>
+      {requestResult && <div>{requestResult}</div>}
       <form onSubmit={submitRoomData}>
         <input
           type='email'
@@ -36,5 +42,5 @@ function AddFriendForm({ onSubmit }) {
 export default AddFriendForm;
 
 AddFriendForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
+  user: PropTypes.object.isRequired,
 };
