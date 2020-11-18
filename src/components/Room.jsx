@@ -7,6 +7,7 @@ import Peer from 'simple-peer';
 import Video, { StyledVideo } from './Video';
 import Chat from '../components/Chat';
 import Button from './Button';
+import SpeechGame from './SpeechGame';
 
 function Room({ user, socket, room, joinRoom, leaveRoom, addMember, deleteMember, addChat, chatList }) {
   const history = useHistory();
@@ -179,7 +180,7 @@ function Room({ user, socket, room, joinRoom, leaveRoom, addMember, deleteMember
         <h1>{room.roomName}</h1>
       </Header>
       <Wrapper>
-        <GameBox><div>도희짱 게임</div></GameBox>
+        <GameBox><div><SpeechGame /></div></GameBox>
         <MemberList>
           {room.memberList.map(member => (
             <MemberBlock key={member.id}>
