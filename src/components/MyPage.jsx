@@ -30,8 +30,6 @@ function MyPage({ onLoad, onLogout, onLoadRequestList, onSubmit, onRequest, user
     setmodalContent(element);
   };
 
-  const closeModal = () => setModalOpen(false);
-
   return (
     <Container>
       <MyInfo>
@@ -50,7 +48,7 @@ function MyPage({ onLoad, onLogout, onLoadRequestList, onSubmit, onRequest, user
         }
         {isModalOpen && (
           <ModalPortal>
-            <Modal closeModal={closeModal}>{modalContent}</Modal>
+            <Modal setModalOpen={setModalOpen}>{modalContent}</Modal>
           </ModalPortal>
         )}
         {

@@ -4,11 +4,11 @@ import styled from 'styled-components';
 
 import Button from './Button';
 
-function Modal({ children, closeModal }) {
+function Modal({ children, setModalOpen }) {
   return (
     <StyledModal>
       {children}
-      <Button color='gray' onClick={closeModal} text='닫기' />
+      <Button onClick={() => setModalOpen(false)} text='닫기' />
     </StyledModal>
   );
 }
@@ -85,5 +85,5 @@ export default Modal;
 
 Modal.propTypes = {
   children: PropTypes.node,
-  closeModal: PropTypes.func.isRequired,
+  setModalOpen: PropTypes.func.isRequired,
 };
