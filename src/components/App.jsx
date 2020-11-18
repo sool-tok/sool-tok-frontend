@@ -28,7 +28,7 @@ function App({ socket, user, onLogin, onLoad }) {
           {user ? <LobbyContainer /> : <Login onLogin={onLogin} />}
         </Route>
         <Route path='/rooms/:room_id'>
-          {user && <RoomContainer />}
+          {user ? <RoomContainer /> : <div>로그인해주세요..</div>}
         </Route>
         <Redirect to='/' />
       </Switch>
