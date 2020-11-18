@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
@@ -8,11 +8,20 @@ import Modal from './Modal';
 import CreateRoomForm from './CreateRoomForm';
 import JoinRoomForm from './JoinRoomForm';
 import styled from 'styled-components';
+import Table from './Table';
 
 function Lobby({ socket }) {
+  const [tables, setTables] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [modalContent, setmodalContent] = useState(null);
   const history = useHistory();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.emit('update room list');
+    socket.on('update room list', ({ rooms }) => setTables(rooms));
+  }, [socket]);
 
   const createRoom = roomData => {
     socket.emit('create room', { roomData }, ({ room }) => {
@@ -27,6 +36,17 @@ function Lobby({ socket }) {
 
   return (
     <Container>
+      <Tables>
+        {tables &&
+          tables.map(table => (
+            <Table
+              key={table.id}
+              roomPath={table.id}
+              roomName={table.roomName}
+              memberList={table.memberList}
+            />
+          ))}
+      </Tables>
       <h1>LOBBY</h1>
       <Wrapper>
         <Button
@@ -59,7 +79,7 @@ const Container = styled.div`
   background-color: #49007d;
 
   h1 {
-    font-size: 400px;
+    font-size: 200px;
     font-weight: 700;
     color: #ffd32a;
   }
@@ -72,6 +92,18 @@ const Wrapper = styled.div`
 
   button {
     margin-right: 16px;
+  }
+`;
+
+const Tables = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  display: flex;
+
+  a {
+    text-decoration: none;
   }
 `;
 

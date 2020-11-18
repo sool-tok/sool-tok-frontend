@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
-
-import Button from './Button';
 
 function CreateRoomForm({ onSubmit }) {
   const [inputs, setInputs] = useState({
