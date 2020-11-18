@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 
 import format from 'date-fns/format';
 
@@ -39,35 +40,117 @@ function Chat({ addChat, user, chatList, socket }) {
   };
 
   return (
-    <div style={{ backgroundColor: 'powderblue' }}>
-      <form onSubmit={handleMessageSubmit}>
-        <section id='messages-list'>
-          <ul>
-            {chatList &&
-              chatList.map((chat, i) => (
-                <div key={i}>
+    <Wrapper>
+      <MessageList>
+        <ul>
+          {chatList &&
+            chatList.map((chat, i) => (
+              <ChatCell key={i}>
+                <Profile>
                   <img src={chat.photoUrl} />
-                  <span>{chat.author}</span>
-                  <span>{chat.content}</span>
-                  <span>{chat.date}</span>
-                </div>
-              ))
-            }
-          </ul>
-        </section>
-        <section id='new-message'>
-          <input
-            onChange={handleInputChange}
-            type='text'
-            name='message'
-            value={input}
-          />
-        </section>
+                  <div>{chat.author}</div>
+                </Profile>
+                <span>{chat.content}</span>
+                <span>{chat.date}</span>
+              </ChatCell>
+            ))
+          }
+        </ul>
+      </MessageList>
+      <MessageForm onSubmit={handleMessageSubmit}>
+        <input
+          onChange={handleInputChange}
+          type='text'
+          name='message'
+          value={input}
+        />
         <input type='submit' value='SEND' />
-      </form>
-    </div>
+      </MessageForm>
+    </Wrapper>
   );
 }
+
+const Wrapper = styled.div`
+  background-color: #330057;
+  width: 400px;
+  height: 400px;
+  position: fixed;
+  right: 100px;
+  bottom: 94px;
+  border-radius: 24px;
+  overflow: hidden;
+`;
+
+const MessageList = styled.div`
+  width: 100%;
+  height: 340px;
+  overflow-y: scroll;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const MessageForm = styled.form`
+  background-color: blue;
+  width: 100%;
+  height: 60px;
+  display: flex;
+
+  input {
+    all: unset;
+  }
+
+  input[type='text'] {
+    width: 70%;
+    padding: 0px 20px;
+    background-color: #eee;
+  }
+
+  input[type='submit'] {
+    cursor: pointer;
+    width: 30%;
+    text-align: center;
+    background-color: #ffd32a;
+  }
+`;
+
+const ChatCell = styled.div`
+  width: 240px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+
+  img {
+    width: 50px;
+    height: 50px;
+    border-radius: 24px;
+    margin-bottom: 6px;
+  }
+
+  span:nth-child(2) {
+    background-color: #ffd32a;
+    padding: 10px;
+    margin-right: 6px;
+    border-radius: 20px;
+  }
+
+  span:nth-child(3) {
+    font-size: 12px;
+    color: gray;
+  }
+`;
+
+const Profile = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 3px 10px;
+  color: #fff;
+  font-size: 14px;
+`;
 
 export default Chat;
 
