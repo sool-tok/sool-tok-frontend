@@ -37,14 +37,15 @@ function MyPage({ onLoad, onLogout, onLoadRequestList, onSubmit, onRequest, user
           <h3>{user.name}</h3>
           <p>{user.email}</p>
         </MyInfoWrapper>
-        <Button onClick={() => onLogout(user)} text='로그아웃' />
+        <Button onClick={() => onLogout(user)}>로그아웃</Button>
       </MyInfo>
       <FriendList>
         {!isRequestList &&
           <Button
-            text='친구 추가하기'
             onClick={() => openModal(<AddFriendForm onSubmit={input => onRequest(user, input)}/>)}
-          />
+          >
+            친구 추가하기
+          </Button>
         }
         {isModalOpen && (
           <ModalPortal>
@@ -86,8 +87,9 @@ function MyPage({ onLoad, onLogout, onLoadRequestList, onSubmit, onRequest, user
       <ToggleWrapper>
         <Button
           onClick={() => setRequestList(!isRequestList)}
-          text={isRequestList ? '친구 목록 보기' : '요청 목록 보기'}
-        />
+        >
+          {isRequestList ? '친구 목록 보기' : '요청 목록 보기'}
+        </Button>
       </ToggleWrapper>
     </Container>
   );

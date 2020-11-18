@@ -3,12 +3,13 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 import Button from './Button';
+import { GrFormClose } from 'react-icons/gr';
 
 function Modal({ children, setModalOpen }) {
   return (
     <StyledModal>
       {children}
-      <Button onClick={() => setModalOpen(false)} text='닫기' />
+      <Button color='#ecf0f1' onClick={() => setModalOpen(false)}><GrFormClose size='26px' /></Button>
     </StyledModal>
   );
 }
@@ -35,7 +36,7 @@ const StyledModal = styled.div`
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: #07b578;
+    background-color: #f1c40f;
     border-radius: 38px;
   }
 
@@ -77,7 +78,8 @@ const StyledModal = styled.div`
     padding: 14px 16px;
     border-radius: 32px;
     font-size: 14px;
-    background-color: #ffd32a;
+    color: white;
+    background-color: #ff5252;
   }
 `;
 

@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-function Button({ onClick, text, color }) {
-  return (<StyledButton color={color} onClick={onClick}>{text}</StyledButton>);
+function Button({ onClick, children, color }) {
+  return (<StyledButton color={color} onClick={onClick}>{children}</StyledButton>);
 }
 
 const StyledButton = styled.button`
@@ -26,6 +26,6 @@ export default Button;
 
 Button.propTypes = {
   onClick: PropTypes.func.isRequired,
-  text: PropTypes.string.isRequired,
+  children: PropTypes.node,
   color: PropTypes.string,
 };

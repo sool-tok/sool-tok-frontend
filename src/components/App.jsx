@@ -12,6 +12,7 @@ import Login from './Login';
 
 import theme from './styles/theme';
 import GlobalStyle from './styles/globalStyle';
+import { BiFace } from 'react-icons/bi';
 
 function App({ socket, user, onLogin, onLoad }) {
   const [isMyPageOpen, setMyPageOpen] = useState(false);
@@ -29,7 +30,13 @@ function App({ socket, user, onLogin, onLoad }) {
       <Reset />
       <GlobalStyle />
       {user && isMyPageOpen && <MyPageContainer />}
-      {user && <FloatingButton onClick={() => setMyPageOpen(!isMyPageOpen)} text='나' />}
+      {user &&
+        <FloatingButton
+          onClick={() => setMyPageOpen(!isMyPageOpen)}
+        >
+          <BiFace />
+        </FloatingButton>
+      }
       <Switch>
         <Route exact path='/'>
           {user ? <LobbyContainer /> : <Login onLogin={onLogin} />}

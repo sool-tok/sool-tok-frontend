@@ -2,20 +2,25 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-function FloatingButton({ onClick, text }) {
-  return (<StyledFloatingButton onClick={onClick}>{text}</StyledFloatingButton>);
+function FloatingButton({ onClick, children }) {
+  return (<StyledFloatingButton onClick={onClick}>{children}</StyledFloatingButton>);
 }
 
 const StyledFloatingButton = styled.button`
   all: unset;
   z-index: 999;
   cursor: pointer;
-  padding: 21px;
+  padding: 10px;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   border-radius: 48px;
   position: fixed;
   right: 24px;
   bottom: 24px;
-  font-size: 18px;
+  font-size: 36px;
   background-color: #ff5252;
   color: #fff;
   transition: background-color 0.3s;
@@ -31,5 +36,5 @@ export default FloatingButton;
 
 FloatingButton.propTypes = {
   onClick: PropTypes.func.isRequired,
-  text: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired,
 };

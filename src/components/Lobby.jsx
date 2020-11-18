@@ -31,12 +31,14 @@ function Lobby({ socket }) {
       <Wrapper>
         <Button
           onClick={() => openModal(<CreateRoomForm onSubmit={createRoom} />)}
-          text='+ 테이블 잡기'
-        />
+        >
+          + 테이블 잡기
+        </Button>
         <Button
           onClick={() => openModal(<JoinRoomForm onSubmit={roomId => history.push(`rooms/${roomId}`)} />)}
-          text='URL로 참여하기'
-        />
+        >
+          URL로 참여하기
+        </Button>
       </Wrapper>
       {isModalOpen && (
         <ModalPortal>
@@ -58,6 +60,7 @@ const Container = styled.div`
 
   h1 {
     font-size: 400px;
+    font-weight: 700;
     color: #ffd32a;
   }
 `;

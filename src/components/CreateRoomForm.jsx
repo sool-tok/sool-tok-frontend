@@ -43,7 +43,7 @@ function CreateRoomForm({ onSubmit }) {
           onChange={handleInputChange}
           required
         />
-        <Button onClick={submitRoomData} text='좌석 잡기' />
+        <input type='submit' value='좌석 잡기' />
       </form>
     </div>
   );

@@ -10,7 +10,7 @@ function Login({ onLogin }) {
       <div>
         <h1>술톡</h1>
         <p>친구와 함께하는 술술TALK🍺</p>
-        <Button onClick={onLogin} text='구글 로그인' />
+        <Button onClick={onLogin}>구글 로그인</Button>
       </div>
     </Container>
   );
