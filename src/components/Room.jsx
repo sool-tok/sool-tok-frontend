@@ -1,17 +1,18 @@
-/* eslint-disable react/prop-types */
 import React, { useState, useEffect, useRef } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import Peer from 'simple-peer';
 
-import Button from './Button';
 import Video, { StyledVideo } from './Video';
-import styled from 'styled-components';
+import ChatContainer from '../containers/ChatContainer';
+import Button from './Button';
+import FloatingButton from './FloatingButton';
 
 function Room({ user, socket, room, joinRoom, leaveRoom, addMember, deleteMember }) {
   const history = useHistory();
   const { room_id: roomId } = useParams();
-
+  const [isChatRoomOpen, setIsChatRoomOpen] = useState(false);
   const [isHost, setIsHost] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState('');
@@ -183,6 +184,11 @@ function Room({ user, socket, room, joinRoom, leaveRoom, addMember, deleteMember
         {isHost && <Button onClick={() => {}} text='방 잠금' />}
         <Button onClick={() => history.push('/')} text='방 나가기' />
       </div>
+      <FloatingButton
+        text='채팅하기'
+        onClick={() => setIsChatRoomOpen(!isChatRoomOpen)}
+      />
+      {isChatRoomOpen && <ChatContainer />}
     </Wrapper>
   );
 }
@@ -195,6 +201,8 @@ Room.propTypes = {
   room: PropTypes.object,
   joinRoom: PropTypes.func.isRequired,
   leaveRoom: PropTypes.func.isRequired,
+  addMember: PropTypes.func.isRequired,
+  deleteMember: PropTypes.func.isRequired,
 };
 
 const Wrapper = styled.div`
