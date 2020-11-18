@@ -24,8 +24,6 @@ function Lobby({ socket }) {
     setModalOpen(true);
   };
 
-  const closeModal = () => setModalOpen(false);
-
   return (
     <div>
       <h1>LOBBY</h1>
@@ -39,7 +37,7 @@ function Lobby({ socket }) {
       />
       {isModalOpen && (
         <ModalPortal>
-          <Modal closeModal={closeModal}>{modalContent}</Modal>
+          <Modal setModalOpen={setModalOpen}>{modalContent}</Modal>
         </ModalPortal>
       )}
     </div>
