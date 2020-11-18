@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 
 import Button from './Button';
 
@@ -21,9 +22,9 @@ function CreateRoomForm({ onSubmit }) {
   };
 
   return (
-    <div style={{ backgroundColor: 'white' }}>
-      <h2>Title : 어서 자리 잡자!</h2>
-      <h3>Description : 좌석의 최대 인원은 6명입니다.</h3>
+    <div>
+      <h2>어서 자리 잡자!</h2>
+      <h3>좌석의 최대 인원은 6명입니다.</h3>
       <form onSubmit={submitRoomData}>
         <input
           type='text'
@@ -42,7 +43,7 @@ function CreateRoomForm({ onSubmit }) {
           onChange={handleInputChange}
           required
         />
-        <Button onClick={submitRoomData} text='좌석 잡기' />
+        <input type='submit' value='좌석 잡기' />
       </form>
     </div>
   );

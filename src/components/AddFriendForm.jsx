@@ -22,8 +22,8 @@ function AddFriendForm({ user }) {
   };
 
   return (
-    <div style={{ backgroundColor: 'white' }}>
-      <h2>Form</h2>
+    <div>
+      <h2>친구 요청</h2>
       {requestResult && <div>{requestResult}</div>}
       <form onSubmit={submitRoomData}>
         <input
@@ -33,7 +33,7 @@ function AddFriendForm({ user }) {
           onChange={handleInputChange}
           required
         />
-        <input type='submit' value='친구 추가' />
+        <input type='submit' value='친구 요청' />
       </form>
     </div>
   );

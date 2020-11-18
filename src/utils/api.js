@@ -2,7 +2,7 @@ import firebase from './firebase';
 import axios from 'axios';
 
 // Test
-axios.defaults.baseURL = process.env.REACT_APP_PROXY_URL;
+// axios.defaults.baseURL = process.env.REACT_APP_PROXY_URL;
 
 const googleLogin = async () => {
   try {

@@ -11,7 +11,7 @@ const mapStateToProps = state => ({ user: state.user, socket: state.socket });
 const mapDispatchToProps = dispatch => ({
   async onLoad() {
     const token = localStorage.getItem('jwt-token');
-    const socket = io(process.env.REACT_APP_PROXY_URL);
+    const socket = io();
     dispatch(socketAction.openSocket(socket));
 
     if (token) {

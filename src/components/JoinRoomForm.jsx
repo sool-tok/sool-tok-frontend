@@ -15,12 +15,10 @@ function JoinRoomForm({ onSubmit }) {
   };
 
   return (
-    <div style={{ backgroundColor: 'white' }}>
-      <h2>Title : 친구한테 가자!</h2>
+    <div>
+      <h2>친구한테 가자!</h2>
+      <h3>공유 받은 URL 을 입력하세요</h3>
       <form onSubmit={submitRoomData}>
-        <label htmlFor='roomUrl'>
-          Description: 공유 받은 URL 을 입력하세요
-        </label>
         <input
           type='url'
           name='roomUrl'
