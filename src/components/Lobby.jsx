@@ -36,9 +36,9 @@ function Lobby({ socket }) {
         text='URL로 참여하기'
       />
       {isModalOpen && (
-        // <ModalPortal>
+        <ModalPortal>
           <Modal setModalOpen={setModalOpen}>{modalContent}</Modal>
-        // </ModalPortal>
+        </ModalPortal>
       )}
     </div>
   );
