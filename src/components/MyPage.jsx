@@ -41,9 +41,7 @@ function MyPage({ onLoad, onLogout, onLoadRequestList, onSubmit, user }) {
       </MyInfo>
       <FriendList>
         {!isRequestList &&
-          <Button
-            onClick={() => openModal(<AddFriendForm user={user} />)}
-          >
+          <Button onClick={() => openModal(<AddFriendForm user={user} />)}>
             친구 추가하기
           </Button>
         }
@@ -152,6 +150,7 @@ const FriendList = styled.div`
 
 const ToggleWrapper = styled.div`
   position: absolute;
+  cursor: pointer;
   bottom: 0;
   width: 100%;
   height: 64px;

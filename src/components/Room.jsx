@@ -5,11 +5,10 @@ import styled from 'styled-components';
 import Peer from 'simple-peer';
 
 import Video, { StyledVideo } from './Video';
-import ChatContainer from '../containers/ChatContainer';
+import Chat from '../components/Chat';
 import Button from './Button';
-import FloatingButton from './FloatingButton';
 
-function Room({ user, socket, room, joinRoom, leaveRoom, addMember, deleteMember }) {
+function Room({ user, socket, room, joinRoom, leaveRoom, addMember, deleteMember, addChat, chatList }) {
   const history = useHistory();
   const { room_id: roomId } = useParams();
   const [isChatRoomOpen, setIsChatRoomOpen] = useState(false);
@@ -30,7 +29,6 @@ function Room({ user, socket, room, joinRoom, leaveRoom, addMember, deleteMember
 
     socket.emit('join room', { roomId, user }, async ({ room, message }) => {
       if (!room) return setError(message);
-
       joinRoom(room);
 
       try {
@@ -62,11 +60,15 @@ function Room({ user, socket, room, joinRoom, leaveRoom, addMember, deleteMember
       deleteMember(userId);
     });
 
+    socket.on('recieve message', ({ chat }) => addChat(chat));
+
     return () => {
       if (!socket) return;
 
       socket.off('member joined');
       socket.off('member leaved');
+
+      socket.off('recieve message');
 
       streamRef.current.getVideoTracks().forEach(track => {
         track.stop();
@@ -162,48 +164,160 @@ function Room({ user, socket, room, joinRoom, leaveRoom, addMember, deleteMember
   }
 
   return (
-    <Wrapper>
-      <h1>{room.roomName}</h1>
-      <div className='container'>
-        <div className='game-stage'>이곳은 게임판</div>
-        <div className='members'>
+    <Container>
+      <Button onClick={() => setIsChatRoomOpen(!isChatRoomOpen)}>
+        C
+      </Button>
+      {isChatRoomOpen &&
+        <Chat
+          onSubmit={newChat => socket.emit('send message', { chat: newChat })}
+          chatList={chatList}
+          user={user}
+        />
+      }
+      <Header>
+        <h1>{room.roomName}</h1>
+      </Header>
+      <Wrapper>
+        <GameBox><div>도희짱 게임</div></GameBox>
+        <MemberList>
           {room.memberList.map(member => (
-            <div className='member-block' key={member.id}>
+            <MemberBlock key={member.id}>
+              {member.id === user.id ?
+                  <StyledVideo
+                    thumbnail={member.photoUrl}
+                    ref={myVideoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                  />
+                :
+                  <Video
+                    key={member.id}
+                    thumbnail={member.photoUrl}
+                    peer={peers[member.id]}
+                  />
+              }
               <h3>{member.name}</h3>
-              {member.id === user.id ? (
-                <StyledVideo
-                  thumbnail={member.photoUrl}
-                  ref={myVideoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                />
-              ) : (
-                <Video
-                  key={member.id}
-                  thumbnail={member.photoUrl}
-                  peer={peers[member.id]}
-                />
-              )}
-            </div>
+            </MemberBlock>
           ))}
+        </MemberList>
+      </Wrapper>
+      <UtilityBox>
+        <div>
+          {isHost && <Button onClick={() => {}}>방 잠금</Button>}
+          <Button onClick={() => {}}>음소거</Button>
+          <Button onClick={() => {}}>비디오 켜기</Button>
+          <Button onClick={() => history.push('/')}>방 나가기</Button>
         </div>
-      </div>
-      <div className='util-bar'>
-        <Button onClick={() => {}} text='음소거' />
-        <Button onClick={() => {}} text='비디오 켜기' />
-        <span>🍹🍺🍷</span>
-        {isHost && <Button onClick={() => {}} text='방 잠금' />}
-        <Button onClick={() => history.push('/')} text='방 나가기' />
-      </div>
-      <FloatingButton
-        text='채팅하기'
-        onClick={() => setIsChatRoomOpen(!isChatRoomOpen)}
-      />
-      {isChatRoomOpen && <ChatContainer />}
-    </Wrapper>
+      </UtilityBox>
+    </Container>
   );
 }
+
+const Container = styled.div`
+  background-color: #49007d;
+  width: 100vw;
+  height: 100vh;
+
+  h1 {
+    padding: 24px;
+    font-size: 24px;
+    color: #ffd32a;
+  }
+
+  & > button {
+    z-index: 999;
+    width: 36px;
+    height: 36px;
+    padding: 12px;
+    position: fixed;
+    bottom: 24px;
+    right: 100px;
+    text-align: center;
+  }
+`;
+
+const Wrapper = styled.div`
+  display: flex;
+  height: 92%;
+`;
+
+const Header = styled.header`
+  width: 100vw;
+  height: 8%;
+  background-color: #330057;
+`;
+
+const GameBox = styled.div`
+  min-width: 400px;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  div {
+    width: 320px;
+    height: 600px;
+    border-radius: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #A9C9FF;
+    background-image: linear-gradient(180deg, #A9C9FF 0%, #FFBBEC 100%);
+  }
+`;
+
+const UtilityBox = styled.div`
+  z-index: 1;
+  width: 100%;
+  height: 80px;
+  position: fixed;
+  left: 0px;
+  bottom: 0px;
+  border-radius: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  div {
+    background-color: #330057;
+    padding: 10px 16px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+  }
+
+  button:not(:last-child) {
+    margin-right: 10px;
+  }
+`;
+
+const MemberList = styled.div`
+  width: 80vw;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  overflow-y: scroll;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const MemberBlock = styled.div`
+  margin: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  h3 {
+    color: #eee;
+    margin-top: 24px;
+    font-size: 18px;
+  }
+`;
 
 export default Room;
 
@@ -211,48 +325,10 @@ Room.propTypes = {
   user: PropTypes.object,
   socket: PropTypes.object,
   room: PropTypes.object,
+  chatList: PropTypes.array,
   joinRoom: PropTypes.func.isRequired,
   leaveRoom: PropTypes.func.isRequired,
   addMember: PropTypes.func.isRequired,
   deleteMember: PropTypes.func.isRequired,
+  addChat: PropTypes.func.isRequired,
 };
-
-const Wrapper = styled.div`
-  background-color: #eee;
-  width: 100vw;
-  height: 100vh;
-
-  .container {
-    width: 100%;
-    height: 80%;
-    display: flex;
-
-    .game-stage {
-      border: 1px solid indianred;
-      width: 40%;
-      height: 100%;
-    }
-
-    .members {
-      width: 60%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-
-      .member-block {
-        width: 300px;
-        height: 300px;
-        color: red;
-        border: 1px solid indianred;
-      }
-    }
-  }
-
-  .util-bar {
-    background-color: salmon;
-    width: 50%;
-    display: flex;
-    justify-content: space-around;
-  }
-`;
