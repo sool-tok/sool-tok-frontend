@@ -5,9 +5,14 @@ export const joinRoom = room => ({
   payload: { room },
 });
 
-export const updateMember = memberList => ({
-  type: types.UPDATE_MEMBER,
-  payload: { memberList },
+export const addMember = member => ({
+  type: types.ADD_MEMBER,
+  payload: { member },
+});
+
+export const deleteMember = memberId => ({
+  type: types.DELETE_MEMBER,
+  payload: { memberId },
 });
 
 export const leaveRoom = () => ({

@@ -2,7 +2,7 @@ import firebase from './firebase';
 import axios from 'axios';
 
 // Test
-axios.defaults.baseURL = process.env.REACT_APP_PROXY_URL;
+// axios.defaults.baseURL = process.env.REACT_APP_PROXY_URL;
 
 const googleLogin = async () => {
   try {
@@ -78,13 +78,14 @@ const getFriendRequestList = async (id, token) => {
 
 const requestFriend = async (id, token, email) => {
   try {
-    const data = await axios.post(`/users/${id}/friends/request`, { email }, {
+    const { data } = await axios.post(`/users/${id}/friends/request`, { email }, {
       headers: {
         'jwt-token': token,
       },
     });
 
     if (data.status === 204) throw new Error('The user does not exist');
+    return { message: data.message };
   } catch (err) {
     console.error(err);
   }

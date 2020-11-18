@@ -7,7 +7,8 @@ export const OPEN_SOCKET = 'OPEN_SOCKET';
 export const CLOSE_SOCKET = 'DELETE_SOCKET';
 
 export const JOIN_ROOM = 'JOIN_ROOM';
-export const UPDATE_MEMBER = 'UPDATE_MEMBER';
+export const ADD_MEMBER = 'ADD_MEMBER';
+export const DELETE_MEMBER = 'DELETE_MEMBER';
 export const LEAVE_ROOM = 'LEAVE_ROOM';
 
 export const ADD_CHAT = 'ADD_CHAT';

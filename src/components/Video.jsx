@@ -1,40 +1,30 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 
-const flexConfig = {
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  alignItems: 'center',
-};
+export const StyledVideo = styled.video`
+  background-color: blue;
+  border-radius: 50px;
+  width: 100%;
+`;
 
-const videoStyle = {
-  width: '340px',
-  height: '340px',
-  borderRadius: '50%',
-  backgroundColor: 'green',
-};
+function Video({ thumbnail, peer }) {
+  const ref = useRef();
 
-function Video({ id, src, username, photoUrl }) {
-  return (
-    <div style={flexConfig}>
-      <video
-        id={id}
-        src={src}
-        poster={photoUrl}
-        autoPlay
-        style={videoStyle}
-      />
-      <p>{username}</p>
-    </div>
-  );
+  useEffect(() => {
+    if (!peer) return;
+
+    peer.on('stream', stream => {
+      ref.current.srcObject = stream;
+    });
+  }, [peer]);
+
+  return <StyledVideo poster={thumbnail} ref={ref} autoPlay playsInline />;
 }
 
 export default Video;
 
 Video.propTypes = {
-  id: PropTypes.string.isRequired,
-  src: PropTypes.string.isRequired,
-  username: PropTypes.string.isRequired,
-  photoUrl: PropTypes.string.isRequired,
+  thumbnail: PropTypes.string.isRequired,
+  peer: PropTypes.object,
 };
