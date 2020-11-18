@@ -78,13 +78,14 @@ const getFriendRequestList = async (id, token) => {
 
 const requestFriend = async (id, token, email) => {
   try {
-    const data = await axios.post(`/users/${id}/friends/request`, { email }, {
+    const { data } = await axios.post(`/users/${id}/friends/request`, { email }, {
       headers: {
         'jwt-token': token,
       },
     });
 
     if (data.status === 204) throw new Error('The user does not exist');
+    return { message: data.message };
   } catch (err) {
     console.error(err);
   }
