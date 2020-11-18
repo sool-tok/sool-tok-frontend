@@ -1,21 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 import format from 'date-fns/format';
 
 // TODO: chatList.map key unique 한걸로 설정해주기.
-// TODO: chatList visibility: hidden 설정해주기?
-function Chat({ addChat, user, chatList, socket }) {
+function Chat({ user, chatList, onSubmit }) {
   const [input, setInput] = useState('');
+  const messageRef = useRef();
 
   useEffect(() => {
-    if (!socket) return;
-
-    socket.on('recieve message', ({ chat }) => addChat(chat));
-
-    return () => socket.off('recieve message');
-  }, [socket]);
+    messageRef.current.scrollTop = messageRef.current.scrollHeight;
+  }, [chatList]);
 
   const handleInputChange = ev => {
     const { value } = ev.target;
@@ -32,30 +28,32 @@ function Chat({ addChat, user, chatList, socket }) {
       photoUrl: user.photoUrl,
       content: input,
       date: time,
+      id: user._id,
     };
 
-    socket.emit('send message', ({ chat: newChat }));
-
+    onSubmit(newChat);
     setInput('');
+  };
+
+  const checkMyMessage = id => {
+    return id === user._id ? 'my-message' : 'friend-message';
   };
 
   return (
     <Wrapper>
-      <MessageList>
-        <ul>
-          {chatList &&
-            chatList.map((chat, i) => (
-              <ChatCell key={i}>
-                <Profile>
-                  <img src={chat.photoUrl} />
-                  <div>{chat.author}</div>
-                </Profile>
-                <span>{chat.content}</span>
-                <span>{chat.date}</span>
-              </ChatCell>
-            ))
-          }
-        </ul>
+      <MessageList ref={messageRef}>
+        {chatList &&
+          chatList.map((chat, i) => (
+            <ChatCell key={i} className={checkMyMessage(chat.id)}>
+              <Profile>
+                <img src={chat.photoUrl} />
+                <div>{chat.author}</div>
+              </Profile>
+              <span>{chat.content}</span>
+              <span>{chat.date}</span>
+            </ChatCell>
+          ))
+        }
       </MessageList>
       <MessageForm onSubmit={handleMessageSubmit}>
         <input
@@ -84,7 +82,7 @@ const Wrapper = styled.div`
 const MessageList = styled.div`
   width: 100%;
   height: 340px;
-  overflow-y: scroll;
+  overflow-y: auto;
 
   &::-webkit-scrollbar {
     display: none;
@@ -116,10 +114,10 @@ const MessageForm = styled.form`
 `;
 
 const ChatCell = styled.div`
-  width: 240px;
-  height: 90px;
+  min-width: 280px;
+  max-width: 340px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   padding: 10px;
 
   img {
@@ -156,7 +154,6 @@ export default Chat;
 
 Chat.propTypes = {
   user: PropTypes.object,
-  socket: PropTypes.object,
   chatList: PropTypes.array,
-  addChat: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
 };

@@ -5,10 +5,10 @@ import styled from 'styled-components';
 import Peer from 'simple-peer';
 
 import Video, { StyledVideo } from './Video';
-import ChatContainer from '../containers/ChatContainer';
+import Chat from '../components/Chat';
 import Button from './Button';
 
-function Room({ user, socket, room, joinRoom, leaveRoom, addMember, deleteMember }) {
+function Room({ user, socket, room, joinRoom, leaveRoom, addMember, deleteMember, addChat, chatList }) {
   const history = useHistory();
   const { room_id: roomId } = useParams();
   const [isChatRoomOpen, setIsChatRoomOpen] = useState(false);
@@ -60,11 +60,15 @@ function Room({ user, socket, room, joinRoom, leaveRoom, addMember, deleteMember
       deleteMember(userId);
     });
 
+    socket.on('recieve message', ({ chat }) => addChat(chat));
+
     return () => {
       if (!socket) return;
 
       socket.off('member joined');
       socket.off('member leaved');
+
+      socket.off('recieve message');
 
       streamRef.current.getVideoTracks().forEach(track => {
         track.stop();
@@ -164,7 +168,13 @@ function Room({ user, socket, room, joinRoom, leaveRoom, addMember, deleteMember
       <Button onClick={() => setIsChatRoomOpen(!isChatRoomOpen)}>
         C
       </Button>
-      {isChatRoomOpen && <ChatContainer />}
+      {isChatRoomOpen &&
+        <Chat
+          onSubmit={newChat => socket.emit('send message', { chat: newChat })}
+          chatList={chatList}
+          user={user}
+        />
+      }
       <Header>
         <h1>{room.roomName}</h1>
       </Header>
@@ -315,8 +325,10 @@ Room.propTypes = {
   user: PropTypes.object,
   socket: PropTypes.object,
   room: PropTypes.object,
+  chatList: PropTypes.array,
   joinRoom: PropTypes.func.isRequired,
   leaveRoom: PropTypes.func.isRequired,
   addMember: PropTypes.func.isRequired,
   deleteMember: PropTypes.func.isRequired,
+  addChat: PropTypes.func.isRequired,
 };

@@ -41,9 +41,7 @@ function MyPage({ onLoad, onLogout, onLoadRequestList, onSubmit, user }) {
       </MyInfo>
       <FriendList>
         {!isRequestList &&
-          <Button
-            onClick={() => openModal(<AddFriendForm user={user} />)}
-          >
+          <Button onClick={() => openModal(<AddFriendForm user={user} />)}>
             친구 추가하기
           </Button>
         }
