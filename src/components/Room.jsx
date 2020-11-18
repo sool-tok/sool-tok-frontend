@@ -50,14 +50,23 @@ function Room({ user, socket, room, joinRoom, leaveRoom, addMember, deleteMember
     socket.on('member leaved', ({ userId }) => {
       delete peersRef.current[userId];
       setPeers(peers => {
-        delete peers[userId];
-        return peers;
+        const { [userId]: targetPeer, ...restPeers } = peers;
+
+        if (targetPeer) {
+          targetPeer.destroy();
+        }
+
+        return restPeers;
       });
+
       deleteMember(userId);
     });
 
     return () => {
       if (!socket) return;
+
+      socket.off('member joined');
+      socket.off('member leaved');
 
       streamRef.current.getVideoTracks().forEach(track => {
         track.stop();
@@ -89,6 +98,7 @@ function Room({ user, socket, room, joinRoom, leaveRoom, addMember, deleteMember
         trickle: false,
         stream: streamRef.current,
       });
+
       peer.on('signal', senderSignal => {
         socket.emit('sending signal', { sender, senderSignal, receiver });
       });
@@ -110,6 +120,7 @@ function Room({ user, socket, room, joinRoom, leaveRoom, addMember, deleteMember
         trickle: false,
         stream: streamRef.current,
       });
+
       peer.signal(senderSignal);
 
       const receiver = { ...user, socketId: socket.id };
@@ -135,6 +146,7 @@ function Room({ user, socket, room, joinRoom, leaveRoom, addMember, deleteMember
 
     return () => {
       if (!isStreaming) return;
+
       socket.off('receiving signal');
       socket.off('receiving returned signal');
     };

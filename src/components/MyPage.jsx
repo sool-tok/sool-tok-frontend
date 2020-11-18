@@ -39,20 +39,19 @@ function MyPage({ onLoad, onLogout, onLoadRequestList, onSubmit, onRequest, user
         <Button onClick={() => onLogout(user)} text='로그아웃' />
       </div>
       <div>
-        {!isRequestList &&
+        {!isRequestList && (
           <Button
             text='친구 추가하기'
-            onClick={() => openModal(<AddFriendForm onSubmit={input => onRequest(user, input)}/>)}
+            onClick={() => openModal(<AddFriendForm user={user} />)}
           />
-        }
+        )}
         {isModalOpen && (
           <ModalPortal>
             <Modal setModalOpen={setModalOpen}>{modalContent}</Modal>
           </ModalPortal>
         )}
-        {
-          !isRequestList ?
-            user.friendList?.length > 0 ?
+        {!isRequestList ? (
+          user.friendList?.length > 0 ? (
               user.friendList.map(friend => (
                   <FriendCell
                     isRequest={false}
@@ -62,10 +61,10 @@ function MyPage({ onLoad, onLogout, onLoadRequestList, onSubmit, onRequest, user
                     isOnline={friend.isOnline}
                   />
               ))
-            :
+          ) : (
               <div>친구를 추가해보세요..!</div>
-          :
-            user.friendRequestList?.length > 0 ?
+          )
+        ) : user.friendRequestList?.length > 0 ? (
               user.friendRequestList.map(request => (
                   <FriendCell
                     isRequest={true}
@@ -78,9 +77,9 @@ function MyPage({ onLoad, onLogout, onLoadRequestList, onSubmit, onRequest, user
                     userId={user._id}
                   />
                 ))
-            :
+        ) : (
               <div>친구 요청 목록이 없습니다..</div>
-        }
+        )}
       </div>
       <Button
         onClick={() => setRequestList(!isRequestList)}
