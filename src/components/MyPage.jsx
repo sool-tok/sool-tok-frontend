@@ -213,7 +213,6 @@ MyPage.propTypes = {
   onLogout: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   onLoadRequestList: PropTypes.func.isRequired,
-  onRequest: PropTypes.func.isRequired,
   user: PropTypes.oneOfType([
     PropTypes.oneOf([null]),
     PropTypes.object,

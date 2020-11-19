@@ -4,16 +4,18 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Peer from 'simple-peer';
 
+import { roomSocket, chatSocket, peerSocket } from '../utils/socket';
+
 import Video, { StyledVideo } from './Video';
-import Chat from '../components/Chat';
-import Button from './Button';
 import SpeechGame from './SpeechGame';
+import Chat from './Chat';
+import Button from './Button';
 
 import { BsUnlockFill, BsLockFill, BsFillChatDotsFill } from 'react-icons/bs';
 import { FaVideo, FaVideoSlash, FaVolumeMute, FaVolumeUp } from 'react-icons/fa';
 import { IoIosExit } from 'react-icons/io';
 
-function Room({ user, socket, room, joinRoom, leaveRoom, addMember, deleteMember, updateRoomLockingStatus, addChat, chatList }) {
+function Room({ user, room, renderRoom, destroyRoom, addMember, deleteMember, updateRoomLockingStatus, addChat, chatList }) {
   const history = useHistory();
   const { room_id: roomId } = useParams();
   const [isChatRoomOpen, setIsChatRoomOpen] = useState(false);
@@ -27,15 +29,10 @@ function Room({ user, socket, room, joinRoom, leaveRoom, addMember, deleteMember
   const myVideoRef = useRef();
 
   useEffect(() => {
-    console.log('Current Peers :', peers);
-  }, [peers]);
-
-  useEffect(() => {
-    if (!socket) return;
-
-    socket.emit('join room', { roomId, user }, async ({ room, message }) => {
+    roomSocket.joinRoom({ roomId, user }, async ({ room, message }) => {
       if (!room) return setError(message);
-      joinRoom(room);
+
+      renderRoom(room);
 
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -51,47 +48,41 @@ function Room({ user, socket, room, joinRoom, leaveRoom, addMember, deleteMember
       }
     });
 
-    socket.on('member joined', ({ user }) => addMember(user));
-    socket.on('member leaved', ({ userId }) => {
-      delete peersRef.current[userId];
+    roomSocket.listenUpdateRoomLockingStatus(({ isLocked }) => updateRoomLockingStatus(isLocked));
+    roomSocket.listenMemberJoined(({ newMember }) => addMember(newMember));
+    roomSocket.listenMemberLeaved(({ socketId }) => {
+      delete peersRef.current[socketId];
       setPeers(peers => {
-        const { [userId]: targetPeer, ...restPeers } = peers;
-
-        if (targetPeer) {
-          targetPeer.destroy();
-        }
-
+        const { [socketId]: targetPeer, ...restPeers } = peers;
+        if (targetPeer) targetPeer.destroy();
         return restPeers;
       });
 
-      deleteMember(userId);
+      deleteMember(socketId);
     });
 
-    socket.on('recieve message', ({ chat }) => addChat(chat));
+    chatSocket.listenMessage(({ chat }) => addChat(chat));
 
-    socket.on('receive room locking status', ({ isLocked }) => updateRoomLockingStatus(isLocked));
 
     return () => {
-      if (!socket) return;
+      roomSocket.cleanUpRoomListener();
+      chatSocket.cleanUpMessageListener();
 
-      socket.off('member joined');
-      socket.off('member leaved');
+      roomSocket.leaveRoom({ roomId });
 
-      socket.off('recieve message');
+      destroyRoom();
+
+      if (!streamRef.current) return;
 
       streamRef.current.getVideoTracks().forEach(track => {
         track.stop();
         streamRef.current.removeTrack(track);
       });
-
-      socket.emit('leave room', { roomId, userId: user.id });
-      leaveRoom();
     };
-  }, [socket]);
+  }, []);
 
   useEffect(() => {
-    if (room && user.id === room.memberList?.[0].id) {
-      console.log(room);
+    if (room && user._id === room.memberList?.[0]._id) {
       setIsHost(true);
     }
   }, [room]);
@@ -100,10 +91,7 @@ function Room({ user, socket, room, joinRoom, leaveRoom, addMember, deleteMember
     if (!isStreaming) return;
 
     for (const member of room.memberList) {
-      const sender = { ...user, socketId: socket.id };
-      const receiver = member;
-
-      if (sender.id === receiver.id) continue;
+      if (user._id === member._id) continue;
 
       const peer = new Peer({
         initiator: true,
@@ -111,62 +99,43 @@ function Room({ user, socket, room, joinRoom, leaveRoom, addMember, deleteMember
         stream: streamRef.current,
       });
 
-      peer.on('signal', senderSignal => {
-        socket.emit('sending signal', { sender, senderSignal, receiver });
+      peer.on('signal', signal => {
+        peerSocket.sendingSignal({ signal, receiver: member });
       });
 
-      peersRef.current[receiver.id] = peer;
-      setPeers(prev => ({ ...prev, [receiver.id]: peer }));
+      peersRef.current[member.socketId] = peer;
+      setPeers(prev => ({ ...prev, [member.socketId]: peer }));
     }
 
-    /* ----SERVER-----
-      socket.on('sending signal', ({ sender, senderSignal, receiver }) => {
-        const { socketId } = receiver;
-        io.to(socketId).emit('receiving signal', { sender, senderSignal });
-      });
-    ----SERVER----- */
-
-    socket.on('receiving signal', ({ sender, senderSignal }) => {
+    peerSocket.listenSendingSignal(({ initiator, signal }) => {
       const peer = new Peer({
         initiator: false,
         trickle: false,
         stream: streamRef.current,
       });
+      peer.signal(signal);
 
-      peer.signal(senderSignal);
-
-      const receiver = { ...user, socketId: socket.id };
-      peer.on('signal', receiverSignal => {
-        socket.emit('returning signal', { receiver, receiverSignal, sender });
+      peer.on('signal', signal => {
+        peerSocket.returnSignal({ signal, receiver: initiator });
       });
 
-      peersRef.current[sender.id] = peer;
-      setPeers(prev => ({ ...prev, [sender.id]: peer }));
+      peersRef.current[initiator.socketId] = peer;
+      setPeers(prev => ({ ...prev, [initiator.socketId]: peer }));
     });
 
-    /* ----SERVER-----
-      socket.on('returning signal', ({ receiver, receiverSignal, sender }) => {
-        const { socketId } = sender;
-        io.to(socketId).emit('receiving returned signal', { receiver, receiverSignal });
-      });
-    ----SERVER----- */
-
-    socket.on('receiving returned signal', ({ receiver, receiverSignal }) => {
-      const peer = peersRef.current[receiver.id];
-      peer.signal(receiverSignal);
+    peerSocket.listenReturningSignal(({ returner, signal }) => {
+      const peer = peersRef.current[returner.socketId];
+      peer.signal(signal);
     });
 
     return () => {
-      if (!isStreaming) return;
-
-      socket.off('receiving signal');
-      socket.off('receiving returned signal');
+      peerSocket.cleanUpPeerListener();
     };
   }, [isStreaming]);
 
 
   const handleLockingRoom = () => {
-    socket.emit('send room locking status', { roomId: room.id, isLocked: !room.isLocked });
+    roomSocket.updateRoomLockingStatus({ roomId: room._id, isLocked: !room.isLocked });
   };
 
   const handleAudioTrack = () => {
@@ -205,38 +174,33 @@ function Room({ user, socket, room, joinRoom, leaveRoom, addMember, deleteMember
       </Button>
       {isChatRoomOpen &&
         <Chat
-          onSubmit={newChat => {
-            console.log('Room -> newChat', newChat);
-            socket.emit('send message', { chat: newChat });
-          }}
+          onSubmit={newChat => chatSocket.sendMessage({ newChat })}
           chatList={chatList}
           user={user}
         />
       }
       <Header>
-        <h1>{room.roomName}</h1>
+        <h1>{room.title}</h1>
         <span>{room.isLocked ? <BsLockFill /> : <BsUnlockFill />}</span>
       </Header>
       <Wrapper>
-        <GameBox><div><SpeechGame /></div></GameBox>
+        <GameBox>
+          <SpeechGame />
+        </GameBox>
         <MemberList>
           {room.memberList.map(member => (
-            <MemberBlock key={member.id}>
-              {member.id === user.id ?
-                  <StyledVideo
-                    thumbnail={member.photoUrl}
-                    ref={myVideoRef}
-                    autoPlay
-                    playsInline
-                    muted
-                  />
-                :
-                  <Video
-                    key={member.id}
-                    thumbnail={member.photoUrl}
-                    peer={peers[member.id]}
-                  />
-              }
+            <MemberBlock key={member.socketId}>
+              {member._id === user._id ? (
+                <StyledVideo
+                  thumbnail={member.photoUrl}
+                  ref={myVideoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                />
+              ) : (
+                <Video thumbnail={member.photoUrl} peer={peers[member.socketId]} />
+              )}
               <h3>{member.name}</h3>
             </MemberBlock>
           ))}
@@ -318,8 +282,8 @@ const GameBox = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #A9C9FF;
-    background-image: linear-gradient(180deg, #A9C9FF 0%, #FFBBEC 100%);
+    background-color: #a9c9ff;
+    background-image: linear-gradient(180deg, #a9c9ff 0%, #ffbbec 100%);
   }
 `;
 
@@ -380,11 +344,10 @@ export default Room;
 
 Room.propTypes = {
   user: PropTypes.object,
-  socket: PropTypes.object,
   room: PropTypes.object,
   chatList: PropTypes.array,
-  joinRoom: PropTypes.func.isRequired,
-  leaveRoom: PropTypes.func.isRequired,
+  renderRoom: PropTypes.func.isRequired,
+  destroyRoom: PropTypes.func.isRequired,
   addMember: PropTypes.func.isRequired,
   deleteMember: PropTypes.func.isRequired,
   addChat: PropTypes.func.isRequired,

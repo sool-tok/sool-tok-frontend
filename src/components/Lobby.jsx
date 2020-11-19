@@ -1,62 +1,53 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import PropTypes from 'prop-types';
+import styled from 'styled-components';
 
-import Button from './Button';
+import { roomSocket } from '../utils/socket';
+
+import Table from './Table';
 import ModalPortal from './ModalPortal';
 import Modal from './Modal';
 import CreateRoomForm from './CreateRoomForm';
 import JoinRoomForm from './JoinRoomForm';
-import styled from 'styled-components';
-import Table from './Table';
+import Button from './Button';
 
-function Lobby({ socket }) {
+function Lobby() {
+  const history = useHistory();
   const [tables, setTables] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [modalContent, setmodalContent] = useState(null);
-  const history = useHistory();
 
   useEffect(() => {
-    if (!socket) return;
+    roomSocket.updateRoomList();
+    roomSocket.listenUpdateRoomList(({ rooms }) => setTables(rooms));
 
-    socket.emit('update room list');
-    socket.on('update room list', ({ rooms }) => setTables(rooms));
-  }, [socket]);
+    return () => {
+      roomSocket.cleanUpLobbyListener();
+    };
+  }, []);
 
-  const createRoom = roomData => {
-    socket.emit('create room', { roomData }, ({ room }) => {
-      history.push(`/rooms/${room.id}`);
-    });
-  };
+  const moveToRoom = roomId => history.push(`rooms/${roomId}`);
+  const createRoom = roomData =>
+    roomSocket.createRoom({ roomData }, ({ roomId }) => moveToRoom(roomId));
 
-  const openModal = element => {
-    setmodalContent(element);
+  const openModal = modalContent => {
+    setmodalContent(modalContent);
     setModalOpen(true);
   };
 
   return (
     <Container>
       <Tables>
-        {tables &&
-          tables.map(table => (
-            <Table
-              key={table.id}
-              roomPath={table.id}
-              roomName={table.roomName}
-              memberList={table.memberList}
-            />
-          ))}
+        {tables.map(table => (
+          <Table key={table._id} tableInfo={table} />
+        ))}
       </Tables>
       <h1>LOBBY</h1>
       <Wrapper>
-        <Button
-          onClick={() => openModal(<CreateRoomForm onSubmit={createRoom} />)}
-        >
+        <Button onClick={() => openModal(<CreateRoomForm onSubmit={createRoom} />)}>
           + 테이블 잡기
         </Button>
-        <Button
-          onClick={() => openModal(<JoinRoomForm onSubmit={roomId => history.push(`rooms/${roomId}`)} />)}
-        >
+        <Button onClick={() => openModal(<JoinRoomForm onSubmit={moveToRoom} />)}>
           URL로 참여하기
         </Button>
       </Wrapper>
@@ -108,7 +99,3 @@ const Tables = styled.div`
 `;
 
 export default Lobby;
-
-Lobby.propTypes = {
-  socket: PropTypes.object,
-};

@@ -37,16 +37,6 @@ const mapDispatchToProps = dispatch => ({
       console.error(err);
     }
   },
-  async onRequest(user, targetEmail) {
-    try {
-      const token = localStorage.getItem('jwt-token');
-      const { message } = await userService.requestFriend(user._id, token, targetEmail);
-
-      return message;
-    } catch (err) {
-      console.error(err);
-    }
-  },
   async onSubmit(userId, isAccepted, targetUserId) {
     try {
       const token = localStorage.getItem('jwt-token');

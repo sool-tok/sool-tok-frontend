@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 
-function SpeechGame() {
+import _ from 'lodash';
+
+function SpeechGame({ user, socket }) {
   const [isDisabled, setDisabled] = useState(false);
   const [buttonText, setButtonText] = useState('');
   const [result, setResult] = useState('');
@@ -30,13 +33,11 @@ function SpeechGame() {
   };
 
   const testSpeech = () => {
-    setButtonText('게임이 진행 중 입니다.');
-
     const phrase = phrases[randomPhrase()];
 
+    setDisabled(true);
     setPhrase(`${phrase}`);
     setResult('두구두구두구두구두구두구');
-    setRecognitionState('...인식 중');
 
     const grammar = `#JSGF V1.0; grammar phrase; public <phrase> = ${phrase};`;
     const recognition = new SpeechRecognition();
@@ -49,26 +50,43 @@ function SpeechGame() {
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;
 
-    recognition.start();
+    const startGame = () => recognition.start();
+
+    startGame();
+
+    recognition.onaudiostart = () => {
+      setRecognitionState('...인식중');
+    };
+
+    recognition.onspeechstart = () => {
+      console.log(' speech capturing ');
+    };
+
+    const debounceFunc = _.debounce(result => {
+      if(result.split(' ').join('') === phrase.split(' ').join('')) {
+        setResult('👍');
+        setButtonText('다음 문제');
+        setDisabled(false);
+      } else {
+        setResult('다시 한번 말 해 주세요...');
+        recognition.start();
+      }
+    }, 2000);
 
     recognition.onresult = ev => {
       const speechResult = ev.results[0][0].transcript;
 
       setRecognitionState(`${speechResult}`);
 
-      speechResult.split(' ').join('') === phrase.split(' ').join('')
-        ? setResult('👍')
-        : setResult('❌');
+      debounceFunc(speechResult);
     };
 
     recognition.onspeechend = () => {
       recognition.stop();
-      setDisabled(false);
-      setButtonText('다음');
     };
 
     recognition.onerror = ev => {
-      setDisabled(false);
+      setDisabled(true);
       setButtonText('error');
       setRecognitionState(`${ev.error}`);
     };
@@ -76,14 +94,24 @@ function SpeechGame() {
 
   return (
     <div>
-      {!isDisabled && <button onClick={testSpeech}>{buttonText || 'start Game'}</button>}
-      <div>
-        <p className='phrase'>{isPhrase}</p>
-        <h3 className='result'>{result}</h3>
-        <h1 className='output'>{recognitionState}</h1>
+      <div style={{ display:'flex', flexDirection:'column' }}>
+      {isDisabled
+        ? <button disabled>게임 중 입니다.</button>
+        : <button onClick={testSpeech}>{buttonText || 'Start!!!!!'}</button>
+      }
+        <h1 style={{ color:'#292929'}} className='phrase'>{isPhrase}</h1>
+        <div className='output'>
+          <h3>{recognitionState}</h3>
+        </div>
+        <h3 style={{ fontSize:'30px'}}className='result'>{result}</h3>
       </div>
     </div>
   );
 }
 
 export default SpeechGame;
+
+SpeechGame.propTypes = {
+  user: PropTypes.object,
+  socket: PropTypes.object,
+};

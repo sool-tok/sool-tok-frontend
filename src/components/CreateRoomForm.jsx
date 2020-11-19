@@ -3,14 +3,14 @@ import PropTypes from 'prop-types';
 
 function CreateRoomForm({ onSubmit }) {
   const [inputs, setInputs] = useState({
-    roomName: '',
+    title: '',
     maxNum: '2',
   });
 
   const submitRoomData = ev => {
     ev.preventDefault();
-    const { roomName, maxNum } = inputs;
-    onSubmit({ roomName, maxNum: Number(maxNum) });
+    const { title, maxNum } = inputs;
+    onSubmit({ title, maxNum: Number(maxNum) });
   };
 
   const handleInputChange = ev => {
@@ -21,12 +21,13 @@ function CreateRoomForm({ onSubmit }) {
   return (
     <div>
       <h2>어서 자리 잡자!</h2>
-      <h3>좌석의 최대 인원은 6명입니다.</h3>
+      <h3>좌석의 최대 인원은 4명입니다.</h3>
       <form onSubmit={submitRoomData}>
         <input
           type='text'
-          name='roomName'
-          value={inputs.roomName}
+          name='title'
+          maxLength='12'
+          value={inputs.title}
           onChange={handleInputChange}
           required
         />
@@ -34,8 +35,7 @@ function CreateRoomForm({ onSubmit }) {
           type='number'
           name='maxNum'
           min='2'
-          max='6'
-          placeholder='2'
+          max='4'
           value={inputs.maxNum}
           onChange={handleInputChange}
           required
