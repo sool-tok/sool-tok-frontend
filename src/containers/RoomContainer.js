@@ -6,19 +6,18 @@ import * as chatAction from '../actions/chatAction';
 
 const mapStateToProps = state => ({
   user: state.user && {
-    id: state.user._id,
+    _id: state.user._id,
     name: state.user.name,
     photoUrl: state.user.photoUrl,
   },
-  socket: state.socket,
   room: state.room,
   chatList: state.chatList,
 });
 
 const mapDispatchToProps = dispatch => {
   return {
-    joinRoom(room) {
-      dispatch(roomAction.joinRoom(room));
+    renderRoom(room) {
+      dispatch(roomAction.renderRoom(room));
     },
     addMember(member) {
       dispatch(roomAction.addMember(member));
@@ -26,8 +25,8 @@ const mapDispatchToProps = dispatch => {
     deleteMember(memberId) {
       dispatch(roomAction.deleteMember(memberId));
     },
-    leaveRoom() {
-      dispatch(roomAction.leaveRoom());
+    deleteRoom() {
+      dispatch(roomAction.deleteRoom());
     },
     addChat(chat) {
       dispatch(chatAction.addChat(chat));

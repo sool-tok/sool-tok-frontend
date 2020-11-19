@@ -3,16 +3,17 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 
-function Table({ roomPath, roomName, memberList }) {
+function Table({ tableInfo }) {
+  const { _id, title, memberList } = tableInfo;
   return (
-    <Link to={`/rooms/${roomPath}`}>
+    <Link to={`/rooms/${_id}`}>
       <Wrapper>
         <div />
         <div />
         <div className='member'>{memberList[0]?.name}</div>
         <div />
         <div />
-        <div className='table'>{roomName.slice(0, 10)}</div>
+        <div className='table'>{title}</div>
         <div />
         <div />
         <div className='member'>{memberList[1]?.name}</div>
@@ -91,7 +92,5 @@ const Wrapper = styled.div`
 export default Table;
 
 Table.propTypes = {
-  roomPath: PropTypes.string,
-  roomName: PropTypes.string,
-  memberList: PropTypes.array,
+  tableInfo: PropTypes.object,
 };

@@ -5,16 +5,17 @@ import { ThemeProvider } from 'styled-components';
 import { Reset } from 'styled-reset';
 
 import MyPageContainer from '../containers/MyPageContainer';
-import LobbyContainer from '../containers/LobbyContainer';
 import RoomContainer from '../containers/RoomContainer';
-import FloatingButton from './FloatingButton';
+
+import Lobby from './Lobby';
 import Login from './Login';
+import FloatingButton from './FloatingButton';
 
 import theme from './styles/theme';
 import GlobalStyle from './styles/globalStyle';
 import { BiFace } from 'react-icons/bi';
 
-function App({ socket, user, onLogin, onLoad }) {
+function App({ user, onLogin, onLoad }) {
   const [isMyPageOpen, setMyPageOpen] = useState(false);
 
   useEffect(() => {
@@ -30,16 +31,14 @@ function App({ socket, user, onLogin, onLoad }) {
       <Reset />
       <GlobalStyle />
       {user && isMyPageOpen && <MyPageContainer />}
-      {user &&
-        <FloatingButton
-          onClick={() => setMyPageOpen(!isMyPageOpen)}
-        >
+      {user && (
+        <FloatingButton onClick={() => setMyPageOpen(!isMyPageOpen)}>
           <BiFace />
         </FloatingButton>
-      }
+      )}
       <Switch>
         <Route exact path='/'>
-          {user ? <LobbyContainer /> : <Login onLogin={onLogin} />}
+          {user ? <Lobby /> : <Login onLogin={onLogin} />}
         </Route>
         <Route path='/rooms/:room_id'>
           {user ? <RoomContainer /> : <div>로그인해주세요..</div>}
@@ -53,14 +52,7 @@ function App({ socket, user, onLogin, onLoad }) {
 export default App;
 
 App.propTypes = {
-  socket: PropTypes.oneOfType([
-    PropTypes.oneOf([null]),
-    PropTypes.object,
-  ]),
-  user: PropTypes.oneOfType([
-    PropTypes.oneOf([null]),
-    PropTypes.object,
-  ]),
+  user: PropTypes.oneOfType([PropTypes.oneOf([null]), PropTypes.object]),
   onLogin: PropTypes.func.isRequired,
   onLoad: PropTypes.func.isRequired,
 };

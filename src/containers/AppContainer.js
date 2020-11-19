@@ -1,18 +1,15 @@
 import { connect } from 'react-redux';
-import io from 'socket.io-client';
+
+import { loginUser } from '../actions/actionCreator';
+import { userService } from '../utils/api';
 
 import App from '../components/App';
-import { userService } from '../utils/api';
-import { loginUser } from '../actions/actionCreator';
-import * as socketAction from '../actions/socketAction';
 
-const mapStateToProps = state => ({ user: state.user, socket: state.socket });
+const mapStateToProps = state => ({ user: state.user });
 
 const mapDispatchToProps = dispatch => ({
   async onLoad() {
     const token = localStorage.getItem('jwt-token');
-    const socket = io();
-    dispatch(socketAction.openSocket(socket));
 
     if (token) {
       const { user } = await userService.tokenLogin(token);
