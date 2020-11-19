@@ -5,6 +5,10 @@ export const renderRoom = room => ({
   payload: { room },
 });
 
+export const destroyRoom = () => ({
+  type: types.DESTROY_ROOM,
+});
+
 export const addMember = newMember => ({
   type: types.ADD_MEMBER,
   payload: { newMember },
@@ -15,6 +19,7 @@ export const deleteMember = socketId => ({
   payload: { socketId },
 });
 
-export const deleteRoom = () => ({
-  type: types.DELETE_ROOM,
+export const updateRoomLockingStatus = isLocked => ({
+  type: types.UPDATE_ROOM_LOCKING_STATUS,
+  payload: { isLocked },
 });

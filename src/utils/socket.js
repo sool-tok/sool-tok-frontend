@@ -15,6 +15,9 @@ const roomSocket = {
   leaveRoom({ roomId }) {
     socket.emit('leave room', { roomId });
   },
+  updateRoomLockingStatus({ roomId, isLocked }) {
+    socket.emit('update room locking status', { roomId, isLocked });
+  },
   listenUpdateRoomList(cb) {
     socket.on('update room list', cb);
   },
@@ -24,12 +27,16 @@ const roomSocket = {
   listenMemberLeaved(cb) {
     socket.on('member leaved', cb);
   },
+  listenUpdateRoomLockingStatus(cb) {
+    socket.on('update room locking status', cb);
+  },
   cleanUpLobbyListener() {
     socket.off('update room list');
   },
   cleanUpRoomListener() {
     socket.off('member joined');
     socket.off('member leaved');
+    socket.off('update room locking status');
   },
 };
 

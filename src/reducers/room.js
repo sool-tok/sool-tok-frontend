@@ -1,8 +1,9 @@
 import {
   RENDER_ROOM,
-  DELETE_ROOM,
+  DESTROY_ROOM,
   ADD_MEMBER,
   DELETE_MEMBER,
+  UPDATE_ROOM_LOCKING_STATUS,
 } from '../constants/actionTypes';
 
 const roomReducer = (state = null, action) => {
@@ -21,8 +22,13 @@ const roomReducer = (state = null, action) => {
           member => member.socketId !== action.payload.socketId,
         ),
       };
-    case DELETE_ROOM:
+    case DESTROY_ROOM:
       return null;
+    case UPDATE_ROOM_LOCKING_STATUS:
+      return {
+        ...state,
+        isLocked: action.payload.isLocked,
+      };
     default:
       return state;
   }

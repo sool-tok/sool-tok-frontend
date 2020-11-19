@@ -14,24 +14,25 @@ const mapStateToProps = state => ({
   chatList: state.chatList,
 });
 
-const mapDispatchToProps = dispatch => {
-  return {
-    renderRoom(room) {
-      dispatch(roomAction.renderRoom(room));
-    },
-    addMember(member) {
-      dispatch(roomAction.addMember(member));
-    },
-    deleteMember(memberId) {
-      dispatch(roomAction.deleteMember(memberId));
-    },
-    deleteRoom() {
-      dispatch(roomAction.deleteRoom());
-    },
-    addChat(chat) {
-      dispatch(chatAction.addChat(chat));
-    },
-  };
-};
+const mapDispatchToProps = dispatch => ({
+  renderRoom(room) {
+    dispatch(roomAction.renderRoom(room));
+  },
+  destroyRoom() {
+    dispatch(roomAction.destroyRoom());
+  },
+  addMember(member) {
+    dispatch(roomAction.addMember(member));
+  },
+  deleteMember(memberId) {
+    dispatch(roomAction.deleteMember(memberId));
+  },
+  updateRoomLockingStatus(isLocked) {
+    dispatch(roomAction.updateRoomLockingStatus(isLocked));
+  },
+  addChat(chat) {
+    dispatch(chatAction.addChat(chat));
+  },
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Room);

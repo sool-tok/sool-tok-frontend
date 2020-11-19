@@ -11,21 +11,17 @@ import SpeechGame from './SpeechGame';
 import Chat from './Chat';
 import Button from './Button';
 
-function Room({
-  user,
-  room,
-  renderRoom,
-  deleteRoom,
-  addMember,
-  deleteMember,
-  addChat,
-  chatList,
-}) {
+import { BsUnlockFill, BsLockFill, BsFillChatDotsFill } from 'react-icons/bs';
+import { FaVideo, FaVideoSlash, FaVolumeMute, FaVolumeUp } from 'react-icons/fa';
+import { IoIosExit } from 'react-icons/io';
+
+function Room({ user, room, renderRoom, destroyRoom, addMember, deleteMember, updateRoomLockingStatus, addChat, chatList }) {
   const history = useHistory();
   const { room_id: roomId } = useParams();
   const [isChatRoomOpen, setIsChatRoomOpen] = useState(false);
   const [isHost, setIsHost] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [streamOptions, setStreamOptions] = useState({});
   const [error, setError] = useState('');
   const [peers, setPeers] = useState({});
   const peersRef = useRef({});
@@ -46,11 +42,13 @@ function Room({
         myVideoRef.current.srcObject = stream;
         streamRef.current = stream;
         setIsStreaming(true);
+        setStreamOptions({ audio: true, video: true });
       } catch (error) {
         setError(error.message);
       }
     });
 
+    roomSocket.listenUpdateRoomLockingStatus(({ isLocked }) => updateRoomLockingStatus(isLocked));
     roomSocket.listenMemberJoined(({ newMember }) => addMember(newMember));
     roomSocket.listenMemberLeaved(({ socketId }) => {
       delete peersRef.current[socketId];
@@ -65,13 +63,14 @@ function Room({
 
     chatSocket.listenMessage(({ chat }) => addChat(chat));
 
+
     return () => {
       roomSocket.cleanUpRoomListener();
       chatSocket.cleanUpMessageListener();
 
       roomSocket.leaveRoom({ roomId });
 
-      deleteRoom();
+      destroyRoom();
 
       if (!streamRef.current) return;
 
@@ -134,6 +133,31 @@ function Room({
     };
   }, [isStreaming]);
 
+
+  const handleLockingRoom = () => {
+    roomSocket.updateRoomLockingStatus({ roomId: room._id, isLocked: !room.isLocked });
+  };
+
+  const handleAudioTrack = () => {
+    if (streamOptions.audio) {
+      streamRef.current.getAudioTracks().forEach(track => track.enabled = false);
+      setStreamOptions(prev => ({ ...prev, audio: false }));
+    } else {
+      streamRef.current.getAudioTracks().forEach(track => track.enabled = true);
+      setStreamOptions(prev => ({ ...prev, audio: true }));
+    }
+  };
+
+  const handleVideoTrack = () => {
+    if (streamOptions.video) {
+      streamRef.current.getVideoTracks().forEach(track => track.enabled = false);
+      setStreamOptions(prev => ({ ...prev, video: false }));
+    } else {
+      streamRef.current.getVideoTracks().forEach(track => track.enabled = true);
+      setStreamOptions(prev => ({ ...prev, video: true }));
+    }
+  };
+
   if (!room || error) {
     return (
       <div>
@@ -145,16 +169,19 @@ function Room({
 
   return (
     <Container>
-      <Button onClick={() => setIsChatRoomOpen(!isChatRoomOpen)}>C</Button>
-      {isChatRoomOpen && (
+      <Button onClick={() => setIsChatRoomOpen(!isChatRoomOpen)}>
+        <BsFillChatDotsFill size={28} />
+      </Button>
+      {isChatRoomOpen &&
         <Chat
           onSubmit={newChat => chatSocket.sendMessage({ newChat })}
           chatList={chatList}
           user={user}
         />
-      )}
+      }
       <Header>
         <h1>{room.title}</h1>
+        <span>{room.isLocked ? <BsLockFill /> : <BsUnlockFill />}</span>
       </Header>
       <Wrapper>
         <GameBox>
@@ -181,10 +208,19 @@ function Room({
       </Wrapper>
       <UtilityBox>
         <div>
-          {isHost && <Button onClick={() => {}}>방 잠금</Button>}
-          <Button onClick={() => {}}>음소거</Button>
-          <Button onClick={() => {}}>비디오 켜기</Button>
-          <Button onClick={() => history.push('/')}>방 나가기</Button>
+          {
+            isHost &&
+            <Button color={room.isLocked ? '#eb3b5a' : '#d1d8e0'} onClick={handleLockingRoom}>
+              {room.isLocked ? <BsLockFill color='#eee' size={24} /> : <BsUnlockFill size={24} />}
+            </Button>
+          }
+          <Button color={streamOptions.audio ? '#20bf6b' : '#d1d8e0'} onClick={handleAudioTrack}>
+            {streamOptions.audio ? <FaVolumeUp size={24} /> : <FaVolumeMute size={24}/>}
+          </Button>
+          <Button color={streamOptions.video ? '#20bf6b' : '#d1d8e0'} onClick={handleVideoTrack}>
+            {streamOptions.video ? <FaVideo size={24} /> : <FaVideoSlash size={24} />}
+          </Button>
+          <IoIosExit onClick={() => history.push('/')} size={42} cursor='pointer' color='#eb3b5a' />
         </div>
       </UtilityBox>
     </Container>
@@ -195,12 +231,6 @@ const Container = styled.div`
   background-color: #49007d;
   width: 100vw;
   height: 100vh;
-
-  h1 {
-    padding: 24px;
-    font-size: 24px;
-    color: #ffd32a;
-  }
 
   & > button {
     z-index: 999;
@@ -220,9 +250,22 @@ const Wrapper = styled.div`
 `;
 
 const Header = styled.header`
-  width: 100vw;
+  width: inherit;
   height: 8%;
   background-color: #330057;
+  display: flex;
+  align-items: center;
+
+  h1 {
+    font-size: 24px;
+    color: #ffd32a;
+    margin: 0 16px 0 24px;
+  }
+
+  span {
+    font-size: 21px;
+    color: #eb3b5a;
+  }
 `;
 
 const GameBox = styled.div`
@@ -257,14 +300,16 @@ const UtilityBox = styled.div`
   align-items: center;
 
   div {
+    display: flex;
+    align-items: center;
     background-color: #330057;
-    padding: 10px 16px;
+    padding: 10px 24px;
     border-radius: 20px;
     margin-bottom: 24px;
   }
 
   button:not(:last-child) {
-    margin-right: 10px;
+    margin-right: 16px;
   }
 `;
 
@@ -302,8 +347,9 @@ Room.propTypes = {
   room: PropTypes.object,
   chatList: PropTypes.array,
   renderRoom: PropTypes.func.isRequired,
-  deleteRoom: PropTypes.func.isRequired,
+  destroyRoom: PropTypes.func.isRequired,
   addMember: PropTypes.func.isRequired,
   deleteMember: PropTypes.func.isRequired,
   addChat: PropTypes.func.isRequired,
+  updateRoomLockingStatus: PropTypes.func.isRequired,
 };

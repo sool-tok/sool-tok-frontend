@@ -26,9 +26,9 @@ function Lobby() {
     };
   }, []);
 
-  const moveToRoomPath = roomId => history.push(`rooms/${roomId}`);
+  const moveToRoom = roomId => history.push(`rooms/${roomId}`);
   const createRoom = roomData =>
-    roomSocket.createRoom({ roomData }, ({ roomId }) => moveToRoomPath(roomId));
+    roomSocket.createRoom({ roomData }, ({ roomId }) => moveToRoom(roomId));
 
   const openModal = modalContent => {
     setmodalContent(modalContent);
@@ -47,7 +47,7 @@ function Lobby() {
         <Button onClick={() => openModal(<CreateRoomForm onSubmit={createRoom} />)}>
           + 테이블 잡기
         </Button>
-        <Button onClick={() => openModal(<JoinRoomForm onSubmit={moveToRoomPath} />)}>
+        <Button onClick={() => openModal(<JoinRoomForm onSubmit={moveToRoom} />)}>
           URL로 참여하기
         </Button>
       </Wrapper>
