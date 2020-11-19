@@ -18,3 +18,8 @@ export const deleteMember = memberId => ({
 export const leaveRoom = () => ({
   type: types.LEAVE_ROOM,
 });
+
+export const updateRoomLockingStatus = isLocked => ({
+  type: types.UPDATE_ROOM_LOCKING_STATUS,
+  payload: { isLocked },
+});
