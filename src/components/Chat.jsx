@@ -28,7 +28,7 @@ function Chat({ user, chatList, onSubmit }) {
       photoUrl: user.photoUrl,
       content: input,
       date: time,
-      id: user._id,
+      id: user.id,
     };
 
     onSubmit(newChat);
@@ -36,7 +36,7 @@ function Chat({ user, chatList, onSubmit }) {
   };
 
   const checkMyMessage = id => {
-    return id === user._id ? 'my-message' : 'friend-message';
+    return id === user.id ? 'my-message' : 'friend-message';
   };
 
   return (
@@ -57,6 +57,7 @@ function Chat({ user, chatList, onSubmit }) {
       </MessageList>
       <MessageForm onSubmit={handleMessageSubmit}>
         <input
+          autoComplete='off'
           onChange={handleInputChange}
           type='text'
           name='message'
@@ -69,6 +70,7 @@ function Chat({ user, chatList, onSubmit }) {
 }
 
 const Wrapper = styled.div`
+  z-index: 998;
   background-color: #330057;
   width: 400px;
   height: 400px;
@@ -81,7 +83,8 @@ const Wrapper = styled.div`
 
 const MessageList = styled.div`
   width: 100%;
-  height: 340px;
+  height: 320px;
+  padding-top: 20px;
   overflow-y: auto;
 
   &::-webkit-scrollbar {
