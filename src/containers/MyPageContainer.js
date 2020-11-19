@@ -4,7 +4,11 @@ import MyPage from '../components/MyPage';
 import { userService } from '../utils/api';
 import { addFriendList, addFriendRequestList, logoutUser } from '../actions/actionCreator';
 
-const mapStateToProps = state => ({ user: state.user });
+const mapStateToProps = state => ({
+  user: state.user,
+  friendList: state.user?.friendList,
+  friendRequestList: state.user?.friendRequestList,
+});
 
 const mapDispatchToProps = dispatch => ({
   async onLoad(user) {
