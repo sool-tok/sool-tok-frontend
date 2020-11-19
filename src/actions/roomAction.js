@@ -1,22 +1,22 @@
 import * as types from '../constants/actionTypes';
 
-export const joinRoom = room => ({
-  type: types.JOIN_ROOM,
+export const renderRoom = room => ({
+  type: types.RENDER_ROOM,
   payload: { room },
 });
 
-export const addMember = member => ({
+export const destroyRoom = () => ({
+  type: types.DESTROY_ROOM,
+});
+
+export const addMember = newMember => ({
   type: types.ADD_MEMBER,
-  payload: { member },
+  payload: { newMember },
 });
 
-export const deleteMember = memberId => ({
+export const deleteMember = socketId => ({
   type: types.DELETE_MEMBER,
-  payload: { memberId },
-});
-
-export const leaveRoom = () => ({
-  type: types.LEAVE_ROOM,
+  payload: { socketId },
 });
 
 export const updateRoomLockingStatus = isLocked => ({

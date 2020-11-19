@@ -28,7 +28,7 @@ function Chat({ user, chatList, onSubmit }) {
       photoUrl: user.photoUrl,
       content: input,
       date: time,
-      id: user.id,
+      userId: user._id,
     };
 
     onSubmit(newChat);
@@ -36,7 +36,7 @@ function Chat({ user, chatList, onSubmit }) {
   };
 
   const checkMyMessage = id => {
-    return id === user.id ? 'my-message' : 'friend-message';
+    return id === user._id ? 'my-message' : 'friend-message';
   };
 
   return (
@@ -44,7 +44,7 @@ function Chat({ user, chatList, onSubmit }) {
       <MessageList ref={messageRef}>
         {chatList &&
           chatList.map((chat, i) => (
-            <ChatCell key={i} className={checkMyMessage(chat.id)}>
+            <ChatCell key={i} className={checkMyMessage(chat.userId)}>
               <Profile>
                 <img src={chat.photoUrl} />
                 <div>{chat.author}</div>

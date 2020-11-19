@@ -10,11 +10,15 @@ function AddFriendForm({ user }) {
   const submitRoomData = async ev => {
     ev.preventDefault();
 
-    const token = localStorage.getItem('jwt-token');
-    const { message } = await userService.requestFriend(user._id, token, input);
+    try {
+      const token = localStorage.getItem('jwt-token');
+      const { message } = await userService.requestFriend(user._id, token, input);
 
-    setRequestResult(message);
-    setInput('');
+      setRequestResult(message);
+      setInput('');
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleInputChange = ev => {
