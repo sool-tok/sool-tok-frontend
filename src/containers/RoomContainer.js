@@ -29,6 +29,9 @@ const mapDispatchToProps = dispatch => {
     leaveRoom() {
       dispatch(roomAction.leaveRoom());
     },
+    updateRoomLockingStatus(isLocked) {
+      dispatch(roomAction.updateRoomLockingStatus(isLocked));
+    },
     addChat(chat) {
       dispatch(chatAction.addChat(chat));
     },

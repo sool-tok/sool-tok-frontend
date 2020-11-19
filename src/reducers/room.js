@@ -3,6 +3,7 @@ import {
   LEAVE_ROOM,
   ADD_MEMBER,
   DELETE_MEMBER,
+  UPDATE_ROOM_LOCKING_STATUS,
 } from '../constants/actionTypes';
 
 const roomReducer = (state = null, action) => {
@@ -23,6 +24,11 @@ const roomReducer = (state = null, action) => {
       };
     case LEAVE_ROOM:
       return null;
+    case UPDATE_ROOM_LOCKING_STATUS:
+      return {
+        ...state,
+        isLocked: action.payload.isLocked,
+      };
     default:
       return state;
   }
