@@ -23,6 +23,7 @@ export const StyledVideo = styled.video`
   border-radius: 160px;
   width: 320px;
   height: 320px;
+  transform: scaleX(-1);
 `;
 
 export default Video;
