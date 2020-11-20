@@ -1,5 +1,5 @@
-const ChatActionTypes = {
+const chatActionTypes = {
   ADD_CHAT: 'ADD_CHAT',
 };
 
-export default ChatActionTypes;
+export default chatActionTypes;

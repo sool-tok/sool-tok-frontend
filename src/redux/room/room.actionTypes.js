@@ -1,4 +1,4 @@
-const RoomActionTypes = {
+const roomActionTypes = {
   RENDER_ROOM: 'RENDER_ROOM',
   DESTROY_ROOM: 'DESTROY_ROOM',
   ADD_MEMBER: 'ADD_MEMBER',
@@ -6,4 +6,4 @@ const RoomActionTypes = {
   UPDATE_ROOM_LOCKING_STATUS: 'UPDATE_ROOM_LOCKING_STATUS',
 };
 
-export default RoomActionTypes;
+export default roomActionTypes;

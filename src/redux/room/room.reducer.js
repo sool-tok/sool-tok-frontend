@@ -1,4 +1,4 @@
-import * as types from './room.actionTypes';
+import types from './room.actionTypes';
 
 const roomReducer = (state = null, { type, payload }) => {
   switch (type) {

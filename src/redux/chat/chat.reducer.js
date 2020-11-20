@@ -1,4 +1,4 @@
-import * as types from './chat.actionTypes';
+import types from './chat.actionTypes';
 
 const chatListReducer = (state = [], { type, payload }) => {
   switch (type) {

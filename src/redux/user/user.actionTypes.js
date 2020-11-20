@@ -1,4 +1,4 @@
-const UserActionTypes = {
+const userActionTypes = {
   LOGIN_USER: 'LOGIN_USER',
   LOGOUT_USER: 'LOGOUT_USER',
   ADD_FRIEND_LIST: 'ADD_FRIEND_LIST',
@@ -21,4 +21,4 @@ const UserActionTypes = {
   ADD_FRIEND_REQUEST_LIST_FAILURE: 'ADD_FRIEND_REQUEST_LIST_FAILURE',
 };
 
-export default UserActionTypes;
+export default userActionTypes;
