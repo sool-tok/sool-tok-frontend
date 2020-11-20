@@ -45,7 +45,7 @@ const userReducer = (state = initialState, { type, payload }) => {
         ...state,
         currentUser: {
           ...state.currentUser,
-          friendList: [...payload.friendRequestList],
+          friendRequestList: [...payload.friendRequestList],
         },
         loading: false,
         error: null,

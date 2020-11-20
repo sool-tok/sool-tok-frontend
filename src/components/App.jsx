@@ -22,7 +22,7 @@ const RoomContainer = lazy(async () => {
   return import('../containers/RoomContainer');
 });
 
-function App({ loading, user, loginUserWithToken, loginUserWithGoogle }) {
+function App({ user, loginUserWithToken, loginUserWithGoogle }) {
   const [isMyPageOpen, setMyPageOpen] = useState(false);
 
   useEffect(() => {
@@ -32,17 +32,6 @@ function App({ loading, user, loginUserWithToken, loginUserWithGoogle }) {
   useEffect(() => {
     if (!user) return setMyPageOpen(false);
   }, [user]);
-
-  if (loading && !user) {
-    return (
-      <ReactLoading
-        type='bubbles'
-        color='#ffd32a'
-        width={'100%'}
-        height={'100%'}
-      />
-    );
-  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -93,7 +82,6 @@ const Wrapper = styled.div`
 export default App;
 
 App.propTypes = {
-  loading: PropTypes.bool.isRequired,
   user: PropTypes.oneOfType([PropTypes.oneOf([null]), PropTypes.object]),
   loginUserWithToken: PropTypes.func.isRequired,
   loginUserWithGoogle: PropTypes.func.isRequired,
