@@ -16,3 +16,7 @@ export const selectFriendRequestList = createSelector(
   selectUser,
   user => user.currentUser.friendRequestList,
 );
+
+export const selectLoading = createSelector(selectUser, user => user.loading);
+
+export const selectError = createSelector(selectUser, user => user.error);

@@ -113,10 +113,12 @@ const requestFriend = async (userId, token, email) => {
   }
 };
 
-const responseFriendRequest = async (id, token, isAccepted, targetUserId) => {
+const responseFriendRequest = async (userId, isAccepted, targetUserId) => {
   try {
+    const token = getToken();
+
     const { data } = await axios.put(
-      `/users/${id}/friends/request`,
+      `/users/${userId}/friends/request`,
       {
         isAccepted,
         target_user_id: targetUserId,

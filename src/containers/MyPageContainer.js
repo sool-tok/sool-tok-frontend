@@ -1,53 +1,34 @@
 import { connect } from 'react-redux';
 
+import * as userSelector from '../redux/user/user.selectors';
 import * as userAction from '../redux/user/user.actions';
+
 import { userService } from '../utils/api';
 
 import MyPage from '../components/MyPage';
 
 const mapStateToProps = state => ({
-  user: state.user,
-  friendList: state.user?.friendList,
-  friendRequestList: state.user?.friendRequestList,
+  loading: userSelector.selectLoading(state),
+  error: userSelector.selectError(state),
+  user: userSelector.selectCurrentUser(state),
+  friendList: userSelector.selectfriendList(state),
+  friendRequestList: userSelector.selectFriendRequestList(state),
 });
 
 const mapDispatchToProps = dispatch => ({
-  async onLoad(user) {
-    try {
-      const token = localStorage.getItem('jwt-token');
-      const friendList = await userService.getFriendList(user._id, token);
-
-      dispatch(userAction.addFriendList(friendList));
-    } catch (err) {
-      console.error(err);
-    }
-  },
-  async onLoadRequestList(user) {
-    const token = localStorage.getItem('jwt-token');
-    const requestFriendList = await userService.getFriendRequestList(user._id, token);
-    dispatch(userAction.addFriendRequestList(requestFriendList));
-  },
-  async onLogout(user) {
-    try {
-      const token = localStorage.getItem('jwt-token');
-      await userService.logout(user._id, token);
-
-      dispatch(userAction.logoutUser());
-      localStorage.removeItem('jwt-token');
-    } catch (err) {
-      console.error(err);
-    }
-  },
+  addFriendList: userId => dispatch(userAction.addFriendListStart(userId)),
+  addFriendRequestList: userId =>
+    dispatch(userAction.addFriendRequestListStart(userId)),
+  logoutUser: userId => dispatch(userAction.logoutUserStart(userId)),
   async onSubmit(userId, isAccepted, targetUserId) {
     try {
-      const token = localStorage.getItem('jwt-token');
       const friendRequestList = await userService.responseFriendRequest(
         userId,
-        token,
         isAccepted,
         targetUserId,
       );
-      dispatch(userAction.addFriendRequestList(friendRequestList));
+
+      dispatch(userAction.addFriendRequestListSuccess(friendRequestList));
     } catch (err) {
       console.error(err);
     }

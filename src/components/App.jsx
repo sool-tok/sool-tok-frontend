@@ -22,16 +22,27 @@ const RoomContainer = lazy(async () => {
   return import('../containers/RoomContainer');
 });
 
-function App({ user, onLogin, onLoad }) {
+function App({ loading, user, loginUserWithToken, loginUserWithGoogle }) {
   const [isMyPageOpen, setMyPageOpen] = useState(false);
 
   useEffect(() => {
-    onLoad();
+    loginUserWithToken();
   }, []);
 
   useEffect(() => {
     if (!user) return setMyPageOpen(false);
   }, [user]);
+
+  if (loading && !user) {
+    return (
+      <ReactLoading
+        type='bubbles'
+        color='#ffd32a'
+        width={'100%'}
+        height={'100%'}
+      />
+    );
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -45,19 +56,26 @@ function App({ user, onLogin, onLoad }) {
       )}
       <Switch>
         <Route exact path='/'>
-          {user ? <Lobby /> : <Login onLogin={onLogin} />}
+          {user ? <Lobby /> : <Login onLogin={loginUserWithGoogle} />}
         </Route>
         <Route path='/rooms/:room_id'>
-          {
-            user ?
-              <Wrapper>
-                <Suspense fallback={<ReactLoading type='bubbles' color='#ffd32a' width={'8%'} height={'8%'} />}>
-                  <RoomContainer />
-                </Suspense>
-              </Wrapper>
-            :
-              <ErrorBox message='로그인 해주세요..' text='로그인 화면으로' />
-          }
+          {user ? (
+            <Wrapper>
+              <Suspense
+                fallback={
+                  <ReactLoading
+                    type='bubbles'
+                    color='#ffd32a'
+                    width={'8%'}
+                    height={'8%'}
+                  />
+                }>
+                <RoomContainer />
+              </Suspense>
+            </Wrapper>
+          ) : (
+            <ErrorBox message='로그인 해주세요..' text='로그인 화면으로' />
+          )}
         </Route>
         <Redirect to='/' />
       </Switch>
@@ -75,7 +93,8 @@ const Wrapper = styled.div`
 export default App;
 
 App.propTypes = {
+  loading: PropTypes.bool.isRequired,
   user: PropTypes.oneOfType([PropTypes.oneOf([null]), PropTypes.object]),
-  onLogin: PropTypes.func.isRequired,
-  onLoad: PropTypes.func.isRequired,
+  loginUserWithToken: PropTypes.func.isRequired,
+  loginUserWithGoogle: PropTypes.func.isRequired,
 };

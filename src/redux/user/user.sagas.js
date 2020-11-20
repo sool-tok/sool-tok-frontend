@@ -1,112 +1,88 @@
 import { takeLatest, put, all, call } from 'redux-saga/effects';
 // takeLates: 이녀석은 요청을 2번 할 경우 가장 최신의 요청만을 처리한다.
 
-import * as types from './user.actionTypes';
+import types from './user.actionTypes';
+import * as actions from './user.actions';
 
 // import createRequestSaga from '../../utils/asyncUtils';
 import { userService } from '../../utils/api';
 
-export function* loginUser() {
+export function* loginUser({ payload }) {
   try {
-    const { user: userWithToken } = yield userService.tokenLogin();
+    const { loginType } = payload;
+    let authorizedUser;
 
-    if (userWithToken) {
-      yield put({
-        type: types.LOGIN_USER_SUCCESS,
-        payload: { user: userWithToken },
-      });
-      return;
+    if (loginType === 'token') {
+      const { user } = yield userService.tokenLogin();
+      authorizedUser = user;
     }
 
-    const { user } = yield userService.googleLogin();
-    yield put({
-      type: types.LOGIN_USER_SUCCESS,
-      payload: { user },
-    });
+    if (loginType === 'google') {
+      const { user } = yield userService.googleLogin();
+      authorizedUser = user;
+    }
+
+    console.log('📌 : function*loginUser -> authorizedUser', authorizedUser);
+    yield put(actions.loginUserSuccess(authorizedUser));
   } catch (err) {
-    yield put({
-      type: types.LOGIN_USER_FAILURE,
-      payload: err,
-      error: true,
-    });
+    yield put(actions.loginUserFailure(err));
   }
 }
 
-export function* logoutUser({ payload: userId }) {
+export function* logoutUser({ payload }) {
   try {
+    const { userId } = payload;
     yield userService.logout(userId);
-    yield put({
-      type: types.LOGOUT_USER_SUCCESS,
-    });
+    yield put(actions.logoutUserSuccess());
   } catch (err) {
-    yield put({
-      type: types.LOGOUT_USER_FAILURE,
-      payload: err,
-      error: true,
-    });
+    yield put(actions.logoutUserFailure(err));
   }
 }
 
-export function* getFriendList({ payload: userId }) {
+export function* getFriendList({ payload }) {
   try {
+    const { userId } = payload;
     const friendList = yield userService.getFriendList(userId);
-    yield put({
-      type: types.ADD_FRIEND_LIST_SUCCESS,
-      payload: { friendList },
-    });
+    yield put(actions.addFriendListSuccess(friendList));
   } catch (err) {
-    yield put({
-      type: types.ADD_FRIEND_LIST_FAILURE,
-      payload: err,
-      error: true,
-    });
+    yield put(actions.addFriendListFailure(err));
   }
 }
 
-export function* getFriendRequestList({ payload: userId }) {
+export function* getFriendRequestList({ payload }) {
   try {
+    const { userId } = payload;
     const friendRequestList = yield userService.getFriendRequestList(userId);
-    yield put({
-      type: types.ADD_FRIEND_REQUEST_LIST_SUCCESS,
-      payload: { friendRequestList },
-    });
+    yield put(actions.addFriendRequestListSuccess(friendRequestList));
   } catch (err) {
-    yield put({
-      type: types.ADD_FRIEND_REQUEST_LIST_FAILURE,
-      payload: err,
-      error: true,
-    });
+    yield put(actions.addFriendRequestListFailure(err));
   }
 }
 
-export function* onLoginUserStart() {
+export function* watchLoginUserStart() {
   yield takeLatest(types.LOGIN_USER_REQUESTED, loginUser);
 }
 
-export function* onLogoutStart() {
+export function* watchLogoutStart() {
   yield takeLatest(types.LOGOUT_USER_REQUESTED, logoutUser);
 }
 
-export function* onGetFriendListStart() {
+export function* watchGetFriendListStart() {
   yield takeLatest(types.ADD_FRIEND_LIST_REQUESTED, getFriendList);
 }
 
-export function* onGetFriendRequestListStart() {
+export function* watchGetFriendRequestListStart() {
   yield takeLatest(
     types.ADD_FRIEND_REQUEST_LIST_REQUESTED,
     getFriendRequestList,
   );
 }
 
-export function* userSagas() {
+export default function* userSagas() {
   yield all([
-    call(loginUser),
-    call(logoutUser),
-    call(getFriendList),
-    call(getFriendRequestList),
-    call(onLoginUserStart),
-    call(onLogoutStart),
-    call(onGetFriendListStart),
-    call(onGetFriendRequestListStart),
+    call(watchLoginUserStart),
+    call(watchLogoutStart),
+    call(watchGetFriendListStart),
+    call(watchGetFriendRequestListStart),
   ]);
 }
