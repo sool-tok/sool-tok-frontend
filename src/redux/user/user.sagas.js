@@ -2,62 +2,111 @@ import { takeLatest, put, all, call } from 'redux-saga/effects';
 // takeLates: 이녀석은 요청을 2번 할 경우 가장 최신의 요청만을 처리한다.
 
 import * as types from './user.actionTypes';
-import * as actions from './user.actions';
 
+// import createRequestSaga from '../../utils/asyncUtils';
 import { userService } from '../../utils/api';
 
-export function* loginWithToken() {
+export function* loginUser() {
   try {
-    const response = yield userService.tokenLogin();
+    const { user: userWithToken } = yield userService.tokenLogin();
+
+    if (userWithToken) {
+      yield put({
+        type: types.LOGIN_USER_SUCCESS,
+        payload: { user: userWithToken },
+      });
+      return;
+    }
+
+    const { user } = yield userService.googleLogin();
     yield put({
       type: types.LOGIN_USER_SUCCESS,
-      payload: response.data,
-      meta: response,
+      payload: { user },
     });
   } catch (err) {
-    yield put({ type: types.LOGIN_USER_FAILURE, payload: { err } });
+    yield put({
+      type: types.LOGIN_USER_FAILURE,
+      payload: err,
+      error: true,
+    });
   }
 }
 
-export function* logout({ payload: user }) {
+export function* logoutUser({ payload: userId }) {
   try {
-    const token = localStorage.getItem('jwt-token');
-    yield userService.logout(user._id, token);
-
-    localStorage.removeItem('jwt-token');
-    yield put({ type: types.LOGOUT_USER_SUCCESS });
+    yield userService.logout(userId);
+    yield put({
+      type: types.LOGOUT_USER_SUCCESS,
+    });
   } catch (err) {
-    yield put({ type: types.LOGOUT_USER_FAILURE, payload: { err } });
+    yield put({
+      type: types.LOGOUT_USER_FAILURE,
+      payload: err,
+      error: true,
+    });
   }
 }
 
-export function* getFriendListAsync({ payload: user }) {
+export function* getFriendList({ payload: userId }) {
   try {
-    const token = localStorage.getItem('jwt-token');
-    const list = yield userService.getFriendList(user._id, token);
-
-    yield put(actions.addFriendListSuccess(list));
+    const friendList = yield userService.getFriendList(userId);
+    yield put({
+      type: types.ADD_FRIEND_LIST_SUCCESS,
+      payload: { friendList },
+    });
   } catch (err) {
-    yield put(actions.addFriendListFailure(err));
+    yield put({
+      type: types.ADD_FRIEND_LIST_FAILURE,
+      payload: err,
+      error: true,
+    });
   }
 }
 
-export function* getFriendRequestListAsync({ payload: user }) {
+export function* getFriendRequestList({ payload: userId }) {
   try {
-    const token = localStorage.getItem('jwt-token');
-    const list = yield userService.getFriendRequestList(user._id, token);
-
-    yield put(actions.addFriendRequestListSuccess(list));
+    const friendRequestList = yield userService.getFriendRequestList(userId);
+    yield put({
+      type: types.ADD_FRIEND_REQUEST_LIST_SUCCESS,
+      payload: { friendRequestList },
+    });
   } catch (err) {
-    yield put(actions.addFriendRequestListFailure(err));
+    yield put({
+      type: types.ADD_FRIEND_REQUEST_LIST_FAILURE,
+      payload: err,
+      error: true,
+    });
   }
 }
 
-// loginUserSuccess
-// loginUserFailure
-// logoutUserSuccess
-// logoutUserFailure
-// addFriendListSuccess
-// addFriendListFailure
-// addFriendRequestListSuccess
-// addFriendRequestListFailure
+export function* onLoginUserStart() {
+  yield takeLatest(types.LOGIN_USER_REQUESTED, loginUser);
+}
+
+export function* onLogoutStart() {
+  yield takeLatest(types.LOGOUT_USER_REQUESTED, logoutUser);
+}
+
+export function* onGetFriendListStart() {
+  yield takeLatest(types.ADD_FRIEND_LIST_REQUESTED, getFriendList);
+}
+
+export function* onGetFriendRequestListStart() {
+  yield takeLatest(
+    types.ADD_FRIEND_REQUEST_LIST_REQUESTED,
+    getFriendRequestList,
+  );
+}
+
+export function* userSagas() {
+  yield all([
+    call(loginUser),
+    call(logoutUser),
+    call(getFriendList),
+    call(getFriendRequestList),
+    call(onLoginUserStart),
+    call(onLogoutStart),
+    call(onGetFriendListStart),
+    call(onGetFriendRequestListStart),
+  ]);
+}
