@@ -10,6 +10,7 @@ import Video, { StyledVideo } from './Video';
 import SpeechGame from './SpeechGame';
 import Chat from './Chat';
 import Button from './Button';
+import ErrorBox from './ErrorBox';
 
 import { BsUnlockFill, BsLockFill, BsFillChatDotsFill } from 'react-icons/bs';
 import { FaVideo, FaVideoSlash, FaVolumeMute, FaVolumeUp } from 'react-icons/fa';
@@ -158,71 +159,70 @@ function Room({ user, room, renderRoom, destroyRoom, addMember, deleteMember, up
     }
   };
 
-  if (!room || error) {
-    return (
-      <div>
-        <h1>{error}</h1>
-        <Button onClick={() => history.push('/')} text='메인으로' />
-      </div>
-    );
+  if (error) {
+    return (<ErrorBox message={error} text='메인으로' />);
   }
 
   return (
     <Container>
-      <Button onClick={() => setIsChatRoomOpen(!isChatRoomOpen)}>
-        <BsFillChatDotsFill size={28} />
-      </Button>
-      {isChatRoomOpen &&
-        <Chat
-          onSubmit={newChat => chatSocket.sendMessage({ newChat })}
-          chatList={chatList}
-          user={user}
-        />
-      }
-      <Header>
-        <h1>{room.title}</h1>
-        <span>{room.isLocked ? <BsLockFill /> : <BsUnlockFill />}</span>
-      </Header>
-      <Wrapper>
-        <GameBox>
-          <SpeechGame />
-        </GameBox>
-        <MemberList>
-          {room.memberList.map(member => (
-            <MemberBlock key={member.socketId}>
-              {member._id === user._id ? (
-                <StyledVideo
-                  thumbnail={member.photoUrl}
-                  ref={myVideoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                />
-              ) : (
-                <Video thumbnail={member.photoUrl} peer={peers[member.socketId]} />
-              )}
-              <h3>{member.name}</h3>
-            </MemberBlock>
-          ))}
-        </MemberList>
-      </Wrapper>
-      <UtilityBox>
-        <div>
-          {
-            isHost &&
-            <Button color={room.isLocked ? '#eb3b5a' : '#d1d8e0'} onClick={handleLockingRoom}>
-              {room.isLocked ? <BsLockFill color='#eee' size={24} /> : <BsUnlockFill size={24} />}
-            </Button>
+      {room &&
+        <>
+          <Button onClick={() => setIsChatRoomOpen(!isChatRoomOpen)}>
+            <BsFillChatDotsFill size={28} />
+          </Button>
+          {isChatRoomOpen &&
+            <Chat
+              onSubmit={newChat => chatSocket.sendMessage({ newChat })}
+              chatList={chatList}
+              user={user}
+            />
           }
-          <Button color={streamOptions.audio ? '#20bf6b' : '#d1d8e0'} onClick={handleAudioTrack}>
-            {streamOptions.audio ? <FaVolumeUp size={24} /> : <FaVolumeMute size={24}/>}
-          </Button>
-          <Button color={streamOptions.video ? '#20bf6b' : '#d1d8e0'} onClick={handleVideoTrack}>
-            {streamOptions.video ? <FaVideo size={24} /> : <FaVideoSlash size={24} />}
-          </Button>
-          <IoIosExit onClick={() => history.push('/')} size={42} cursor='pointer' color='#eb3b5a' />
-        </div>
-      </UtilityBox>
+          <Header>
+            <h1>{room.title}</h1>
+            <span>{room.isLocked ? <BsLockFill /> : <BsUnlockFill />}</span>
+          </Header>
+          <Wrapper>
+            <GameBox>
+              <SpeechGame />
+            </GameBox>
+            <MemberList>
+              {room.memberList.map(member => (
+                <MemberBlock key={member.socketId}>
+                  {member._id === user._id ? (
+                    <StyledVideo
+                      thumbnail={member.photoUrl}
+                      ref={myVideoRef}
+                      autoPlay
+                      playsInline
+                      muted
+                    />
+                  ) : (
+                    <Video thumbnail={member.photoUrl} peer={peers[member.socketId]} />
+                  )}
+                  <h3>{member.name}</h3>
+                </MemberBlock>
+              ))}
+            </MemberList>
+          </Wrapper>
+          <UtilityBox>
+            <div>
+              {
+                isHost &&
+                <Button color={room.isLocked ? '#eb3b5a' : '#d1d8e0'} onClick={handleLockingRoom}>
+                  {room.isLocked ? <BsLockFill color='#eee' size={24} /> : <BsUnlockFill size={24} />}
+                </Button>
+              }
+              <Button color={streamOptions.audio ? '#20bf6b' : '#d1d8e0'} onClick={handleAudioTrack}>
+                {streamOptions.audio ? <FaVolumeUp size={24} /> : <FaVolumeMute size={24}/>}
+              </Button>
+              <Button color={streamOptions.video ? '#20bf6b' : '#d1d8e0'} onClick={handleVideoTrack}>
+                {streamOptions.video ? <FaVideo size={24} /> : <FaVideoSlash size={24} />}
+              </Button>
+              <IoIosExit onClick={() => history.push('/')} size={42} cursor='pointer' color='#eb3b5a' />
+            </div>
+          </UtilityBox>
+        </>
+      }
     </Container>
   );
 }
