@@ -1,8 +1,9 @@
 import { connect } from 'react-redux';
 
-import MyPage from '../components/MyPage';
+import * as userAction from '../redux/user/user.actions';
 import { userService } from '../utils/api';
-import { addFriendList, addFriendRequestList, logoutUser } from '../actions/actionCreator';
+
+import MyPage from '../components/MyPage';
 
 const mapStateToProps = state => ({
   user: state.user,
@@ -16,7 +17,7 @@ const mapDispatchToProps = dispatch => ({
       const token = localStorage.getItem('jwt-token');
       const friendList = await userService.getFriendList(user._id, token);
 
-      dispatch(addFriendList(friendList));
+      dispatch(userAction.addFriendList(friendList));
     } catch (err) {
       console.error(err);
     }
@@ -24,14 +25,14 @@ const mapDispatchToProps = dispatch => ({
   async onLoadRequestList(user) {
     const token = localStorage.getItem('jwt-token');
     const requestFriendList = await userService.getFriendRequestList(user._id, token);
-    dispatch(addFriendRequestList(requestFriendList));
+    dispatch(userAction.addFriendRequestList(requestFriendList));
   },
   async onLogout(user) {
     try {
       const token = localStorage.getItem('jwt-token');
       await userService.logout(user._id, token);
 
-      dispatch(logoutUser());
+      dispatch(userAction.logoutUser());
       localStorage.removeItem('jwt-token');
     } catch (err) {
       console.error(err);
@@ -40,9 +41,13 @@ const mapDispatchToProps = dispatch => ({
   async onSubmit(userId, isAccepted, targetUserId) {
     try {
       const token = localStorage.getItem('jwt-token');
-      const friendRequestList =
-        await userService.responseFriendRequest(userId, token, isAccepted, targetUserId);
-      dispatch(addFriendRequestList(friendRequestList));
+      const friendRequestList = await userService.responseFriendRequest(
+        userId,
+        token,
+        isAccepted,
+        targetUserId,
+      );
+      dispatch(userAction.addFriendRequestList(friendRequestList));
     } catch (err) {
       console.error(err);
     }
