@@ -10,10 +10,12 @@ import Video, { StyledVideo } from './Video';
 import SpeechGame from './SpeechGame';
 import Chat from './Chat';
 import Button from './Button';
+import ErrorBox from './ErrorBox';
 
 import { BsUnlockFill, BsLockFill, BsFillChatDotsFill } from 'react-icons/bs';
 import { FaVideo, FaVideoSlash, FaVolumeMute, FaVolumeUp } from 'react-icons/fa';
 import { IoIosExit } from 'react-icons/io';
+import ReactLoading from 'react-loading';
 
 function Room({ user, room, renderRoom, destroyRoom, addMember, deleteMember, updateRoomLockingStatus, addChat, chatList }) {
   const history = useHistory();
@@ -158,11 +160,26 @@ function Room({ user, room, renderRoom, destroyRoom, addMember, deleteMember, up
     }
   };
 
-  if (!room || error) {
+
+  // if (error) {
+  //   return (
+  //     <ErrorBox>
+  //       <div>
+  //         <h1>{error}</h1>
+  //         <Button onClick={() => history.push('/')}>메인으로</Button>
+  //       </div>
+  //     </ErrorBox>
+  //   );
+  // }
+
+  if (error) {
+    return (<ErrorBox message={error} text='메인으로' />);
+  }
+
+  if (!room) {
     return (
-      <div>
-        <h1>{error}</h1>
-        <Button onClick={() => history.push('/')} text='메인으로' />
+      <div style={{ width: '100vw', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <ReactLoading type='cylon' color='#ffd32a' width={'5%'} height={'5%'} />
       </div>
     );
   }

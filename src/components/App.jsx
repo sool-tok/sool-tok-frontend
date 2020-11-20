@@ -14,6 +14,7 @@ import FloatingButton from './FloatingButton';
 import theme from './styles/theme';
 import GlobalStyle from './styles/globalStyle';
 import { BiFace } from 'react-icons/bi';
+import ErrorBox from './ErrorBox';
 
 function App({ user, onLogin, onLoad }) {
   const [isMyPageOpen, setMyPageOpen] = useState(false);
@@ -41,7 +42,7 @@ function App({ user, onLogin, onLoad }) {
           {user ? <Lobby /> : <Login onLogin={onLogin} />}
         </Route>
         <Route path='/rooms/:room_id'>
-          {user ? <RoomContainer /> : <div>로그인해주세요..</div>}
+          {user ? <RoomContainer /> : <ErrorBox message='로그인 해주세요..' text='로그인 화면으로' />}
         </Route>
         <Redirect to='/' />
       </Switch>
