@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Peer from 'simple-peer';
 
-import { roomSocket, chatSocket, peerSocket } from '../utils/socket';
+import { roomSocket, chatSocket, peerSocket, getMySocketId } from '../utils/socket';
 
 import Video, { StyledVideo } from './Video';
 import SpeechGame from './SpeechGame';
@@ -190,7 +190,7 @@ function Room({ user, room, renderRoom, destroyRoom, addMember, deleteMember, up
         <MemberList>
           {room.memberList.map(member => (
             <MemberBlock key={member.socketId}>
-              {member._id === user._id ? (
+              {member.socketId === getMySocketId() ? (
                 <StyledVideo
                   thumbnail={member.photoUrl}
                   ref={myVideoRef}

@@ -2,6 +2,8 @@ import io from 'socket.io-client';
 
 const socket = io();
 
+export const getMySocketId = () => socket.id;
+
 const roomSocket = {
   createRoom({ roomData }, cb) {
     socket.emit('create room', { roomData }, cb);
@@ -71,4 +73,16 @@ const peerSocket = {
   },
 };
 
-export { roomSocket, chatSocket, peerSocket };
+const gameSocket = {
+  broadcastSpeechBomb(gameData) {
+    socket.emit('game-speechbomb', gameData);
+  },
+  listenSpeechBomb(cb) {
+    socket.on('game-speechbomb', cb);
+  },
+  cleanUpGameListener() {
+    socket.off('game-speechbomb');
+  },
+};
+
+export { roomSocket, chatSocket, peerSocket, gameSocket };
