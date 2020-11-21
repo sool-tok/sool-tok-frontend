@@ -82,14 +82,7 @@ function Room({
       deleteMember(socketId);
     });
 
-    chatSocket.listenMessage(({ chat }) => {
-      addChat(chat);
-
-      if (!isChatRoomOpen) {
-        console.log('📌 : isChatRoomOpen', isChatRoomOpen);
-        increaseUnreadCount();
-      }
-    });
+    chatSocket.listenMessage(({ chat }) => addChat(chat));
 
     return () => {
       roomSocket.cleanUpRoomListener();
@@ -109,8 +102,14 @@ function Room({
   }, []);
 
   useEffect(() => {
-    console.log('📌 : isChatRoomOpen', isChatRoomOpen);
-    if (!isChatRoomOpen) return;
+    if (isChatRoomOpen) return;
+
+    if (chatList.length) {
+      increaseUnreadCount();
+    }
+  }, [chatList, isChatRoomOpen]);
+
+  useEffect(() => {
     resetUnreadCount();
   }, [isChatRoomOpen]);
 
@@ -211,9 +210,7 @@ function Room({
         <>
           <Button onClick={() => setIsChatRoomOpen(!isChatRoomOpen)}>
             <BsFillChatDotsFill size={28} />
-            <div style={{ color: 'white', backgroundColor: 'red' }}>
-              {unreadChatCount}
-            </div>
+            {!!unreadChatCount && <Badge>{unreadChatCount}</Badge>}
           </Button>
           {isChatRoomOpen && (
             <Chat
@@ -408,6 +405,18 @@ const MemberBlock = styled.div`
     margin-top: 24px;
     font-size: 18px;
   }
+`;
+
+const Badge = styled.div`
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  background-color: red;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 18px;
+  color: white;
 `;
 
 export default Room;
