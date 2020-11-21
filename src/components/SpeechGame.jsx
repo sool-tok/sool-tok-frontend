@@ -47,7 +47,7 @@ function SpeechGame() {
 
     setDisabled(true);
     setPhrase(`${phrase}`);
-    setResult('두구두구두구두구두구두구');
+    setNotification('두구두구두구두구두구두구');
 
     const grammar = `#JSGF V1.0; grammar phrase; public <phrase> = ${phrase};`;
     const recognition = new SpeechRecognition();
