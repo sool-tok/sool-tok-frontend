@@ -2,6 +2,33 @@ import io from 'socket.io-client';
 
 const socket = io();
 
+export const getMySocketId = () => socket.id;
+
+const gameSocket = {
+  startGame(data) {
+    socket.emit('start game', data);
+  },
+  sendGameStatus(status) {
+    socket.emit('proceed game', status);
+  },
+  sendNextTurn(next) {
+    socket.emit('turn change', next);
+  },
+  listenInitailizingGame(cb) {
+    socket.on('initializing game', cb);
+  },
+  listenProceedGame(cb) {
+    socket.on('proceed game', cb);
+  },
+  listenTurnChange(cb) {
+    socket.on('turn change', cb);
+  },
+  // cleanUpGameListener() {
+  //   socket.off('end game');
+  // },
+};
+
+
 const roomSocket = {
   createRoom({ roomData }, cb) {
     socket.emit('create room', { roomData }, cb);
@@ -71,4 +98,4 @@ const peerSocket = {
   },
 };
 
-export { roomSocket, chatSocket, peerSocket };
+export { roomSocket, chatSocket, peerSocket, gameSocket };

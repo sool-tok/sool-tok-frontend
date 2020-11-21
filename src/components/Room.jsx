@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Peer from 'simple-peer';
 
-import { roomSocket, chatSocket, peerSocket } from '../utils/socket';
+import { roomSocket, chatSocket, peerSocket, getMySocketId } from '../utils/socket';
 
 import Video, { StyledVideo } from './Video';
 import SpeechGame from './SpeechGame';
@@ -37,8 +37,12 @@ function Room({
 }) {
   const history = useHistory();
   const { room_id: roomId } = useParams();
-  const [isChatRoomOpen, setIsChatRoomOpen] = useState(false);
+
+  const [isMyTurn, setMyTurn] = useState(false);
+
   const [isHost, setIsHost] = useState(false);
+  const [isChatRoomOpen, setIsChatRoomOpen] = useState(false);
+
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamOptions, setStreamOptions] = useState({});
   const [error, setError] = useState('');
@@ -225,12 +229,16 @@ function Room({
           </Header>
           <Wrapper>
             <GameBox>
-              <SpeechGame />
+              <SpeechGame
+                roomId={roomId}
+                isMyTurn={isMyTurn}
+                setMyTurn={setMyTurn}
+              />
             </GameBox>
             <MemberList>
               {room.memberList.map(member => (
                 <MemberBlock key={member.socketId}>
-                  {member._id === user._id ? (
+                  {member.socketId === getMySocketId() ? (
                     <StyledVideo
                       thumbnail={member.photoUrl}
                       ref={myVideoRef}
@@ -344,7 +352,7 @@ const GameBox = styled.div`
 
   div {
     width: 320px;
-    height: 600px;
+    height: 300px;
     border-radius: 36px;
     display: flex;
     justify-content: center;
