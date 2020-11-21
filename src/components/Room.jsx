@@ -18,8 +18,12 @@ import { IoIosExit } from 'react-icons/io';
 function Room({ user, room, renderRoom, destroyRoom, addMember, deleteMember, updateRoomLockingStatus, addChat, chatList }) {
   const history = useHistory();
   const { room_id: roomId } = useParams();
-  const [isChatRoomOpen, setIsChatRoomOpen] = useState(false);
+
+  const [isMyTurn, setMyTurn] = useState(false);
+
   const [isHost, setIsHost] = useState(false);
+  const [isChatRoomOpen, setIsChatRoomOpen] = useState(false);
+
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamOptions, setStreamOptions] = useState({});
   const [error, setError] = useState('');
@@ -185,7 +189,11 @@ function Room({ user, room, renderRoom, destroyRoom, addMember, deleteMember, up
       </Header>
       <Wrapper>
         <GameBox>
-          <SpeechGame />
+          <SpeechGame
+            roomId={roomId}
+            isMyTurn={isMyTurn}
+            setMyTurn={setMyTurn}
+          />
         </GameBox>
         <MemberList>
           {room.memberList.map(member => (
@@ -277,7 +285,7 @@ const GameBox = styled.div`
 
   div {
     width: 320px;
-    height: 600px;
+    height: 300px;
     border-radius: 36px;
     display: flex;
     justify-content: center;
