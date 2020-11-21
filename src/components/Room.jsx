@@ -229,12 +229,16 @@ function Room({
           </Header>
           <Wrapper>
             <GameBox>
-              <SpeechGame />
+              <SpeechGame
+                roomId={roomId}
+                isMyTurn={isMyTurn}
+                setMyTurn={setMyTurn}
+              />
             </GameBox>
             <MemberList>
               {room.memberList.map(member => (
                 <MemberBlock key={member.socketId}>
-                  {member._id === user._id ? (
+                  {member.socketId === getMySocketId() ? (
                     <StyledVideo
                       thumbnail={member.photoUrl}
                       ref={myVideoRef}

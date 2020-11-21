@@ -20,7 +20,7 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
   /*
     {
       timout: 60000,
-      orderList: ['asdasd', 'ascac', 'avs', 'sadsd'],
+      orderList: ['asdasd', 'ascac', 'avs',3 'sadsd'],
       phrases: ['추워', '기분 좋아', '소켓 연결'],
       currentTurn: '2',
     }
@@ -226,6 +226,7 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
   }, [gameData, isMyTurn]);
 
   const startGame = () => {
+    console.log('찍힘');
     gameSocket.startGame({ title: 'speechBomb', roomId });
   };
 
