@@ -13,10 +13,28 @@ import Button from './Button';
 import ErrorBox from './ErrorBox';
 
 import { BsUnlockFill, BsLockFill, BsFillChatDotsFill } from 'react-icons/bs';
-import { FaVideo, FaVideoSlash, FaVolumeMute, FaVolumeUp } from 'react-icons/fa';
+import {
+  FaVideo,
+  FaVideoSlash,
+  FaVolumeMute,
+  FaVolumeUp,
+} from 'react-icons/fa';
 import { IoIosExit } from 'react-icons/io';
 
-function Room({ user, room, renderRoom, destroyRoom, addMember, deleteMember, updateRoomLockingStatus, addChat, chatList }) {
+function Room({
+  user,
+  room,
+  renderRoom,
+  destroyRoom,
+  addMember,
+  deleteMember,
+  updateRoomLockingStatus,
+  chatList,
+  unreadChatCount,
+  addChat,
+  increaseUnreadCount,
+  resetUnreadCount,
+}) {
   const history = useHistory();
   const { room_id: roomId } = useParams();
   const [isChatRoomOpen, setIsChatRoomOpen] = useState(false);
@@ -49,7 +67,9 @@ function Room({ user, room, renderRoom, destroyRoom, addMember, deleteMember, up
       }
     });
 
-    roomSocket.listenUpdateRoomLockingStatus(({ isLocked }) => updateRoomLockingStatus(isLocked));
+    roomSocket.listenUpdateRoomLockingStatus(({ isLocked }) =>
+      updateRoomLockingStatus(isLocked),
+    );
     roomSocket.listenMemberJoined(({ newMember }) => addMember(newMember));
     roomSocket.listenMemberLeaved(({ socketId }) => {
       delete peersRef.current[socketId];
@@ -62,8 +82,14 @@ function Room({ user, room, renderRoom, destroyRoom, addMember, deleteMember, up
       deleteMember(socketId);
     });
 
-    chatSocket.listenMessage(({ chat }) => addChat(chat));
+    chatSocket.listenMessage(({ chat }) => {
+      addChat(chat);
 
+      if (!isChatRoomOpen) {
+        console.log('📌 : isChatRoomOpen', isChatRoomOpen);
+        increaseUnreadCount();
+      }
+    });
 
     return () => {
       roomSocket.cleanUpRoomListener();
@@ -81,6 +107,12 @@ function Room({ user, room, renderRoom, destroyRoom, addMember, deleteMember, up
       });
     };
   }, []);
+
+  useEffect(() => {
+    console.log('📌 : isChatRoomOpen', isChatRoomOpen);
+    if (!isChatRoomOpen) return;
+    resetUnreadCount();
+  }, [isChatRoomOpen]);
 
   useEffect(() => {
     if (room && user._id === room.memberList?.[0]._id) {
@@ -134,49 +166,62 @@ function Room({ user, room, renderRoom, destroyRoom, addMember, deleteMember, up
     };
   }, [isStreaming]);
 
-
   const handleLockingRoom = () => {
-    roomSocket.updateRoomLockingStatus({ roomId: room._id, isLocked: !room.isLocked });
+    roomSocket.updateRoomLockingStatus({
+      roomId: room._id,
+      isLocked: !room.isLocked,
+    });
   };
 
   const handleAudioTrack = () => {
     if (streamOptions.audio) {
-      streamRef.current.getAudioTracks().forEach(track => track.enabled = false);
+      streamRef.current
+        .getAudioTracks()
+        .forEach(track => (track.enabled = false));
       setStreamOptions(prev => ({ ...prev, audio: false }));
     } else {
-      streamRef.current.getAudioTracks().forEach(track => track.enabled = true);
+      streamRef.current
+        .getAudioTracks()
+        .forEach(track => (track.enabled = true));
       setStreamOptions(prev => ({ ...prev, audio: true }));
     }
   };
 
   const handleVideoTrack = () => {
     if (streamOptions.video) {
-      streamRef.current.getVideoTracks().forEach(track => track.enabled = false);
+      streamRef.current
+        .getVideoTracks()
+        .forEach(track => (track.enabled = false));
       setStreamOptions(prev => ({ ...prev, video: false }));
     } else {
-      streamRef.current.getVideoTracks().forEach(track => track.enabled = true);
+      streamRef.current
+        .getVideoTracks()
+        .forEach(track => (track.enabled = true));
       setStreamOptions(prev => ({ ...prev, video: true }));
     }
   };
 
   if (error) {
-    return (<ErrorBox message={error} text='메인으로' />);
+    return <ErrorBox message={error} text='메인으로' />;
   }
 
   return (
     <Container>
-      {room &&
+      {room && (
         <>
           <Button onClick={() => setIsChatRoomOpen(!isChatRoomOpen)}>
             <BsFillChatDotsFill size={28} />
+            <div style={{ color: 'white', backgroundColor: 'red' }}>
+              {unreadChatCount}
+            </div>
           </Button>
-          {isChatRoomOpen &&
+          {isChatRoomOpen && (
             <Chat
               onSubmit={newChat => chatSocket.sendMessage({ newChat })}
               chatList={chatList}
               user={user}
             />
-          }
+          )}
           <Header>
             <h1>{room.title}</h1>
             <span>{room.isLocked ? <BsLockFill /> : <BsUnlockFill />}</span>
@@ -197,7 +242,10 @@ function Room({ user, room, renderRoom, destroyRoom, addMember, deleteMember, up
                       muted
                     />
                   ) : (
-                    <Video thumbnail={member.photoUrl} peer={peers[member.socketId]} />
+                    <Video
+                      thumbnail={member.photoUrl}
+                      peer={peers[member.socketId]}
+                    />
                   )}
                   <h3>{member.name}</h3>
                 </MemberBlock>
@@ -206,23 +254,45 @@ function Room({ user, room, renderRoom, destroyRoom, addMember, deleteMember, up
           </Wrapper>
           <UtilityBox>
             <div>
-              {
-                isHost &&
-                <Button color={room.isLocked ? '#eb3b5a' : '#d1d8e0'} onClick={handleLockingRoom}>
-                  {room.isLocked ? <BsLockFill color='#eee' size={24} /> : <BsUnlockFill size={24} />}
+              {isHost && (
+                <Button
+                  color={room.isLocked ? '#eb3b5a' : '#d1d8e0'}
+                  onClick={handleLockingRoom}>
+                  {room.isLocked ? (
+                    <BsLockFill color='#eee' size={24} />
+                  ) : (
+                    <BsUnlockFill size={24} />
+                  )}
                 </Button>
-              }
-              <Button color={streamOptions.audio ? '#20bf6b' : '#d1d8e0'} onClick={handleAudioTrack}>
-                {streamOptions.audio ? <FaVolumeUp size={24} /> : <FaVolumeMute size={24}/>}
+              )}
+              <Button
+                color={streamOptions.audio ? '#20bf6b' : '#d1d8e0'}
+                onClick={handleAudioTrack}>
+                {streamOptions.audio ? (
+                  <FaVolumeUp size={24} />
+                ) : (
+                  <FaVolumeMute size={24} />
+                )}
               </Button>
-              <Button color={streamOptions.video ? '#20bf6b' : '#d1d8e0'} onClick={handleVideoTrack}>
-                {streamOptions.video ? <FaVideo size={24} /> : <FaVideoSlash size={24} />}
+              <Button
+                color={streamOptions.video ? '#20bf6b' : '#d1d8e0'}
+                onClick={handleVideoTrack}>
+                {streamOptions.video ? (
+                  <FaVideo size={24} />
+                ) : (
+                  <FaVideoSlash size={24} />
+                )}
               </Button>
-              <IoIosExit onClick={() => history.push('/')} size={42} cursor='pointer' color='#eb3b5a' />
+              <IoIosExit
+                onClick={() => history.push('/')}
+                size={42}
+                cursor='pointer'
+                color='#eb3b5a'
+              />
             </div>
           </UtilityBox>
         </>
-      }
+      )}
     </Container>
   );
 }
@@ -346,10 +416,13 @@ Room.propTypes = {
   user: PropTypes.object,
   room: PropTypes.object,
   chatList: PropTypes.array,
+  unreadChatCount: PropTypes.number,
   renderRoom: PropTypes.func.isRequired,
   destroyRoom: PropTypes.func.isRequired,
   addMember: PropTypes.func.isRequired,
   deleteMember: PropTypes.func.isRequired,
   addChat: PropTypes.func.isRequired,
+  increaseUnreadCount: PropTypes.func.isRequired,
+  resetUnreadCount: PropTypes.func.isRequired,
   updateRoomLockingStatus: PropTypes.func.isRequired,
 };

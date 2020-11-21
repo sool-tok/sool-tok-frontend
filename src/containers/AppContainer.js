@@ -6,7 +6,6 @@ import { loginUserStart } from '../redux/user/user.actions';
 import App from '../components/App';
 
 const mapStateToProps = state => ({
-  error: userSelector.selectError(state),
   user: userSelector.selectCurrentUser(state),
 });
 

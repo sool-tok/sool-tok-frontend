@@ -7,6 +7,12 @@ export const selectCurrentUser = createSelector(
   user => user.currentUser,
 );
 
+export const selectRequiredInRoom = createSelector(selectUser, user => ({
+  _id: user.currentUser._id,
+  name: user.currentUser.name,
+  photoUrl: user.currentUser.photoUrl,
+}));
+
 export const selectfriendList = createSelector(
   selectUser,
   user => user.currentUser.friendList,
