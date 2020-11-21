@@ -1,30 +1,17 @@
 import { connect } from 'react-redux';
 
-import { loginUser } from '../actions/actionCreator';
-import { userService } from '../utils/api';
+import * as userSelector from '../redux/user/user.selectors';
+import { loginUserStart } from '../redux/user/user.actions';
 
 import App from '../components/App';
 
-const mapStateToProps = state => ({ user: state.user });
+const mapStateToProps = state => ({
+  user: userSelector.selectCurrentUser(state),
+});
 
 const mapDispatchToProps = dispatch => ({
-  async onLoad() {
-    const token = localStorage.getItem('jwt-token');
-
-    if (token) {
-      const { user } = await userService.tokenLogin(token);
-      dispatch(loginUser(user));
-    }
-  },
-  async onLogin() {
-    try {
-      const { user, token } = await userService.googleLogin();
-      localStorage.setItem('jwt-token', token);
-      dispatch(loginUser(user));
-    } catch (err) {
-      console.error(err);
-    }
-  },
+  loginUserWithToken: () => dispatch(loginUserStart('token')),
+  loginUserWithGoogle: () => dispatch(loginUserStart('google')),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);
