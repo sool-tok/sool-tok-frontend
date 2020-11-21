@@ -1,4 +1,4 @@
-import * as types from '../constants/actionTypes';
+import types from './room.actionTypes';
 
 export const renderRoom = room => ({
   type: types.RENDER_ROOM,

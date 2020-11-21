@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import ReactLoading from 'react-loading';
 
 import Button from './Button';
 import FriendCell from './FriendCell';
@@ -10,14 +11,24 @@ import AddFriendForm from './AddFriendForm';
 
 import { IoMdCheckmark, IoMdClose } from 'react-icons/io';
 
-function MyPage({ onLoad, onLogout, onLoadRequestList, onSubmit, user, friendList, friendRequestList }) {
+function MyPage({
+  loading,
+  error,
+  user,
+  friendList,
+  friendRequestList,
+  addFriendList,
+  addFriendRequestList,
+  logoutUser,
+  onSubmit,
+}) {
   const [isRequestList, setRequestList] = useState(false);
   const [isModalOpen, setModalOpen] = useState(false);
   const [modalContent, setmodalContent] = useState(null);
   const [list, setList] = useState([]);
 
   useEffect(() => {
-    onLoad(user);
+    addFriendList(user._id);
   }, []);
 
   useEffect(() => {
@@ -32,12 +43,11 @@ function MyPage({ onLoad, onLogout, onLoadRequestList, onSubmit, user, friendLis
 
   useEffect(() => {
     if (isRequestList) {
-      onLoadRequestList(user);
+      addFriendRequestList(user._id);
     } else {
-      onLoad(user);
+      addFriendList(user._id);
     }
   }, [isRequestList]);
-
 
   const openModal = element => {
     setModalOpen(true);
@@ -46,62 +56,62 @@ function MyPage({ onLoad, onLogout, onLoadRequestList, onSubmit, user, friendLis
 
   return (
     <Container>
-      {isModalOpen &&
+      {isModalOpen && (
         <ModalPortal>
           <Modal setModalOpen={setModalOpen}>{modalContent}</Modal>
         </ModalPortal>
-      }
+      )}
       <MyInfo>
         <MyInfoWrapper>
           <h3>{user.name}</h3>
           <p>{user.email}</p>
         </MyInfoWrapper>
-        <Button onClick={() => onLogout(user)}>로그아웃</Button>
+        <Button onClick={() => logoutUser(user._id)}>로그아웃</Button>
       </MyInfo>
       <FriendList>
-        {!isRequestList &&
+        {loading && (
+          <ReactLoading
+            type='bubbles'
+            color='#ffd32a'
+            width={'50%'}
+            height={'50%'}
+          />
+        )}
+        {!isRequestList && (
           <Button onClick={() => openModal(<AddFriendForm user={user} />)}>
             친구 추가하기
           </Button>
-        }
-        {
-          list.length > 0 ?
-            list.map(member => (
-              <FriendCell
-                key={member._id}
-                name={member.name}
-                photoUrl={member.photoUrl}
-                isOnline={member.isOnline}
-              >
-                {
-                  isRequestList &&
-                  <RequestContolBox>
-                    <Button
-                      onClick={() => onSubmit(user._id, true, member._id)}
-                      color='#20bf6b'
-                    >
-                      <IoMdCheckmark size={20} />
-                    </Button>
-                    <Button
-                      onClick={() => onSubmit(user._id, false, member._id)}
-                      color='#eb3b5a'
-                    >
-                      <IoMdClose size={20} />
-                    </Button>
-                  </RequestContolBox>
-                }
-              </FriendCell>
-            ))
-          :
-            <div>
-              {
-                !isRequestList ?
-                  '친구를 추가해보세요..!☀️'
-                :
-                  '친구 요청 목록이 없습니다..🥲'
-              }
-            </div>
-        }
+        )}
+        {list.length > 0 ? (
+          list.map(member => (
+            <FriendCell
+              key={member._id}
+              name={member.name}
+              photoUrl={member.photoUrl}
+              isOnline={member.isOnline}>
+              {isRequestList && (
+                <RequestContolBox>
+                  <Button
+                    onClick={() => onSubmit(user._id, true, member._id)}
+                    color='#20bf6b'>
+                    <IoMdCheckmark size={20} />
+                  </Button>
+                  <Button
+                    onClick={() => onSubmit(user._id, false, member._id)}
+                    color='#eb3b5a'>
+                    <IoMdClose size={20} />
+                  </Button>
+                </RequestContolBox>
+              )}
+            </FriendCell>
+          ))
+        ) : (
+          <div>
+            {!isRequestList
+              ? '친구를 추가해보세요..!☀️'
+              : '친구 요청 목록이 없습니다..🥲'}
+          </div>
+        )}
       </FriendList>
       <ListToggle onClick={() => setRequestList(!isRequestList)}>
         {isRequestList ? '친구 목록 보기' : '요청 목록 보기'}
@@ -209,14 +219,13 @@ const ListToggle = styled.a`
 export default MyPage;
 
 MyPage.propTypes = {
-  onLoad: PropTypes.func.isRequired,
-  onLogout: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired,
-  onLoadRequestList: PropTypes.func.isRequired,
-  user: PropTypes.oneOfType([
-    PropTypes.oneOf([null]),
-    PropTypes.object,
-  ]),
+  loading: PropTypes.bool.isRequired,
+  error: PropTypes.oneOfType([PropTypes.oneOf([null]), PropTypes.object]),
+  user: PropTypes.oneOfType([PropTypes.oneOf([null]), PropTypes.object]),
   friendList: PropTypes.array,
   friendRequestList: PropTypes.array,
+  addFriendList: PropTypes.func.isRequired,
+  addFriendRequestList: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  logoutUser: PropTypes.func.isRequired,
 };

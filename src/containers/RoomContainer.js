@@ -1,8 +1,9 @@
 import { connect } from 'react-redux';
 
+import * as roomAction from '../redux/room/room.actions';
+import * as chatAction from '../redux/chat/chat.actions';
+
 import Room from '../components/Room';
-import * as roomAction from '../actions/roomAction';
-import * as chatAction from '../actions/chatAction';
 
 const mapStateToProps = state => ({
   user: state.user && {
@@ -11,7 +12,7 @@ const mapStateToProps = state => ({
     photoUrl: state.user.photoUrl,
   },
   room: state.room,
-  chatList: state.chatList,
+  chat: state.chat,
 });
 
 const mapDispatchToProps = dispatch => ({

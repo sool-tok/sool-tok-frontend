@@ -1,4 +1,4 @@
-import * as types from '../constants/actionTypes';
+import types from './chat.actionTypes';
 
 export const addChat = chat => ({
   type: types.ADD_CHAT,

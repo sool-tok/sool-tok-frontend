@@ -4,6 +4,10 @@ import axios from 'axios';
 // Test
 // axios.defaults.baseURL = process.env.REACT_APP_PROXY_URL;
 
+const setToken = token => localStorage.setItem('jwt-token', token);
+const getToken = () => localStorage.getItem('jwt-token');
+const removeToken = () => localStorage.removeItem('jwt-token');
+
 const googleLogin = async () => {
   try {
     const provider = new firebase.auth.GoogleAuthProvider();
@@ -17,53 +21,66 @@ const googleLogin = async () => {
     };
 
     const { data } = await axios.post('/users/login/google', userInfo);
-    return { user: data.user, token: data.token };
-  } catch (err) {
-    console.error(err);
-  }
-};
-
-const tokenLogin = async token => {
-  try {
-    const { data } = await axios.post('/users/login/token', { token });
-    if (data.result === 'error') throw new Error(data);
-
+    setToken(data.token);
     return { user: data.user };
   } catch (err) {
-    console.error(err);
-    return;
+    throw new Error(err);
   }
 };
 
-const logout = async (id, token) => {
+const tokenLogin = async () => {
   try {
-    await axios.post(`/users/${id}/logout`, null, {
-      headers: {
-        'jwt-token': token,
-      },
-    });
+    const token = getToken();
+
+    if (!token) return { user: null };
+
+    const { data } = await axios.post('/users/login/token', { token });
+
+    if (data.result === 'error') throw new Error(data);
+    return { user: data.user };
   } catch (err) {
-    console.error(err);
+    throw new Error(err);
   }
 };
 
-const getFriendList = async (id, token) => {
+const logout = async userId => {
   try {
-    const { data } = await axios.get(`/users/${id}/friends`, {
+    const token = getToken();
+
+    await axios.post(`/users/${userId}/logout`, null, {
       headers: {
         'jwt-token': token,
       },
     });
+
+    removeToken();
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+const getFriendList = async userId => {
+  try {
+    const token = getToken();
+
+    const { data } = await axios.get(`/users/${userId}/friends`, {
+      headers: {
+        'jwt-token': token,
+      },
+    });
+
     if (data.result === 'error') throw new Error(data);
     return data.friendList;
   } catch (err) {
-    console.error(err);
+    throw new Error(err);
   }
 };
 
-const getFriendRequestList = async (id, token) => {
+const getFriendRequestList = async userId => {
   try {
-    const { data } = await axios.get(`/users/${id}/friends/request`, {
+    const token = getToken();
+
+    const { data } = await axios.get(`/users/${userId}/friends/request`, {
       headers: {
         'jwt-token': token,
       },
@@ -72,39 +89,51 @@ const getFriendRequestList = async (id, token) => {
     if (data.result === 'error') throw new Error(data);
     return data.friendRequestList;
   } catch (err) {
-    console.error(err);
+    throw new Error(err);
   }
 };
 
-const requestFriend = async (id, token, email) => {
+const requestFriend = async (userId, token, email) => {
   try {
-    const { status, data } = await axios.post(`/users/${id}/friends/request`, { email }, {
-      headers: {
-        'jwt-token': token,
+    const { status, data } = await axios.post(
+      `/users/${userId}/friends/request`,
+      { email },
+      {
+        headers: {
+          'jwt-token': token,
+        },
       },
-    });
+    );
 
-    return { message: status === 204 ? '존재하지 않는 유저입니다.' : data.message };
+    return {
+      message: status === 204 ? '존재하지 않는 유저입니다.' : data.message,
+    };
   } catch (err) {
-    console.error(err);
+    throw new Error(err);
   }
 };
 
-const responseFriendRequest = async (id, token, isAccepted, targetUserId) => {
+const responseFriendRequest = async (userId, isAccepted, targetUserId) => {
   try {
-    const { data } = await axios.put(`/users/${id}/friends/request`, {
-      isAccepted,
-      target_user_id: targetUserId,
-    }, {
-      headers: {
-        'jwt-token': token,
+    const token = getToken();
+
+    const { data } = await axios.put(
+      `/users/${userId}/friends/request`,
+      {
+        isAccepted,
+        target_user_id: targetUserId,
       },
-    });
+      {
+        headers: {
+          'jwt-token': token,
+        },
+      },
+    );
 
     if (data.result === 'error') throw new Error(data);
     return data.friendRequestList;
   } catch (err) {
-    console.error(err);
+    throw new Error(err);
   }
 };
 
