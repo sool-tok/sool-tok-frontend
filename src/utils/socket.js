@@ -29,9 +29,12 @@ const gameSocket = {
   listenResetGame(cb) {
     socket.on('reset game', cb);
   },
-  // cleanUpGameListener() {
-  //   socket.off('end game');
-  // },
+  cleanUpGameListener() {
+    socket.off('initializing game');
+    socket.off('proceed game');
+    socket.off('turn change');
+    socket.off('reset game');
+  },
 };
 
 

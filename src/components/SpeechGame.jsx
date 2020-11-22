@@ -17,15 +17,6 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
   const [notification, setNotification] = useState('');
   const [script, setScript] = useState('');
 
-  /*
-    {
-      timout: 60000,
-      orderList: ['asdasd', 'ascac', 'avs',3 'sadsd'],
-      phrases: ['추워', '기분 좋아', '소켓 연결'],
-      currentTurn: '2',
-    }
-  */
-
   const deleteReconginiton = () => {
     if (!recognition.current) return;
     recognition.current.stop();
@@ -57,9 +48,9 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
     if (gameData) return;
 
     gameSocket.listenInitailizingGame(data => {
-      const { orderList, currentTurn } = data;
+      const { initialTurn } = data;
       const mySocketId = getMySocketId();
-      const isMyTurn = orderList.findIndex(({ socketId }) => socketId === mySocketId) === currentTurn;
+      const isMyTurn = mySocketId === initialTurn;
 
       gameDataRef.current = data;
       isMyTurnRef.current = isMyTurn;
@@ -68,10 +59,9 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
       setMyTurn(isMyTurn);
     });
 
-    gameSocket.listenTurnChange(targetIndex => {
+    gameSocket.listenTurnChange(targetSocketId => {
       const mySocketId = getMySocketId();
-
-      const isMyTurn = gameDataRef.current.orderList[targetIndex].socketId === mySocketId;
+      const isMyTurn = targetSocketId === mySocketId;
 
       isMyTurnRef.current = isMyTurn;
       setMyTurn(isMyTurn);
@@ -79,7 +69,10 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
 
     gameSocket.listenResetGame(resetGame);
 
-    return () => resetGame();
+    return () => {
+      // gameSocket.cleanUpGameListener();
+      resetGame();
+    };
   }, []);
 
   useEffect(() => {
@@ -110,6 +103,8 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
   useEffect(() => {
     if (!gameData) return;
     if (!isMyTurn) {
+      deleteReconginiton();
+
       gameSocket.listenProceedGame(data => {
         const { targetPhrase, notification, script } = data;
         if (notification) setNotification(notification);
@@ -157,17 +152,8 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
               notification: '정답입니다.',
             });
 
-            console.warn('Result: 성공');
             setNotification('정답입니다.');
-
-            const currentIndex = gameDataRef.current.orderList.findIndex(({ socketId }) => socketId === getMySocketId());
-            let targetIndex = currentIndex + 1;
-
-            if (targetIndex >= gameDataRef.current.orderList.length) {
-              targetIndex = 0;
-            }
-
-            gameSocket.sendNextTurn({ roomId, targetIndex });
+            gameSocket.sendNextTurn({ roomId });
           } else {
             console.warn('Result: 실패');
             setNotification('다시 한번 말 해 주세요.');
@@ -206,7 +192,7 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
         };
 
         recognition.current.onerror = ev => {
-          console.error('error');
+          console.error('error', ev.error);
           deleteReconginiton();
           gameSocket.sendResetGame(roomId);
         };
