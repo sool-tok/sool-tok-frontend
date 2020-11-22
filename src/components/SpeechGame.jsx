@@ -17,36 +17,40 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
   const [notification, setNotification] = useState('');
   const [script, setScript] = useState('');
 
-  /*
-    {
-      timout: 60000,
-      orderList: ['asdasd', 'ascac', 'avs',3 'sadsd'],
-      phrases: ['추워', '기분 좋아', '소켓 연결'],
-      currentTurn: '2',
-    }
-  */
+  const deleteReconginiton = () => {
+    if (!recognition.current) return;
+    recognition.current.stop();
+    recognition.current = null;
+  };
+
+  const restartSpeech = () => {
+    if (!recognition.current) return;
+    recognition.current.stop();
+    recognition.current.start();
+  };
+
+  const resetGame = () => {
+    setGameData(null);
+    setPhrase('');
+    setNotification('');
+    setScript('');
+
+    clearTimeout(timeout.current);
+    timeout.current = null;
+    gameDataRef.current = null;
+  };
+
+  const startGame = () => {
+    gameSocket.startGame({ title: 'speechBomb', roomId });
+  };
 
   useEffect(() => {
-    console.log('턴 변경', isMyTurn);
-  }, [isMyTurn]);
-
-  useEffect(() => {
-    console.log('게임 데이터', gameData);
-  }, [gameData]);
-
-  useEffect(() => {
-    console.log('소켓 커넥터', gameData);
     if (gameData) return;
 
     gameSocket.listenInitailizingGame(data => {
-      console.log('startGame -> data', data);
-
-      const { orderList, currentTurn } = data;
+      const { initialTurn } = data;
       const mySocketId = getMySocketId();
-      const isMyTurn = orderList.findIndex(({ socketId }) => socketId === mySocketId) === currentTurn;
-
-      console.log('currentTurn', currentTurn);
-      console.log('최초 턴', isMyTurn);
+      const isMyTurn = mySocketId === initialTurn;
 
       gameDataRef.current = data;
       isMyTurnRef.current = isMyTurn;
@@ -55,83 +59,82 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
       setMyTurn(isMyTurn);
     });
 
-    gameSocket.listenTurnChange(targetIndex => {
+    gameSocket.listenTurnChange(targetSocketId => {
       const mySocketId = getMySocketId();
-
-      const isMyTurn = gameDataRef.current.orderList[targetIndex].socketId === mySocketId;
+      const isMyTurn = targetSocketId === mySocketId;
 
       isMyTurnRef.current = isMyTurn;
       setMyTurn(isMyTurn);
     });
-  }, [gameData]);
+
+    gameSocket.listenResetGame(resetGame);
+
+    return () => {
+      // gameSocket.cleanUpGameListener();
+      resetGame();
+    };
+  }, []);
 
   useEffect(() => {
     if (!gameData) return;
 
-    console.log('내 상태는?:', isMyTurnRef.current);
-
     if (!timeout.current) {
       timeout.current = setTimeout(() => {
+        deleteReconginiton();
+
         if (isMyTurnRef.current) {
           console.log('게임 종료: 내가 걸렸다..');
-          setScript('게임 종료: 내가 걸렸다..');
+          setNotification('내가 걸렸다..');
         } else {
           console.log('게임 종료: 난 걸리지 않았다..');
-          setScript('게임 종료: 난 걸리지 않았다..');
-        }
-
-        if (recognition.current) {
-          recognition.current.stop();
-          recognition.current = null;
+          setNotification('난 걸리지 않았다..');
         }
 
         setGameData(null);
+        setScript('');
+
+        clearTimeout(timeout.current);
         timeout.current = null;
         gameDataRef.current = null;
-
       }, gameData.explostionTime);
     }
   }, [gameData, isMyTurn]);
 
   useEffect(() => {
     if (!gameData) return;
-
     if (!isMyTurn) {
-      console.log('호호 내 차례가 아니야...');
+      deleteReconginiton();
+
       gameSocket.listenProceedGame(data => {
         const { targetPhrase, notification, script } = data;
-
         if (notification) setNotification(notification);
         if (targetPhrase) setPhrase(targetPhrase);
         if (script) setScript(script);
       });
     } else {
-      console.log('내 차례다...');
       setScript('');
       setPhrase('');
+
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       const SpeechGrammarList = window.SpeechGrammarList || window.webkitSpeechGrammarList;
 
-      const randomPhrase = () => {
-        const number = Math.floor(Math.random() * gameData.phrases.length);
-        return number;
-      };
-
-      const targetPhrase = gameData.phrases[randomPhrase()];
+      const randomIndex = _.random(0, gameData.phrases.length - 1);
+      const targetPhrase = gameData.phrases[randomIndex];
 
       gameSocket.sendGameStatus({
         roomId,
         targetPhrase,
-        notification,
+        notification: '두구두구두구',
       });
 
       const startRecongnition = () => {
         setPhrase(targetPhrase);
-        setNotification('두구두구두구두구두구두구');
+        setNotification('두구두구두구');
 
         recognition.current = new SpeechRecognition();
         const speechRecognitionList = new SpeechGrammarList();
         const grammar = `#JSGF V1.0; grammar phrase; public <phrase> = ${phrase};`;
+        let speechResult;
 
         speechRecognitionList.addFromString(grammar, 1);
 
@@ -139,12 +142,6 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
         recognition.current.lang = 'ko';
         recognition.current.interimResults = true;
         recognition.current.maxAlternatives = 1;
-
-        const restartSpeech = () => {
-          if (!recognition.current) return;
-          recognition.current.stop();
-          recognition.current.start();
-        };
 
         const getSpeechResult = _.debounce((result = '') => {
           if (!gameDataRef.current) return;
@@ -156,28 +153,19 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
             });
 
             setNotification('정답입니다.');
-
-            const currentIndex = gameDataRef.current.orderList.findIndex(({ socketId }) => socketId === getMySocketId());
-            let targetIndex = currentIndex + 1;
-
-            if (targetIndex >= gameDataRef.current.orderList.length) {
-              targetIndex = 0;
-            }
-
-            gameSocket.sendNextTurn({ roomId, targetIndex });
+            gameSocket.sendNextTurn({ roomId });
           } else {
-            console.log('실패하는데?');
+            console.warn('Result: 실패');
             setNotification('다시 한번 말 해 주세요.');
             restartSpeech();
           }
         }, 500);
 
-        let speechResult;
-
         recognition.current.start();
 
         recognition.current.onaudiostart = () => {
-          console.log('audio start');
+          console.log('audio start', recognition.current);
+          if (!recognition.current) return;
 
           gameSocket.sendGameStatus({
             roomId,
@@ -185,10 +173,6 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
           });
 
           setScript('...인식중');
-        };
-
-        recognition.current.onstart = () => {
-          console.warn('온스타트 됌');
         };
 
         recognition.current.onresult = ev => {
@@ -202,33 +186,21 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
           setScript(speechResult);
         };
 
-        recognition.current.onspeechend = () => {
-          getSpeechResult(speechResult);
-        };
-
-        recognition.current.onaudioend = () => {
-          console.log(' audio end ');
-        };
-
         recognition.current.onend = () => {
-          console.warn(' final end ');
+          console.warn('onend');
+          getSpeechResult(speechResult);
         };
 
         recognition.current.onerror = ev => {
-          setScript(ev.error);
-          console.log('에러가 나서 재시작 함');
-          getSpeechResult(speechResult);
+          console.error('error', ev.error);
+          deleteReconginiton();
+          gameSocket.sendResetGame(roomId);
         };
       };
 
       startRecongnition();
     }
   }, [gameData, isMyTurn]);
-
-  const startGame = () => {
-    console.log('찍힘');
-    gameSocket.startGame({ title: 'speechBomb', roomId });
-  };
 
   return (
     <div>
@@ -238,7 +210,7 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
           :
             <button onClick={startGame}>시작</button>
         }
-        <h1>{gameData && isMyTurn ? '내 차례..' : '내 차례 아님..'}</h1>
+        <h1>{gameData && (isMyTurn ? '내 차례..' : '내 차례 아님..')}</h1>
         <h1 style={{ color:'#292929'}} className='phrase'>{phrase}</h1>
         <div className='output'>
           <h3>{script}</h3>

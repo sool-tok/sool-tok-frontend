@@ -14,6 +14,9 @@ const gameSocket = {
   sendNextTurn(next) {
     socket.emit('turn change', next);
   },
+  sendResetGame(roomId) {
+    socket.emit('reset game', roomId);
+  },
   listenInitailizingGame(cb) {
     socket.on('initializing game', cb);
   },
@@ -23,9 +26,15 @@ const gameSocket = {
   listenTurnChange(cb) {
     socket.on('turn change', cb);
   },
-  // cleanUpGameListener() {
-  //   socket.off('end game');
-  // },
+  listenResetGame(cb) {
+    socket.on('reset game', cb);
+  },
+  cleanUpGameListener() {
+    socket.off('initializing game');
+    socket.off('proceed game');
+    socket.off('turn change');
+    socket.off('reset game');
+  },
 };
 
 

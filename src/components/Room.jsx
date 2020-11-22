@@ -228,7 +228,7 @@ function Room({
             <span>{room.isLocked ? <BsLockFill /> : <BsUnlockFill />}</span>
           </Header>
           <Wrapper>
-            <GameBox>
+            <GameBox isMyTurn={isMyTurn}>
               <SpeechGame
                 roomId={roomId}
                 isMyTurn={isMyTurn}
@@ -357,8 +357,10 @@ const GameBox = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #a9c9ff;
+    /* background-color: #a9c9ff;
     background-image: linear-gradient(180deg, #a9c9ff 0%, #ffbbec 100%);
+     */
+    background-color: ${props => props.isMyTurn ? '#ffd32a' : 'gray'};
   }
 `;
 
