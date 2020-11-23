@@ -13,14 +13,12 @@ import Button from './Button';
 import ErrorBox from './ErrorBox';
 
 import { BsUnlockFill, BsLockFill, BsFillChatDotsFill } from 'react-icons/bs';
-import {
-  FaVideo,
-  FaVideoSlash,
-  FaVolumeMute,
-  FaVolumeUp,
-} from 'react-icons/fa';
+import { FaVideo, FaVideoSlash, FaVolumeMute, FaVolumeUp } from 'react-icons/fa';
 import { IoIosExit } from 'react-icons/io';
 import { toast } from 'react-toastify';
+
+import bomb from '../assets/bomb.png';
+import explosion from '../assets/explosion.gif';
 
 function Room({
   user,
@@ -39,7 +37,9 @@ function Room({
   const history = useHistory();
   const { room_id: roomId } = useParams();
 
+  const [isFinalGame, setFinalGame] = useState(false);
   const [isMyTurn, setMyTurn] = useState(false);
+  const [currentTurn, setCurrentTurn] = useState('');
 
   const [isHost, setIsHost] = useState(false);
   const [isChatRoomOpen, setIsChatRoomOpen] = useState(false);
@@ -51,6 +51,13 @@ function Room({
   const peersRef = useRef({});
   const streamRef = useRef();
   const myVideoRef = useRef();
+
+  useEffect(() => {
+    if (!isFinalGame) return;
+    setTimeout(() => {
+      setFinalGame(false);
+    }, 2000);
+  }, [isFinalGame]);
 
   useEffect(() => {
     roomSocket.joinRoom({ roomId, user }, async ({ room, message }) => {
@@ -248,11 +255,22 @@ function Room({
                 roomId={roomId}
                 isMyTurn={isMyTurn}
                 setMyTurn={setMyTurn}
+                currentTurn={currentTurn}
+                setCurrentTurn={setCurrentTurn}
+                setFinalGame={setFinalGame}
               />
             </GameBox>
             <MemberList>
               {room.memberList.map(member => (
                 <MemberBlock key={member.socketId}>
+                  {
+                    currentTurn === member.socketId && !isFinalGame &&
+                    <img src={bomb} alt='bomb' />
+                  }
+                  {
+                    currentTurn === member.socketId && isFinalGame &&
+                    <img className='explosion' src={explosion} alt='explosion' />
+                  }
                   {member.socketId === getMySocketId() ? (
                     <StyledVideo
                       thumbnail={member.photoUrl}
@@ -383,15 +401,12 @@ const GameBox = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    /* background-color: #a9c9ff;
-    background-image: linear-gradient(180deg, #a9c9ff 0%, #ffbbec 100%);
-     */
     background-color: ${props => props.isMyTurn ? '#ffd32a' : 'gray'};
   }
 `;
 
 const UtilityBox = styled.div`
-  z-index: 1;
+  z-index: 100;
   width: 100%;
   height: 80px;
   position: fixed;
@@ -430,6 +445,7 @@ const MemberList = styled.div`
 `;
 
 const MemberBlock = styled.div`
+  position: relative;
   margin: 20px;
   display: flex;
   flex-direction: column;
@@ -440,6 +456,19 @@ const MemberBlock = styled.div`
     color: #eee;
     margin-top: 24px;
     font-size: 18px;
+  }
+
+  img {
+    z-index: 10;
+    position: absolute;
+    top: -92px;
+    left: -3px;
+    width: 129%;
+  }
+
+  img.explosion {
+    mix-blend-mode: screen;
+    left: -36px;
   }
 `;
 
