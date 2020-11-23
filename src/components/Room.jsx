@@ -20,6 +20,7 @@ import {
   FaVolumeUp,
 } from 'react-icons/fa';
 import { IoIosExit } from 'react-icons/io';
+import { toast } from 'react-toastify';
 
 function Room({
   user,
@@ -204,13 +205,14 @@ function Room({
     }
   };
 
-  const copyUrl = () => {
+  const copyRoomUrl = () => {
     const temp = document.createElement('textarea');
     temp.value = window.location.href;
     document.body.appendChild(temp);
 
     temp.select();
     document.execCommand('copy');
+    toast('Url이 복사되었습니다', { type: toast.TYPE.DARK });
     document.body.removeChild(temp);
   };
 
@@ -238,7 +240,7 @@ function Room({
               <h1>{room.title}</h1>
               <span>{room.isLocked ? <BsLockFill /> : <BsUnlockFill />}</span>
             </div>
-            <Button onClick={copyUrl}>URL 복사</Button>
+            <Button onClick={copyRoomUrl}>URL 복사</Button>
           </Header>
           <Wrapper>
             <GameBox isMyTurn={isMyTurn}>
@@ -361,6 +363,8 @@ const Header = styled.header`
   }
 
   button {
+    background-color: rgba(0, 0, 0, 0);
+    color: #20bf6b;
     margin-right: 24px;
   }
 `;
