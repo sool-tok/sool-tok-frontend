@@ -5,7 +5,13 @@ import _ from 'lodash';
 
 import { gameSocket, getMySocketId } from '../utils/socket';
 
-function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
+function SpeechGame({
+  roomId,
+  isMyTurn,
+  setMyTurn,
+  setCurrentTurn,
+  setFinalGame,
+}) {
   const [gameData, setGameData] = useState(null);
   const gameDataRef = useRef();
   const isMyTurnRef = useRef();
@@ -30,10 +36,14 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
   };
 
   const resetGame = () => {
-    setGameData(null);
     setPhrase('');
     setNotification('');
     setScript('');
+
+    setCurrentTurn('');
+    setGameData(null);
+    setFinalGame(false);
+    setMyTurn(false);
 
     clearTimeout(timeout.current);
     timeout.current = null;
@@ -57,6 +67,7 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
 
       setGameData(data);
       setMyTurn(isMyTurn);
+      setCurrentTurn(initialTurn);
     });
 
     gameSocket.listenTurnChange(targetSocketId => {
@@ -64,15 +75,14 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
       const isMyTurn = targetSocketId === mySocketId;
 
       isMyTurnRef.current = isMyTurn;
+
       setMyTurn(isMyTurn);
+      setCurrentTurn(targetSocketId);
     });
 
     gameSocket.listenResetGame(resetGame);
 
-    return () => {
-      // gameSocket.cleanUpGameListener();
-      resetGame();
-    };
+    return () => resetGame();
   }, []);
 
   useEffect(() => {
@@ -92,11 +102,12 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
 
         setGameData(null);
         setScript('');
+        setFinalGame(true);
 
         clearTimeout(timeout.current);
         timeout.current = null;
         gameDataRef.current = null;
-      }, gameData.explostionTime);
+      }, gameData.explosionTime);
     }
   }, [gameData, isMyTurn]);
 
@@ -146,7 +157,9 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
         const getSpeechResult = _.debounce((result = '') => {
           if (!gameDataRef.current) return;
 
-          if (result.split(' ').join('') === targetPhrase.split(' ').join('')) {
+          const isAnswer = result.split(' ').join('') === targetPhrase.split(' ').join('');
+
+          if (isAnswer) {
             gameSocket.sendGameStatus({
               roomId,
               notification: '정답입니다.',
@@ -156,7 +169,7 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
             gameSocket.sendNextTurn({ roomId });
           } else {
             console.warn('Result: 실패');
-            setNotification('다시 한번 말 해 주세요.');
+            setNotification('다시 한번 말 해보세요.');
             restartSpeech();
           }
         }, 500);
@@ -164,7 +177,6 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
         recognition.current.start();
 
         recognition.current.onaudiostart = () => {
-          console.log('audio start', recognition.current);
           if (!recognition.current) return;
 
           gameSocket.sendGameStatus({
@@ -187,7 +199,6 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
         };
 
         recognition.current.onend = () => {
-          console.warn('onend');
           getSpeechResult(speechResult);
         };
 
@@ -205,7 +216,8 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
   return (
     <div>
       <div style={{ display:'flex', flexDirection:'column' }}>
-        {gameData ?
+        {
+          gameData ?
             <button disabled>게임 중 입니다.</button>
           :
             <button onClick={startGame}>시작</button>
@@ -215,7 +227,7 @@ function SpeechGame({ roomId, isMyTurn, setMyTurn }) {
         <div className='output'>
           <h3>{script}</h3>
         </div>
-        <h3 style={{ fontSize:'30px'}}className='notification'>{notification}</h3>
+        <h3 style={{ fontSize:'30px'}} className='notification'>{notification}</h3>
       </div>
     </div>
   );
@@ -226,5 +238,8 @@ export default SpeechGame;
 SpeechGame.propTypes = {
   roomId: PropTypes.string.isRequired,
   setMyTurn: PropTypes.func.isRequired,
-  isMyTurn: PropTypes.bool,
+  isMyTurn: PropTypes.bool.isRequired,
+  currentTurn: PropTypes.string.isRequired,
+  setCurrentTurn: PropTypes.func.isRequired,
+  setFinalGame: PropTypes.func.isRequired,
 };
