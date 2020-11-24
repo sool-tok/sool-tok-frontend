@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 function FriendCell({ name, photoUrl, isOnline, children }) {
   return (
-    <StyledFriendCell style={{ backgroundColor: isOnline ? '#1abc9c' : '#130f40' }}>
+    <StyledFriendCell isOnline={isOnline}>
       <img src={photoUrl} />
       <p>{name}</p>
       {children}
@@ -18,7 +18,7 @@ const StyledFriendCell = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  background-color: #474787;
+  background-color: ${({ isOnline, theme }) => isOnline ? theme.green : theme.lightGray };
   border-radius: 48px;
   margin: 10px;
   padding: 10px;
@@ -31,9 +31,9 @@ const StyledFriendCell = styled.div`
   }
 
   p {
-    font-size: 18px;
-    color: #fff;
     width: 106px;
+    font-size: 18px;
+    color: ${({ theme }) => theme.purple};
   }
 `;
 
