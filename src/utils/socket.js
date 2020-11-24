@@ -88,6 +88,18 @@ const chatSocket = {
   },
 };
 
+const filterSocket = {
+  renderFilter({ roomId, isFilterOn, emoji }) {
+    socket.emit('filter', { roomId, isFilterOn, emoji });
+  },
+  listenRenderFilter(cb) {
+    socket.on('filter', cb);
+  },
+  cleanUpFilterListener() {
+    socket.off('filter');
+  },
+};
+
 const peerSocket = {
   sendingSignal({ signal, receiver }) {
     socket.emit('sending signal', { signal, receiver });
@@ -107,4 +119,4 @@ const peerSocket = {
   },
 };
 
-export { roomSocket, chatSocket, peerSocket, gameSocket };
+export { roomSocket, chatSocket, peerSocket, gameSocket, filterSocket };
