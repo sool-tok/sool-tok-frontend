@@ -2,7 +2,7 @@
   "name": "sool-tok-frontend",
   "version": "0.1.0",
   "private": true,
-  "proxy": "https://192.168.0.86",
+  "proxy": "https://192.168.0.53",
   "dependencies": {
     "@testing-library/jest-dom": "^5.11.5",
     "@testing-library/react": "^11.1.2",

@@ -4,6 +4,30 @@ const socket = io();
 
 export const getMySocketId = () => socket.id;
 
+const gameSocket = {
+  startGame(data) {
+    socket.emit('start game', data);
+  },
+  sendGameStatus(status) {
+    socket.emit('proceed game', status);
+  },
+  sendNextTurn(next) {
+    socket.emit('turn change', next);
+  },
+  listenInitailizingGame(cb) {
+    socket.on('initializing game', cb);
+  },
+  listenProceedGame(cb) {
+    socket.on('proceed game', cb);
+  },
+  listenTurnChange(cb) {
+    socket.on('turn change', cb);
+  },
+  // cleanUpGameListener() {
+  //   socket.off('end game');
+  // },
+};
+
 const roomSocket = {
   createRoom({ roomData }, cb) {
     socket.emit('create room', { roomData }, cb);
@@ -54,6 +78,18 @@ const chatSocket = {
   },
 };
 
+const filterSocket = {
+  renderFilter({ roomId, isFilterOn, emoji }) {
+    socket.emit('filter', { roomId, isFilterOn, emoji });
+  },
+  listenRenderFilter(cb) {
+    socket.on('filter', cb);
+  },
+  cleanUpFilterListener() {
+    socket.off('filter');
+  },
+};
+
 const peerSocket = {
   sendingSignal({ signal, receiver }) {
     socket.emit('sending signal', { signal, receiver });
@@ -73,16 +109,4 @@ const peerSocket = {
   },
 };
 
-const gameSocket = {
-  broadcastSpeechBomb(gameData) {
-    socket.emit('game-speechbomb', gameData);
-  },
-  listenSpeechBomb(cb) {
-    socket.on('game-speechbomb', cb);
-  },
-  cleanUpGameListener() {
-    socket.off('game-speechbomb');
-  },
-};
-
-export { roomSocket, chatSocket, peerSocket, gameSocket };
+export { roomSocket, chatSocket, peerSocket, gameSocket, filterSocket };

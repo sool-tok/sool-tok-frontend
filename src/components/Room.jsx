@@ -4,13 +4,15 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Peer from 'simple-peer';
 
-import { roomSocket, chatSocket, peerSocket, getMySocketId } from '../utils/socket';
+import { roomSocket, chatSocket, filterSocket, peerSocket, getMySocketId } from '../utils/socket';
 
 import Video, { StyledVideo } from './Video';
 import SpeechGame from './SpeechGame';
 import Chat from './Chat';
 import Button from './Button';
 import ErrorBox from './ErrorBox';
+import ActionFilter from './ActionFilter';
+import Canvas from './Canvas';
 
 import { BsUnlockFill, BsLockFill, BsFillChatDotsFill } from 'react-icons/bs';
 import {
@@ -37,8 +39,14 @@ function Room({
 }) {
   const history = useHistory();
   const { room_id: roomId } = useParams();
-  const [isChatRoomOpen, setIsChatRoomOpen] = useState(false);
+
+  const [isMyTurn, setMyTurn] = useState(false);
+
   const [isHost, setIsHost] = useState(false);
+  const [isChatRoomOpen, setIsChatRoomOpen] = useState(false);
+  const [filterIcon, setFilterIcon] = useState('');
+  const [isFilterOn, setIsFilterOn] = useState(false);
+
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamOptions, setStreamOptions] = useState({});
   const [error, setError] = useState('');
@@ -83,10 +91,15 @@ function Room({
     });
 
     chatSocket.listenMessage(({ chat }) => addChat(chat));
+    filterSocket.listenRenderFilter(({ isFilterOn, emoji }) => {
+      setIsFilterOn(isFilterOn);
+      setFilterIcon(emoji);
+    });
 
     return () => {
       roomSocket.cleanUpRoomListener();
       chatSocket.cleanUpMessageListener();
+      filterSocket.cleanUpFilterListener();
 
       roomSocket.leaveRoom({ roomId });
 
@@ -200,6 +213,7 @@ function Room({
     }
   };
 
+
   if (error) {
     return <ErrorBox message={error} text='메인으로' />;
   }
@@ -208,6 +222,7 @@ function Room({
     <Container>
       {room && (
         <>
+          <ActionFilter roomId={roomId} isFilterOn={isFilterOn} setIsFilterOn={setIsFilterOn} />
           <Button onClick={() => setIsChatRoomOpen(!isChatRoomOpen)}>
             <BsFillChatDotsFill size={28} />
             {!!unreadChatCount && <Badge>{unreadChatCount}</Badge>}
@@ -225,12 +240,18 @@ function Room({
           </Header>
           <Wrapper>
             <GameBox>
-              <SpeechGame />
+              <SpeechGame
+                roomId={roomId}
+                isMyTurn={isMyTurn}
+                setMyTurn={setMyTurn}
+              />
             </GameBox>
             <MemberList>
               {room.memberList.map(member => (
                 <MemberBlock key={member.socketId}>
-                  {member._id === user._id ? (
+                  {member.socketId === getMySocketId() ? (
+                    <>
+                    {isFilterOn && <Canvas emoji={filterIcon} />}
                     <StyledVideo
                       thumbnail={member.photoUrl}
                       ref={myVideoRef}
@@ -238,11 +259,15 @@ function Room({
                       playsInline
                       muted
                     />
+                    </>
                   ) : (
+                    <>
+                    {isFilterOn && <Canvas emoji={filterIcon} />}
                     <Video
                       thumbnail={member.photoUrl}
                       peer={peers[member.socketId]}
                     />
+                    </>
                   )}
                   <h3>{member.name}</h3>
                 </MemberBlock>
@@ -298,6 +323,7 @@ const Container = styled.div`
   background-color: #49007d;
   width: 100vw;
   height: 100vh;
+  position: relative;
 
   & > button {
     z-index: 999;
@@ -344,7 +370,7 @@ const GameBox = styled.div`
 
   div {
     width: 320px;
-    height: 600px;
+    height: 300px;
     border-radius: 36px;
     display: flex;
     justify-content: center;
@@ -399,6 +425,7 @@ const MemberBlock = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  position: relative;
 
   h3 {
     color: #eee;
