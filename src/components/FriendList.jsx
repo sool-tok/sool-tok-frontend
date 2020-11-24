@@ -9,9 +9,6 @@ import FriendCell from './FriendCell';
 import { IoMdCheckmark, IoMdClose } from 'react-icons/io';
 
 function FriendList({ user, list, isRequestList, openModal, onSubmit }) {
-  console.log('📌 : FriendList -> isRequestList', isRequestList);
-  console.log('📌 : FriendList -> list', list);
-
   return (
     <Wrapper>
       {!isRequestList && (
@@ -19,34 +16,31 @@ function FriendList({ user, list, isRequestList, openModal, onSubmit }) {
           친구 추가하기
         </Button>
       )}
-      {list?.length ? (
-        list.map(member => (
-          <FriendCell
-            key={member._id}
-            name={member.name}
-            photoUrl={member.photoUrl}
-            isOnline={member.isOnline}>
-            {isRequestList && (
-              <RequestContolBox>
-                <Button
-                  onClick={() => onSubmit(user._id, true, member._id)}
-                  color='#20bf6b'>
-                  <IoMdCheckmark size={20} />
-                </Button>
-                <Button
-                  onClick={() => onSubmit(user._id, false, member._id)}
-                  color='#eb3b5a'>
-                  <IoMdClose size={20} />
-                </Button>
-              </RequestContolBox>
-            )}
-          </FriendCell>
-        ))
-      ) : (
+      {list.map(member => (
+        <FriendCell
+          key={member._id}
+          name={member.name}
+          photoUrl={member.photoUrl}
+          isOnline={member.isOnline}>
+          {isRequestList && (
+            <RequestContolBox>
+              <Button
+                onClick={() => onSubmit(user._id, true, member._id)}
+                color='#20bf6b'>
+                <IoMdCheckmark size={20} />
+              </Button>
+              <Button
+                onClick={() => onSubmit(user._id, false, member._id)}
+                color='#eb3b5a'>
+                <IoMdClose size={20} />
+              </Button>
+            </RequestContolBox>
+          )}
+        </FriendCell>
+      ))}
+      {!list.length && (
         <div>
-          {!isRequestList
-            ? '친구를 추가해보세요..!☀️'
-            : '친구 요청 목록이 없습니다..🥲'}
+          {!isRequestList ? '친구를 추가해보세요..!☀️' : '친구 요청 목록이 없습니다..😢'}
         </div>
       )}
     </Wrapper>
@@ -91,8 +85,8 @@ const RequestContolBox = styled.div`
 export default FriendList;
 
 FriendList.propTypes = {
-  user: PropTypes.oneOfType([PropTypes.oneOf([null]), PropTypes.object]),
-  list: PropTypes.array,
+  user: PropTypes.object,
+  list: PropTypes.array.isRequired,
   isRequestList: PropTypes.bool.isRequired,
   openModal: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,

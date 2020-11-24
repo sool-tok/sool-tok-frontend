@@ -21,14 +21,13 @@ function Lobby() {
     roomSocket.updateRoomList();
     roomSocket.listenUpdateRoomList(({ rooms }) => setTables(rooms));
 
-    return () => {
-      roomSocket.cleanUpLobbyListener();
-    };
+    return () => roomSocket.cleanUpLobbyListener();
   }, []);
 
   const moveToRoom = roomId => history.push(`rooms/${roomId}`);
-  const createRoom = roomData =>
+  const createRoom = roomData => {
     roomSocket.createRoom({ roomData }, ({ roomId }) => moveToRoom(roomId));
+  };
 
   const openModal = modalContent => {
     setmodalContent(modalContent);
@@ -37,12 +36,12 @@ function Lobby() {
 
   return (
     <Container>
+      <h1>LOBBY</h1>
       <Tables>
         {tables.map(table => (
           <Table key={table._id} tableInfo={table} />
         ))}
       </Tables>
-      <h1>LOBBY</h1>
       <Wrapper>
         <Button onClick={() => openModal(<CreateRoomForm onSubmit={createRoom} />)}>
           + 테이블 잡기
