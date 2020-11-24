@@ -15,13 +15,12 @@ import ActionFilter from './ActionFilter';
 import Canvas from './Canvas';
 
 import { BsUnlockFill, BsLockFill, BsFillChatDotsFill } from 'react-icons/bs';
-import {
-  FaVideo,
-  FaVideoSlash,
-  FaVolumeMute,
-  FaVolumeUp,
-} from 'react-icons/fa';
+import { FaVideo, FaVideoSlash, FaVolumeMute, FaVolumeUp } from 'react-icons/fa';
 import { IoIosExit } from 'react-icons/io';
+import { toast } from 'react-toastify';
+
+import bomb from '../assets/bomb.png';
+import explosion from '../assets/explosion.gif';
 
 function Room({
   user,
@@ -40,10 +39,13 @@ function Room({
   const history = useHistory();
   const { room_id: roomId } = useParams();
 
-  const [isMyTurn, setMyTurn] = useState(false);
-
   const [isHost, setIsHost] = useState(false);
   const [isChatRoomOpen, setIsChatRoomOpen] = useState(false);
+
+  const [isFinalGame, setFinalGame] = useState(false);
+  const [isMyTurn, setMyTurn] = useState(false);
+  const [currentTurn, setCurrentTurn] = useState('');
+
   const [filterIcon, setFilterIcon] = useState('');
   const [isFilterOn, setIsFilterOn] = useState(false);
 
@@ -54,6 +56,13 @@ function Room({
   const peersRef = useRef({});
   const streamRef = useRef();
   const myVideoRef = useRef();
+
+  useEffect(() => {
+    if (!isFinalGame) return;
+    setTimeout(() => {
+      setFinalGame(false);
+    }, 2000);
+  }, [isFinalGame]);
 
   useEffect(() => {
     roomSocket.joinRoom({ roomId, user }, async ({ room, message }) => {
@@ -213,6 +222,17 @@ function Room({
     }
   };
 
+  const copyRoomUrl = () => {
+    const temp = document.createElement('textarea');
+    temp.value = window.location.href;
+    document.body.appendChild(temp);
+
+    temp.select();
+    document.execCommand('copy');
+    toast('Url이 복사되었습니다', { type: toast.TYPE.DARK });
+    document.body.removeChild(temp);
+  };
+
   if (error) {
     return <ErrorBox message={error} text='메인으로' />;
   }
@@ -234,30 +254,44 @@ function Room({
             />
           )}
           <Header>
-            <h1>{room.title}</h1>
-            <span>{room.isLocked ? <BsLockFill /> : <BsUnlockFill />}</span>
+            <div>
+              <h1>{room.title}</h1>
+              <span>{room.isLocked ? <BsLockFill /> : <BsUnlockFill />}</span>
+            </div>
+            <Button onClick={copyRoomUrl}>URL 복사</Button>
           </Header>
           <Wrapper>
-            <GameBox>
+            <GameBox isMyTurn={isMyTurn}>
               <SpeechGame
                 roomId={roomId}
                 isMyTurn={isMyTurn}
                 setMyTurn={setMyTurn}
+                currentTurn={currentTurn}
+                setCurrentTurn={setCurrentTurn}
+                setFinalGame={setFinalGame}
               />
             </GameBox>
             <MemberList>
               {room.memberList.map(member => (
                 <MemberBlock key={member.socketId}>
+                  {
+                    currentTurn === member.socketId && !isFinalGame &&
+                    <img src={bomb} alt='bomb' />
+                  }
+                  {
+                    currentTurn === member.socketId && isFinalGame &&
+                    <img className='explosion' src={explosion} alt='explosion' />
+                  }
                   {member.socketId === getMySocketId() ? (
                     <>
-                    {isFilterOn && <Canvas emoji={filterIcon} />}
-                    <StyledVideo
-                      thumbnail={member.photoUrl}
-                      ref={myVideoRef}
-                      autoPlay
-                      playsInline
-                      muted
-                    />
+                      {isFilterOn && <Canvas emoji={filterIcon} />}
+                      <StyledVideo
+                        thumbnail={member.photoUrl}
+                        ref={myVideoRef}
+                        autoPlay
+                        playsInline
+                        muted
+                      />
                     </>
                   ) : (
                     <>
@@ -347,6 +381,11 @@ const Header = styled.header`
   background-color: #330057;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+
+  div {
+    display: flex;
+  }
 
   h1 {
     font-size: 24px;
@@ -357,6 +396,12 @@ const Header = styled.header`
   span {
     font-size: 21px;
     color: #eb3b5a;
+  }
+
+  button {
+    background-color: rgba(0, 0, 0, 0);
+    color: #20bf6b;
+    margin-right: 24px;
   }
 `;
 
@@ -374,13 +419,12 @@ const GameBox = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #a9c9ff;
-    background-image: linear-gradient(180deg, #a9c9ff 0%, #ffbbec 100%);
+    background-color: ${props => props.isMyTurn ? '#ffd32a' : 'gray'};
   }
 `;
 
 const UtilityBox = styled.div`
-  z-index: 1;
+  z-index: 100;
   width: 100%;
   height: 80px;
   position: fixed;
@@ -419,6 +463,7 @@ const MemberList = styled.div`
 `;
 
 const MemberBlock = styled.div`
+  position: relative;
   margin: 20px;
   display: flex;
   flex-direction: column;
@@ -430,6 +475,19 @@ const MemberBlock = styled.div`
     color: #eee;
     margin-top: 24px;
     font-size: 18px;
+  }
+
+  img {
+    z-index: 10;
+    position: absolute;
+    top: -92px;
+    left: -3px;
+    width: 129%;
+  }
+
+  img.explosion {
+    mix-blend-mode: screen;
+    left: -36px;
   }
 `;
 

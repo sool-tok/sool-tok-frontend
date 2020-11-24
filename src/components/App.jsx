@@ -16,6 +16,8 @@ import theme from './styles/theme';
 import GlobalStyle from './styles/globalStyle';
 import { BiFace } from 'react-icons/bi';
 import ReactLoading from 'react-loading';
+import { ToastContainer, Slide } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const RoomContainer = lazy(async () => {
   await delay(1600);
@@ -43,6 +45,10 @@ function App({ user, loginUserWithToken, loginUserWithGoogle }) {
           <BiFace />
         </FloatingButton>
       )}
+      <ToastContainer
+        autoClose={1600}
+        transition={Slide}
+      />
       <Switch>
         <Route exact path='/'>
           {user ? <Lobby /> : <Login onLogin={loginUserWithGoogle} />}
