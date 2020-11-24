@@ -60,7 +60,7 @@ function App({ user, loginUserWithToken, loginUserWithGoogle }) {
                 fallback={
                   <ReactLoading
                     type='bubbles'
-                    color='#ffd32a'
+                    color={theme.orange}
                     width={'8%'}
                     height={'8%'}
                   />
