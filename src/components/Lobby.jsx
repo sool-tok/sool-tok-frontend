@@ -24,14 +24,13 @@ function Lobby() {
     roomSocket.updateRoomList();
     roomSocket.listenUpdateRoomList(({ rooms }) => setTables(rooms));
 
-    return () => {
-      roomSocket.cleanUpLobbyListener();
-    };
+    return () => roomSocket.cleanUpLobbyListener();
   }, []);
 
   const moveToRoom = roomId => history.push(`rooms/${roomId}`);
-  const createRoom = roomData =>
+  const createRoom = roomData => {
     roomSocket.createRoom({ roomData }, ({ roomId }) => moveToRoom(roomId));
+  };
 
   const openModal = modalContent => {
     setmodalContent(modalContent);
@@ -49,14 +48,12 @@ function Lobby() {
       <Wrapper>
         <Button
           onClick={() => openModal(<CreateRoomForm onSubmit={createRoom} />)}
-          color={theme.orange}
-        >
+          color={theme.orange}>
           테이블 잡기🍷
         </Button>
         <Button
           onClick={() => openModal(<JoinRoomForm onSubmit={moveToRoom} />)}
-          color={theme.emerald}
-        >
+          color={theme.emerald}>
           URL로 참여하기
         </Button>
       </Wrapper>
@@ -65,7 +62,7 @@ function Lobby() {
           <Modal setModalOpen={setModalOpen}>{modalContent}</Modal>
         </ModalPortal>
       )}
-      <video type='video/mp4' src={beerVideo} width='300px' autoPlay loop muted/>
+      <video type='video/mp4' src={beerVideo} width='300px' autoPlay loop muted />
     </Container>
   );
 }

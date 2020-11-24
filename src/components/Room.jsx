@@ -137,7 +137,7 @@ function Room({
   }, [isChatRoomOpen]);
 
   useEffect(() => {
-    if (room && user._id === room.memberList?.[0]._id) {
+    if (room && getMySocketId() === room.memberList?.[0].socketId) {
       setIsHost(true);
     }
   }, [room]);

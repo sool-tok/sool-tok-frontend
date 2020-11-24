@@ -1,21 +1,18 @@
-import React, { useEffect, useState, Suspense, lazy } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import PropTypes from 'prop-types';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import styled, { ThemeProvider } from 'styled-components';
 import { Reset } from 'styled-reset';
 import { delay } from '../utils/delay';
 
-import MyPageContainer from '../containers/MyPageContainer';
-
 import Lobby from './Lobby';
 import Login from './Login';
 import ErrorBox from './ErrorBox';
-import FloatingButton from './FloatingButton';
+import Loading from './Loading';
+import MyPageButton from './MyPageButton';
 
 import theme from './styles/theme';
 import GlobalStyle from './styles/globalStyle';
-import { BiFace } from 'react-icons/bi';
-import ReactLoading from 'react-loading';
 import { ToastContainer, Slide } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -25,30 +22,16 @@ const RoomContainer = lazy(async () => {
 });
 
 function App({ user, loginUserWithToken, loginUserWithGoogle }) {
-  const [isMyPageOpen, setMyPageOpen] = useState(false);
-
   useEffect(() => {
     loginUserWithToken();
   }, []);
-
-  useEffect(() => {
-    if (!user) return setMyPageOpen(false);
-  }, [user]);
 
   return (
     <ThemeProvider theme={theme}>
       <Reset />
       <GlobalStyle />
-      {user && isMyPageOpen && <MyPageContainer />}
-      {user && (
-        <FloatingButton onClick={() => setMyPageOpen(!isMyPageOpen)}>
-          <BiFace />
-        </FloatingButton>
-      )}
-      <ToastContainer
-        autoClose={1600}
-        transition={Slide}
-      />
+      <ToastContainer autoClose={1600} transition={Slide} />
+      {user && <MyPageButton user={user} />}
       <Switch>
         <Route exact path='/'>
           {user ? <Lobby /> : <Login onLogin={loginUserWithGoogle} />}
@@ -56,15 +39,7 @@ function App({ user, loginUserWithToken, loginUserWithGoogle }) {
         <Route path='/rooms/:room_id'>
           {user ? (
             <Wrapper>
-              <Suspense
-                fallback={
-                  <ReactLoading
-                    type='bubbles'
-                    color={theme.orange}
-                    width={'8%'}
-                    height={'8%'}
-                  />
-                }>
+              <Suspense fallback={<Loading />}>
                 <RoomContainer />
               </Suspense>
             </Wrapper>
