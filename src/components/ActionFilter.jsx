@@ -5,6 +5,8 @@ import styled from 'styled-components';
 import { filterSocket } from '../utils/socket';
 
 function ActionFilter({ roomId, isFilterOn, setIsFilterOn }) {
+  const emojiList = ['🤮', '🍺', '❤️', '🤔'];
+
   const filterOn = ev => {
     const { value } = ev.target;
 
@@ -23,10 +25,9 @@ function ActionFilter({ roomId, isFilterOn, setIsFilterOn }) {
       <ActionIconButton onClick={filterOff}>❌</ActionIconButton>
       :
       <>
-        <ActionIconButton onClick={filterOn} value='🤮'>🤮</ActionIconButton>
-        <ActionIconButton onClick={filterOn} value='🍺'>🍺</ActionIconButton>
-        <ActionIconButton onClick={filterOn} value='❤️'>❤️</ActionIconButton>
-        <ActionIconButton onClick={filterOn} value='🤔'>🤔</ActionIconButton>
+        {emojiList.map((emoji, i) => (
+          <ActionIconButton key={i} onClick={filterOn} value={emoji}>{emoji}</ActionIconButton>
+        ))}
       </>
     }
     </ActionIconBox>

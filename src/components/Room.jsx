@@ -213,7 +213,6 @@ function Room({
     }
   };
 
-
   if (error) {
     return <ErrorBox message={error} text='메인으로' />;
   }
