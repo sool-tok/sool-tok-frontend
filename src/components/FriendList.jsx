@@ -6,13 +6,16 @@ import AddFriendForm from './AddFriendForm';
 import Button from './Button';
 import FriendCell from './FriendCell';
 
+import theme from './styles/theme';
 import { IoMdCheckmark, IoMdClose } from 'react-icons/io';
 
 function FriendList({ user, list, isRequestList, openModal, onSubmit }) {
   return (
     <Wrapper>
       {!isRequestList && (
-        <Button onClick={() => openModal(<AddFriendForm user={user} />)}>
+        <Button
+          onClick={() => openModal(<AddFriendForm user={user} />)}
+          color={theme.orange}>
           친구 추가하기
         </Button>
       )}
@@ -26,12 +29,12 @@ function FriendList({ user, list, isRequestList, openModal, onSubmit }) {
             <RequestContolBox>
               <Button
                 onClick={() => onSubmit(user._id, true, member._id)}
-                color='#20bf6b'>
+                color={theme.green}>
                 <IoMdCheckmark size={20} />
               </Button>
               <Button
                 onClick={() => onSubmit(user._id, false, member._id)}
-                color='#eb3b5a'>
+                color={theme.pink}>
                 <IoMdClose size={20} />
               </Button>
             </RequestContolBox>
@@ -40,7 +43,7 @@ function FriendList({ user, list, isRequestList, openModal, onSubmit }) {
       ))}
       {!list.length && (
         <div>
-          {!isRequestList ? '친구를 추가해보세요..!☀️' : '친구 요청 목록이 없습니다..😢'}
+          {!isRequestList ? '친구를 추가해보세요!☀️' : '친구 요청 목록이 없습니다..😢'}
         </div>
       )}
     </Wrapper>
@@ -48,13 +51,13 @@ function FriendList({ user, list, isRequestList, openModal, onSubmit }) {
 }
 
 const Wrapper = styled.div`
+  width: inherit;
+  height: 440px;
   display: flex;
   flex-direction: column;
   align-items: center;
   overflow-y: auto;
-  color: #fff;
-  width: inherit;
-  height: 440px;
+  color: ${({ theme }) => theme.orange};
 
   &::-webkit-scrollbar {
     display: none;

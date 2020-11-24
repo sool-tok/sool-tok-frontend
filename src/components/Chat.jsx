@@ -71,7 +71,7 @@ function Chat({ user, chatList, onSubmit }) {
 
 const Wrapper = styled.div`
   z-index: 998;
-  background-color: #330057;
+  background-color: ${({ theme }) => theme.darkPurple};
   width: 400px;
   height: 400px;
   position: fixed;
@@ -105,14 +105,14 @@ const MessageForm = styled.form`
   input[type='text'] {
     width: 70%;
     padding: 0px 20px;
-    background-color: #eee;
+    background-color: ${({ theme }) => theme.white};
   }
 
   input[type='submit'] {
     cursor: pointer;
     width: 30%;
     text-align: center;
-    background-color: #ffd32a;
+    background-color: ${({ theme }) => theme.orange};
   }
 `;
 
@@ -131,7 +131,7 @@ const ChatCell = styled.div`
   }
 
   span:nth-child(2) {
-    background-color: #ffd32a;
+    background-color: ${({ theme }) => theme.orange};
     padding: 10px;
     margin-right: 6px;
     border-radius: 20px;

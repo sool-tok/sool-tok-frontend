@@ -9,6 +9,8 @@ import Modal from './Modal';
 import FriendList from './FriendList';
 import Loading from './Loading';
 
+import theme from './styles/theme';
+
 function MyPage({
   loading,
   error,
@@ -61,7 +63,9 @@ function MyPage({
           <h3>{user.name}</h3>
           <p>{user.email}</p>
         </MyInfoWrapper>
-        <Button onClick={() => logoutUser(user._id)}>로그아웃</Button>
+        <Button onClick={() => logoutUser(user._id)} color={theme.lightGray}>
+          로그아웃
+        </Button>
       </MyInfo>
       {loading ? (
         <Loading />
@@ -89,10 +93,10 @@ const Container = styled.div`
   width: 300px;
   height: 600px;
   padding-bottom: 64px;
-  background-color: #330057;
   border-radius: 24px;
   overflow: hidden;
   animation: slideUp 0.6s ease-in-out forwards;
+  background-color: ${({ theme }) => theme.darkPurple};
 
   @keyframes slideUp {
     from {
@@ -117,7 +121,7 @@ const MyInfo = styled.div`
 `;
 
 const MyInfoWrapper = styled.div`
-  color: white;
+  color: ${({ theme }) => theme.orange};
 
   h3 {
     font-size: 18px;
@@ -136,13 +140,13 @@ const ListToggle = styled.a`
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: red;
-  height: 64px;
   width: 100%;
-  background-color: #ffd32a;
+  height: 64px;
+  color: ${({ theme }) => theme.purple};
+  background-color: ${({ theme }) => theme.orange};
 
   &:hover {
-    background-color: #b8961d;
+    filter: brightness(0.7);
   }
 `;
 

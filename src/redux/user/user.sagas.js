@@ -22,7 +22,6 @@ export function* loginUser({ payload }) {
       authorizedUser = user;
     }
 
-    console.log('📌 : function*loginUser -> authorizedUser', authorizedUser);
     yield put(actions.loginUserSuccess(authorizedUser));
   } catch (err) {
     yield put(actions.loginUserFailure(err));

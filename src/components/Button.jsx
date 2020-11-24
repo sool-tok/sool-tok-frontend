@@ -9,11 +9,12 @@ function Button({ onClick, children, color }) {
 const StyledButton = styled.button`
   all: unset;
   cursor: pointer;
-  max-width: 100px;
+  max-width: 110px;
   padding: 14px 16px;
   border-radius: 32px;
   font-size: 14px;
-  background-color: ${props => props.color || '#ffd32a'};
+  font-weight: 700;
+  background-color: ${({ color, theme }) => color || theme.orange};
   transition-property: scale, translateY;
   transition: filter 0.3s;
 

@@ -4,14 +4,17 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Peer from 'simple-peer';
 
-import { roomSocket, chatSocket, peerSocket, getMySocketId } from '../utils/socket';
+import { roomSocket, chatSocket, filterSocket, peerSocket, getMySocketId } from '../utils/socket';
 
 import Video, { StyledVideo } from './Video';
 import SpeechGame from './SpeechGame';
 import Chat from './Chat';
 import Button from './Button';
 import ErrorBox from './ErrorBox';
+import ActionFilter from './ActionFilter';
+import Canvas from './Canvas';
 
+import theme from './styles/theme';
 import { BsUnlockFill, BsLockFill, BsFillChatDotsFill } from 'react-icons/bs';
 import { FaVideo, FaVideoSlash, FaVolumeMute, FaVolumeUp } from 'react-icons/fa';
 import { IoIosExit } from 'react-icons/io';
@@ -37,12 +40,15 @@ function Room({
   const history = useHistory();
   const { room_id: roomId } = useParams();
 
+  const [isHost, setIsHost] = useState(false);
+  const [isChatRoomOpen, setIsChatRoomOpen] = useState(false);
+
   const [isFinalGame, setFinalGame] = useState(false);
   const [isMyTurn, setMyTurn] = useState(false);
   const [currentTurn, setCurrentTurn] = useState('');
 
-  const [isHost, setIsHost] = useState(false);
-  const [isChatRoomOpen, setIsChatRoomOpen] = useState(false);
+  const [filterIcon, setFilterIcon] = useState('');
+  const [isFilterOn, setIsFilterOn] = useState(false);
 
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamOptions, setStreamOptions] = useState({});
@@ -95,10 +101,15 @@ function Room({
     });
 
     chatSocket.listenMessage(({ chat }) => addChat(chat));
+    filterSocket.listenRenderFilter(({ isFilterOn, emoji }) => {
+      setIsFilterOn(isFilterOn);
+      setFilterIcon(emoji);
+    });
 
     return () => {
       roomSocket.cleanUpRoomListener();
       chatSocket.cleanUpMessageListener();
+      filterSocket.cleanUpFilterListener();
 
       roomSocket.leaveRoom({ roomId });
 
@@ -126,7 +137,7 @@ function Room({
   }, [isChatRoomOpen]);
 
   useEffect(() => {
-    if (room && user._id === room.memberList?.[0]._id) {
+    if (room && getMySocketId() === room.memberList?.[0].socketId) {
       setIsHost(true);
     }
   }, [room]);
@@ -231,6 +242,7 @@ function Room({
     <Container>
       {room && (
         <>
+          <ActionFilter roomId={roomId} isFilterOn={isFilterOn} setIsFilterOn={setIsFilterOn} />
           <Button onClick={() => setIsChatRoomOpen(!isChatRoomOpen)}>
             <BsFillChatDotsFill size={28} />
             {!!unreadChatCount && <Badge>{unreadChatCount}</Badge>}
@@ -272,18 +284,24 @@ function Room({
                     <img className='explosion' src={explosion} alt='explosion' />
                   }
                   {member.socketId === getMySocketId() ? (
-                    <StyledVideo
-                      thumbnail={member.photoUrl}
-                      ref={myVideoRef}
-                      autoPlay
-                      playsInline
-                      muted
-                    />
+                    <>
+                      {isFilterOn && <Canvas emoji={filterIcon} />}
+                      <StyledVideo
+                        thumbnail={member.photoUrl}
+                        ref={myVideoRef}
+                        autoPlay
+                        playsInline
+                        muted
+                      />
+                    </>
                   ) : (
+                    <>
+                    {isFilterOn && <Canvas emoji={filterIcon} />}
                     <Video
                       thumbnail={member.photoUrl}
                       peer={peers[member.socketId]}
                     />
+                    </>
                   )}
                   <h3>{member.name}</h3>
                 </MemberBlock>
@@ -294,17 +312,17 @@ function Room({
             <div>
               {isHost && (
                 <Button
-                  color={room.isLocked ? '#eb3b5a' : '#d1d8e0'}
+                  color={room.isLocked ? theme.red : theme.lightGray}
                   onClick={handleLockingRoom}>
                   {room.isLocked ? (
-                    <BsLockFill color='#eee' size={24} />
+                    <BsLockFill color={theme.lightGray} size={24} />
                   ) : (
                     <BsUnlockFill size={24} />
                   )}
                 </Button>
               )}
               <Button
-                color={streamOptions.audio ? '#20bf6b' : '#d1d8e0'}
+                color={streamOptions.audio ? theme.green : theme.lightGray}
                 onClick={handleAudioTrack}>
                 {streamOptions.audio ? (
                   <FaVolumeUp size={24} />
@@ -313,7 +331,7 @@ function Room({
                 )}
               </Button>
               <Button
-                color={streamOptions.video ? '#20bf6b' : '#d1d8e0'}
+                color={streamOptions.video ? theme.green : theme.lightGray}
                 onClick={handleVideoTrack}>
                 {streamOptions.video ? (
                   <FaVideo size={24} />
@@ -325,7 +343,7 @@ function Room({
                 onClick={() => history.push('/')}
                 size={42}
                 cursor='pointer'
-                color='#eb3b5a'
+                color={theme.red}
               />
             </div>
           </UtilityBox>
@@ -336,9 +354,10 @@ function Room({
 }
 
 const Container = styled.div`
-  background-color: #49007d;
   width: 100vw;
   height: 100vh;
+  position: relative;
+  background-color: ${({ theme }) => theme.purple};
 
   & > button {
     z-index: 999;
@@ -360,7 +379,6 @@ const Wrapper = styled.div`
 const Header = styled.header`
   width: inherit;
   height: 8%;
-  background-color: #330057;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -370,20 +388,21 @@ const Header = styled.header`
   }
 
   h1 {
-    font-size: 24px;
-    color: #ffd32a;
     margin: 0 16px 0 24px;
+    font-size: 28px;
+    color: ${({ theme }) => theme.orange};
   }
 
   span {
     font-size: 21px;
-    color: #eb3b5a;
+    color: ${({ theme }) => theme.red};
   }
 
   button {
     background-color: rgba(0, 0, 0, 0);
-    color: #20bf6b;
     margin-right: 24px;
+    color: ${({ theme }) => theme.green};
+    text-decoration: underline;
   }
 `;
 
@@ -396,12 +415,12 @@ const GameBox = styled.div`
 
   div {
     width: 320px;
-    height: 300px;
+    height: 400px;
     border-radius: 36px;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: ${props => props.isMyTurn ? '#ffd32a' : 'gray'};
+    background-color: ${({ isMyTurn, theme }) => isMyTurn ? theme.orange : theme.darkPurple};
   }
 `;
 
@@ -420,10 +439,10 @@ const UtilityBox = styled.div`
   div {
     display: flex;
     align-items: center;
-    background-color: #330057;
     padding: 10px 24px;
     border-radius: 20px;
     margin-bottom: 24px;
+    background-color: ${({ theme }) => theme.darkPurple};;
   }
 
   button:not(:last-child) {
@@ -451,11 +470,12 @@ const MemberBlock = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  position: relative;
 
   h3 {
-    color: #eee;
     margin-top: 24px;
     font-size: 18px;
+    color: ${({ theme }) => theme.orange};
   }
 
   img {
@@ -467,8 +487,8 @@ const MemberBlock = styled.div`
   }
 
   img.explosion {
-    mix-blend-mode: screen;
     left: -36px;
+    mix-blend-mode: screen;
   }
 `;
 
@@ -481,7 +501,7 @@ const Badge = styled.div`
   width: 20px;
   height: 20px;
   font-size: 18px;
-  color: white;
+  color: ${({ theme }) => theme.red};
 `;
 
 export default Room;
