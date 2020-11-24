@@ -11,6 +11,9 @@ import CreateRoomForm from './CreateRoomForm';
 import JoinRoomForm from './JoinRoomForm';
 import Button from './Button';
 
+import beerVideo from '../assets/beer.mp4';
+import theme from './styles/theme';
+
 function Lobby() {
   const history = useHistory();
   const [tables, setTables] = useState([]);
@@ -42,12 +45,18 @@ function Lobby() {
           <Table key={table._id} tableInfo={table} />
         ))}
       </Tables>
-      <h1>LOBBY</h1>
+      <h1>오늘 밤 친구와 술톡에서!🍺</h1>
       <Wrapper>
-        <Button onClick={() => openModal(<CreateRoomForm onSubmit={createRoom} />)}>
-          + 테이블 잡기
+        <Button
+          onClick={() => openModal(<CreateRoomForm onSubmit={createRoom} />)}
+          color={theme.orange}
+        >
+          테이블 잡기🍷
         </Button>
-        <Button onClick={() => openModal(<JoinRoomForm onSubmit={moveToRoom} />)}>
+        <Button
+          onClick={() => openModal(<JoinRoomForm onSubmit={moveToRoom} />)}
+          color={theme.emerald}
+        >
           URL로 참여하기
         </Button>
       </Wrapper>
@@ -56,6 +65,7 @@ function Lobby() {
           <Modal setModalOpen={setModalOpen}>{modalContent}</Modal>
         </ModalPortal>
       )}
+      <video type='video/mp4' src={beerVideo} width='300px' autoPlay loop muted/>
     </Container>
   );
 }
@@ -67,31 +77,43 @@ const Container = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #49007d;
+  background-color: ${({ theme }) => theme.purple};
 
   h1 {
-    font-size: 200px;
+    z-index: 1;
+    font-size: 72px;
     font-weight: 700;
-    color: #ffd32a;
+    color: ${({ theme }) => theme.orange};
+  }
+
+  video {
+    width: 100%;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    object-fit: cover;
+    opacity: 0.2;
   }
 `;
 
 const Wrapper = styled.div`
+  z-index: 1;
   position: absolute;
   left: 24px;
   bottom: 24px;
 
   button {
+    color: ${({ theme }) => theme.purple};
     margin-right: 16px;
   }
 `;
 
 const Tables = styled.div`
+  display: flex;
   position: absolute;
   top: 0;
   left: 0;
-
-  display: flex;
 
   a {
     text-decoration: none;
