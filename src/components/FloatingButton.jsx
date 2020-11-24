@@ -8,8 +8,8 @@ function FloatingButton({ onClick, children }) {
 
 const StyledFloatingButton = styled.button`
   all: unset;
-  z-index: 999;
   cursor: pointer;
+  z-index: 999;
   padding: 10px;
   width: 42px;
   height: 42px;
@@ -21,13 +21,12 @@ const StyledFloatingButton = styled.button`
   right: 24px;
   bottom: 24px;
   font-size: 36px;
-  background-color: #ff5252;
-  color: #fff;
-  transition: background-color 0.3s;
+  background-color: ${({ theme }) => theme.pink};
+  color: ${({ theme }) => theme.purple};
   transition: 0.6s;
 
   &:hover {
-    background-color: #b33939;
+    filter: brightness(0.7);
     transform: translateY(-5px);
   }
 `;

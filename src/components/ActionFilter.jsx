@@ -35,17 +35,17 @@ function ActionFilter({ roomId, isFilterOn, setIsFilterOn }) {
 }
 
 const ActionIconBox = styled.div`
+  z-index: 999;
   width: 240px;
   height: 60px;
   position: absolute;
   bottom: 24px;
   left: 24px;
-  background: #330057;
   border-radius: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999;
+  background-color: ${({ theme }) => theme.darkPurple};
 `;
 
 const ActionIconButton = styled.button`

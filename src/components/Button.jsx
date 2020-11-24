@@ -13,7 +13,8 @@ const StyledButton = styled.button`
   padding: 14px 16px;
   border-radius: 32px;
   font-size: 14px;
-  background-color: ${props => props.color || '#ffd32a'};
+  font-weight: 700;
+  background-color: ${({ color, theme }) => color || theme.orange};
   transition-property: scale, translateY;
   transition: filter 0.3s;
 

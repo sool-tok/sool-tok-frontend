@@ -36,8 +36,8 @@ const StyledModal = styled.div`
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: #f1c40f;
     border-radius: 38px;
+    background-color: ${({ theme }) => theme.purple};
   }
 
   form {
@@ -47,13 +47,13 @@ const StyledModal = styled.div`
   h2 {
     font-size: 24px;
     margin-bottom: 18px;
-    color: black;
+    color: ${({ theme }) => theme.orange};
   }
 
   h3 {
     font-size: 16px;
     margin-bottom: 32px;
-    color: black;
+    color: ${({ theme }) => theme.orange};
   }
 
   input[type='text'],
@@ -61,11 +61,11 @@ const StyledModal = styled.div`
   input[type='url'],
   input[type='email'] {
     all: unset;
-    color: black;
-    background-color: #fff;
     padding: 14px;
     border-radius: 24px;
     margin-right: 10px;
+    color: ${({ theme }) => theme.purple};
+    background-color: ${({ theme }) => theme.white};
   }
 
   input[type='url'] {
@@ -78,8 +78,9 @@ const StyledModal = styled.div`
     padding: 14px 16px;
     border-radius: 32px;
     font-size: 14px;
-    color: white;
-    background-color: #ff5252;
+    font-weight: 700;
+    color: ${({ theme }) => theme.purple};
+    background-color: ${({ theme }) => theme.pink};
   }
 `;
 

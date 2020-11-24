@@ -34,6 +34,6 @@ const Wrapper = styled.div`
   h1 {
     font-size: 38px;
     margin-bottom: 20px;
-    color: #eb3b5a;
+    color: ${({ theme }) => theme.pink};
   }
 `;
