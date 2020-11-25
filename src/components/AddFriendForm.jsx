@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 
 import { userService } from '../utils/api';
 
-function AddFriendForm({ user }) {
+import { toast } from 'react-toastify';
+
+function AddFriendForm({ setModalOpen, user }) {
   const [input, setInput] = useState('');
   const [requestResult, setRequestResult] = useState('');
 
@@ -14,10 +16,11 @@ function AddFriendForm({ user }) {
       const token = localStorage.getItem('jwt-token');
       const { message } = await userService.requestFriend(user._id, token, input);
 
-      setRequestResult(message);
-      setInput('');
+      toast(message, { type: toast.TYPE.DARK });
+      setModalOpen(false);
     } catch (err) {
-      console.error(err);
+      setRequestResult(err);
+      setInput('');
     }
   };
 
@@ -48,4 +51,5 @@ export default AddFriendForm;
 
 AddFriendForm.propTypes = {
   user: PropTypes.object.isRequired,
+  setModalOpen: PropTypes.func.isRequired,
 };
