@@ -34,6 +34,9 @@ const mapDispatchToProps = dispatch => ({
   addChat(chat) {
     dispatch(chatAction.addChat(chat));
   },
+  resetChat() {
+    dispatch(chatAction.resetChat());
+  },
   increaseUnreadCount() {
     dispatch(chatAction.increaseUnreadCount());
   },

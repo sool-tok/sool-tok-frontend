@@ -1,3 +1,4 @@
+import { initial } from 'lodash';
 import types from './chat.actionTypes';
 
 const initialState = {
@@ -8,11 +9,12 @@ const initialState = {
 const chatListReducer = (state = initialState, { type, payload }) => {
   switch (type) {
     case types.ADD_CHAT:
-      console.log('📌 : chatListReducer -> state', state);
       return {
         ...state,
         chatList: [...state.chatList, payload.chat],
       };
+    case types.RESET_CHAT:
+      return initialState;
     case types.INCREASE_UNREAD_COUNT:
       return {
         ...state,

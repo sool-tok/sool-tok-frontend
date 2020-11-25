@@ -1,10 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Peer from 'simple-peer';
 
-import { roomSocket, chatSocket, filterSocket, peerSocket, getMySocketId } from '../utils/socket';
+import {
+  roomSocket,
+  chatSocket,
+  filterSocket,
+  peerSocket,
+  getMySocketId,
+} from '../utils/socket';
 
 import Video, { StyledVideo } from './Video';
 import SpeechGame from './SpeechGame';
@@ -14,14 +20,13 @@ import ErrorBox from './ErrorBox';
 import ActionFilter from './ActionFilter';
 import Canvas from './Canvas';
 
-import theme from './styles/theme';
 import { BsUnlockFill, BsLockFill, BsFillChatDotsFill } from 'react-icons/bs';
-import { FaVideo, FaVideoSlash, FaVolumeMute, FaVolumeUp } from 'react-icons/fa';
-import { IoIosExit } from 'react-icons/io';
 import { toast } from 'react-toastify';
 
 import bomb from '../assets/bomb.png';
 import explosion from '../assets/explosion.gif';
+import UtilityBox from './UtilityBox';
+import { initVideoStream, getVideoStream, removeVideoStream } from '../utils/stream';
 
 function Room({
   user,
@@ -34,13 +39,12 @@ function Room({
   chatList,
   unreadChatCount,
   addChat,
+  resetChat,
   increaseUnreadCount,
   resetUnreadCount,
 }) {
-  const history = useHistory();
   const { room_id: roomId } = useParams();
 
-  const [isHost, setIsHost] = useState(false);
   const [isChatRoomOpen, setIsChatRoomOpen] = useState(false);
 
   const [isFinalGame, setFinalGame] = useState(false);
@@ -51,18 +55,14 @@ function Room({
   const [isFilterOn, setIsFilterOn] = useState(false);
 
   const [isStreaming, setIsStreaming] = useState(false);
-  const [streamOptions, setStreamOptions] = useState({});
   const [error, setError] = useState('');
   const [peers, setPeers] = useState({});
   const peersRef = useRef({});
-  const streamRef = useRef();
   const myVideoRef = useRef();
 
   useEffect(() => {
     if (!isFinalGame) return;
-    setTimeout(() => {
-      setFinalGame(false);
-    }, 2000);
+    setTimeout(() => setFinalGame(false), 2000);
   }, [isFinalGame]);
 
   useEffect(() => {
@@ -72,14 +72,9 @@ function Room({
       renderRoom(room);
 
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: true,
-        });
+        const stream = await initVideoStream();
         myVideoRef.current.srcObject = stream;
-        streamRef.current = stream;
         setIsStreaming(true);
-        setStreamOptions({ audio: true, video: true });
       } catch (error) {
         setError(error.message);
       }
@@ -113,14 +108,9 @@ function Room({
 
       roomSocket.leaveRoom({ roomId });
 
+      resetChat();
       destroyRoom();
-
-      if (!streamRef.current) return;
-
-      streamRef.current.getVideoTracks().forEach(track => {
-        track.stop();
-        streamRef.current.removeTrack(track);
-      });
+      removeVideoStream();
     };
   }, []);
 
@@ -137,12 +127,6 @@ function Room({
   }, [isChatRoomOpen]);
 
   useEffect(() => {
-    if (room && getMySocketId() === room.memberList?.[0].socketId) {
-      setIsHost(true);
-    }
-  }, [room]);
-
-  useEffect(() => {
     if (!isStreaming) return;
 
     for (const member of room.memberList) {
@@ -151,7 +135,7 @@ function Room({
       const peer = new Peer({
         initiator: true,
         trickle: false,
-        stream: streamRef.current,
+        stream: getVideoStream(),
       });
 
       peer.on('signal', signal => {
@@ -166,7 +150,7 @@ function Room({
       const peer = new Peer({
         initiator: false,
         trickle: false,
-        stream: streamRef.current,
+        stream: getVideoStream(),
       });
       peer.signal(signal);
 
@@ -188,41 +172,6 @@ function Room({
     };
   }, [isStreaming]);
 
-  const handleLockingRoom = () => {
-    roomSocket.updateRoomLockingStatus({
-      roomId: room._id,
-      isLocked: !room.isLocked,
-    });
-  };
-
-  const handleAudioTrack = () => {
-    if (streamOptions.audio) {
-      streamRef.current
-        .getAudioTracks()
-        .forEach(track => (track.enabled = false));
-      setStreamOptions(prev => ({ ...prev, audio: false }));
-    } else {
-      streamRef.current
-        .getAudioTracks()
-        .forEach(track => (track.enabled = true));
-      setStreamOptions(prev => ({ ...prev, audio: true }));
-    }
-  };
-
-  const handleVideoTrack = () => {
-    if (streamOptions.video) {
-      streamRef.current
-        .getVideoTracks()
-        .forEach(track => (track.enabled = false));
-      setStreamOptions(prev => ({ ...prev, video: false }));
-    } else {
-      streamRef.current
-        .getVideoTracks()
-        .forEach(track => (track.enabled = true));
-      setStreamOptions(prev => ({ ...prev, video: true }));
-    }
-  };
-
   const copyRoomUrl = () => {
     const temp = document.createElement('textarea');
     temp.value = window.location.href;
@@ -234,121 +183,78 @@ function Room({
     document.body.removeChild(temp);
   };
 
-  if (error) {
+  if (!room || error) {
     return <ErrorBox message={error} text='메인으로' />;
   }
 
   return (
     <Container>
-      {room && (
-        <>
-          <ActionFilter roomId={roomId} isFilterOn={isFilterOn} setIsFilterOn={setIsFilterOn} />
-          <Button onClick={() => setIsChatRoomOpen(!isChatRoomOpen)}>
-            <BsFillChatDotsFill size={28} />
-            {!!unreadChatCount && <Badge>{unreadChatCount}</Badge>}
-          </Button>
-          {isChatRoomOpen && (
-            <Chat
-              onSubmit={newChat => chatSocket.sendMessage({ newChat })}
-              chatList={chatList}
-              user={user}
-            />
-          )}
-          <Header>
-            <div>
-              <h1>{room.title}</h1>
-              <span>{room.isLocked ? <BsLockFill /> : <BsUnlockFill />}</span>
-            </div>
-            <Button onClick={copyRoomUrl}>URL 복사</Button>
-          </Header>
-          <Wrapper>
-            <GameBox isMyTurn={isMyTurn}>
-              <SpeechGame
-                roomId={roomId}
-                isMyTurn={isMyTurn}
-                setMyTurn={setMyTurn}
-                currentTurn={currentTurn}
-                setCurrentTurn={setCurrentTurn}
-                setFinalGame={setFinalGame}
-              />
-            </GameBox>
-            <MemberList>
-              {room.memberList.map(member => (
-                <MemberBlock key={member.socketId}>
-                  {
-                    currentTurn === member.socketId && !isFinalGame &&
-                    <img src={bomb} alt='bomb' />
-                  }
-                  {
-                    currentTurn === member.socketId && isFinalGame &&
-                    <img className='explosion' src={explosion} alt='explosion' />
-                  }
-                  {member.socketId === getMySocketId() ? (
-                    <>
-                      {isFilterOn && <Canvas emoji={filterIcon} />}
-                      <StyledVideo
-                        thumbnail={member.photoUrl}
-                        ref={myVideoRef}
-                        autoPlay
-                        playsInline
-                        muted
-                      />
-                    </>
-                  ) : (
-                    <>
-                    {isFilterOn && <Canvas emoji={filterIcon} />}
-                    <Video
-                      thumbnail={member.photoUrl}
-                      peer={peers[member.socketId]}
-                    />
-                    </>
-                  )}
-                  <h3>{member.name}</h3>
-                </MemberBlock>
-              ))}
-            </MemberList>
-          </Wrapper>
-          <UtilityBox>
-            <div>
-              {isHost && (
-                <Button
-                  color={room.isLocked ? theme.red : theme.lightGray}
-                  onClick={handleLockingRoom}>
-                  {room.isLocked ? (
-                    <BsLockFill color={theme.lightGray} size={24} />
-                  ) : (
-                    <BsUnlockFill size={24} />
-                  )}
-                </Button>
-              )}
-              <Button
-                color={streamOptions.audio ? theme.green : theme.lightGray}
-                onClick={handleAudioTrack}>
-                {streamOptions.audio ? (
-                  <FaVolumeUp size={24} />
-                ) : (
-                  <FaVolumeMute size={24} />
-                )}
-              </Button>
-              <Button
-                color={streamOptions.video ? theme.green : theme.lightGray}
-                onClick={handleVideoTrack}>
-                {streamOptions.video ? (
-                  <FaVideo size={24} />
-                ) : (
-                  <FaVideoSlash size={24} />
-                )}
-              </Button>
-              <IoIosExit
-                onClick={() => history.push('/')}
-                size={42}
-                cursor='pointer'
-                color={theme.red}
-              />
-            </div>
-          </UtilityBox>
-        </>
+      <ActionFilter
+        roomId={roomId}
+        isFilterOn={isFilterOn}
+        setIsFilterOn={setIsFilterOn}
+      />
+      <Button onClick={() => setIsChatRoomOpen(!isChatRoomOpen)}>
+        <BsFillChatDotsFill size={28} />
+        {!!unreadChatCount && <Badge>{unreadChatCount}</Badge>}
+      </Button>
+      {isChatRoomOpen && (
+        <Chat
+          onSubmit={newChat => chatSocket.sendMessage({ newChat })}
+          chatList={chatList}
+          user={user}
+        />
       )}
+      <Header>
+        <div>
+          <h1>{room.title}</h1>
+          <span>{room.isLocked ? <BsLockFill /> : <BsUnlockFill />}</span>
+        </div>
+        <Button onClick={copyRoomUrl}>URL 복사</Button>
+      </Header>
+      <Wrapper>
+        <GameBox isMyTurn={isMyTurn}>
+          <SpeechGame
+            roomId={roomId}
+            isMyTurn={isMyTurn}
+            setMyTurn={setMyTurn}
+            currentTurn={currentTurn}
+            setCurrentTurn={setCurrentTurn}
+            setFinalGame={setFinalGame}
+          />
+        </GameBox>
+        <MemberList>
+          {room.memberList.map(member => (
+            <MemberBlock key={member.socketId}>
+              {currentTurn === member.socketId && !isFinalGame && (
+                <img src={bomb} alt='bomb' />
+              )}
+              {currentTurn === member.socketId && isFinalGame && (
+                <img className='explosion' src={explosion} alt='explosion' />
+              )}
+              {member.socketId === getMySocketId() ? (
+                <>
+                  {isFilterOn && <Canvas emoji={filterIcon} />}
+                  <StyledVideo
+                    thumbnail={member.photoUrl}
+                    ref={myVideoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                  />
+                </>
+              ) : (
+                <>
+                  {isFilterOn && <Canvas emoji={filterIcon} />}
+                  <Video thumbnail={member.photoUrl} peer={peers[member.socketId]} />
+                </>
+              )}
+              <h3>{member.name}</h3>
+            </MemberBlock>
+          ))}
+        </MemberList>
+      </Wrapper>
+      <UtilityBox room={room} />
     </Container>
   );
 }
@@ -420,33 +326,8 @@ const GameBox = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: ${({ isMyTurn, theme }) => isMyTurn ? theme.orange : theme.darkPurple};
-  }
-`;
-
-const UtilityBox = styled.div`
-  z-index: 100;
-  width: 100%;
-  height: 80px;
-  position: fixed;
-  left: 0px;
-  bottom: 0px;
-  border-radius: 18px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  div {
-    display: flex;
-    align-items: center;
-    padding: 10px 24px;
-    border-radius: 20px;
-    margin-bottom: 24px;
-    background-color: ${({ theme }) => theme.darkPurple};;
-  }
-
-  button:not(:last-child) {
-    margin-right: 16px;
+    background-color: ${({ isMyTurn, theme }) =>
+      isMyTurn ? theme.orange : theme.darkPurple};
   }
 `;
 
@@ -516,6 +397,7 @@ Room.propTypes = {
   addMember: PropTypes.func.isRequired,
   deleteMember: PropTypes.func.isRequired,
   addChat: PropTypes.func.isRequired,
+  resetChat: PropTypes.func.isRequired,
   increaseUnreadCount: PropTypes.func.isRequired,
   resetUnreadCount: PropTypes.func.isRequired,
   updateRoomLockingStatus: PropTypes.func.isRequired,
