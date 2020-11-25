@@ -412,16 +412,6 @@ const GameBox = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-
-  div {
-    width: 320px;
-    height: 400px;
-    border-radius: 36px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: ${({ isMyTurn, theme }) => isMyTurn ? theme.orange : theme.darkPurple};
-  }
 `;
 
 const UtilityBox = styled.div`
@@ -442,7 +432,7 @@ const UtilityBox = styled.div`
     padding: 10px 24px;
     border-radius: 20px;
     margin-bottom: 24px;
-    background-color: ${({ theme }) => theme.darkPurple};;
+    background-color: ${({ theme }) => theme.darkPurple};
   }
 
   button:not(:last-child) {
