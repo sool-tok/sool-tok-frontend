@@ -5,13 +5,7 @@ import _ from 'lodash';
 
 import { gameSocket, getMySocketId } from '../utils/socket';
 
-function SpeechGame({
-  roomId,
-  isMyTurn,
-  setMyTurn,
-  setCurrentTurn,
-  setFinalGame,
-}) {
+function SpeechGame({ roomId, isMyTurn, setIsMyTurn, setCurrentTurn, setIsFinalGame }) {
   const [gameData, setGameData] = useState(null);
   const gameDataRef = useRef();
   const isMyTurnRef = useRef();
@@ -42,8 +36,8 @@ function SpeechGame({
 
     setCurrentTurn('');
     setGameData(null);
-    setFinalGame(false);
-    setMyTurn(false);
+    setIsFinalGame(false);
+    setIsMyTurn(false);
 
     clearTimeout(timeout.current);
     timeout.current = null;
@@ -66,7 +60,7 @@ function SpeechGame({
       isMyTurnRef.current = isMyTurn;
 
       setGameData(data);
-      setMyTurn(isMyTurn);
+      setIsMyTurn(isMyTurn);
       setCurrentTurn(initialTurn);
     });
 
@@ -76,7 +70,7 @@ function SpeechGame({
 
       isMyTurnRef.current = isMyTurn;
 
-      setMyTurn(isMyTurn);
+      setIsMyTurn(isMyTurn);
       setCurrentTurn(targetSocketId);
     });
 
@@ -102,7 +96,7 @@ function SpeechGame({
 
         setGameData(null);
         setScript('');
-        setFinalGame(true);
+        setIsFinalGame(true);
 
         clearTimeout(timeout.current);
         timeout.current = null;
@@ -126,8 +120,10 @@ function SpeechGame({
       setScript('');
       setPhrase('');
 
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const SpeechGrammarList = window.SpeechGrammarList || window.webkitSpeechGrammarList;
+      const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+      const SpeechGrammarList =
+        window.SpeechGrammarList || window.webkitSpeechGrammarList;
 
       const randomIndex = _.random(0, gameData.phrases.length - 1);
       const targetPhrase = gameData.phrases[randomIndex];
@@ -157,7 +153,8 @@ function SpeechGame({
         const getSpeechResult = _.debounce((result = '') => {
           if (!gameDataRef.current) return;
 
-          const isAnswer = result.split(' ').join('') === targetPhrase.split(' ').join('');
+          const isAnswer =
+            result.split(' ').join('') === targetPhrase.split(' ').join('');
 
           if (isAnswer) {
             gameSocket.sendGameStatus({
@@ -215,19 +212,22 @@ function SpeechGame({
 
   return (
     <div>
-      <div style={{ display:'flex', flexDirection:'column' }}>
-        {
-          gameData ?
-            <button disabled>게임 중 입니다.</button>
-          :
-            <button onClick={startGame}>시작</button>
-        }
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        {gameData ? (
+          <button disabled>게임 중 입니다.</button>
+        ) : (
+          <button onClick={startGame}>시작</button>
+        )}
         <h1>{gameData && (isMyTurn ? '내 차례..' : '내 차례 아님..')}</h1>
-        <h1 style={{ color:'#292929'}} className='phrase'>{phrase}</h1>
+        <h1 style={{ color: '#292929' }} className='phrase'>
+          {phrase}
+        </h1>
         <div className='output'>
           <h3>{script}</h3>
         </div>
-        <h3 style={{ fontSize:'30px'}} className='notification'>{notification}</h3>
+        <h3 style={{ fontSize: '30px' }} className='notification'>
+          {notification}
+        </h3>
       </div>
     </div>
   );
@@ -237,9 +237,9 @@ export default SpeechGame;
 
 SpeechGame.propTypes = {
   roomId: PropTypes.string.isRequired,
-  setMyTurn: PropTypes.func.isRequired,
+  setIsMyTurn: PropTypes.func.isRequired,
   isMyTurn: PropTypes.bool.isRequired,
   currentTurn: PropTypes.string.isRequired,
   setCurrentTurn: PropTypes.func.isRequired,
-  setFinalGame: PropTypes.func.isRequired,
+  setIsFinalGame: PropTypes.func.isRequired,
 };

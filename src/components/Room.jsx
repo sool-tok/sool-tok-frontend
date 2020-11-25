@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
@@ -6,27 +6,31 @@ import Peer from 'simple-peer';
 
 import {
   roomSocket,
-  chatSocket,
   filterSocket,
   peerSocket,
   getMySocketId,
 } from '../utils/socket';
+import {
+  initVideoStream,
+  getVideoStream,
+  removeVideoStream,
+} from '../utils/stream';
 
-import Video, { StyledVideo } from './Video';
-import SpeechGame from './SpeechGame';
-import Chat from './Chat';
-import Button from './Button';
-import ErrorBox from './ErrorBox';
-import ActionFilter from './ActionFilter';
-import Canvas from './Canvas';
-
-import { BsUnlockFill, BsLockFill, BsFillChatDotsFill } from 'react-icons/bs';
+import { BsUnlockFill, BsLockFill } from 'react-icons/bs';
 import { toast } from 'react-toastify';
 
 import bomb from '../assets/bomb.png';
 import explosion from '../assets/explosion.gif';
+
+import ChatContainer from '../containers/ChatContainer';
+
+import Video, { StyledVideo } from './Video';
+import SpeechGame from './SpeechGame';
+import Button from './Button';
+import ErrorBox from './ErrorBox';
+import ActionFilter from './ActionFilter';
+import Canvas from './Canvas';
 import UtilityBox from './UtilityBox';
-import { initVideoStream, getVideoStream, removeVideoStream } from '../utils/stream';
 
 function Room({
   user,
@@ -36,23 +40,8 @@ function Room({
   addMember,
   deleteMember,
   updateRoomLockingStatus,
-  chatList,
-  unreadChatCount,
-  addChat,
-  resetChat,
-  increaseUnreadCount,
-  resetUnreadCount,
 }) {
   const { room_id: roomId } = useParams();
-
-  const [isChatRoomOpen, setIsChatRoomOpen] = useState(false);
-
-  const [isFinalGame, setFinalGame] = useState(false);
-  const [isMyTurn, setMyTurn] = useState(false);
-  const [currentTurn, setCurrentTurn] = useState('');
-
-  const [filterIcon, setFilterIcon] = useState('');
-  const [isFilterOn, setIsFilterOn] = useState(false);
 
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState('');
@@ -60,10 +49,12 @@ function Room({
   const peersRef = useRef({});
   const myVideoRef = useRef();
 
-  useEffect(() => {
-    if (!isFinalGame) return;
-    setTimeout(() => setFinalGame(false), 2000);
-  }, [isFinalGame]);
+  const [isFinalGame, setIsFinalGame] = useState(false);
+  const [isMyTurn, setIsMyTurn] = useState(false);
+  const [currentTurn, setCurrentTurn] = useState('');
+
+  const [filterIcon, setFilterIcon] = useState('');
+  const [isFilterOn, setIsFilterOn] = useState(false);
 
   useEffect(() => {
     roomSocket.joinRoom({ roomId, user }, async ({ room, message }) => {
@@ -83,6 +74,7 @@ function Room({
     roomSocket.listenUpdateRoomLockingStatus(({ isLocked }) =>
       updateRoomLockingStatus(isLocked),
     );
+
     roomSocket.listenMemberJoined(({ newMember }) => addMember(newMember));
     roomSocket.listenMemberLeaved(({ socketId }) => {
       delete peersRef.current[socketId];
@@ -95,7 +87,6 @@ function Room({
       deleteMember(socketId);
     });
 
-    chatSocket.listenMessage(({ chat }) => addChat(chat));
     filterSocket.listenRenderFilter(({ isFilterOn, emoji }) => {
       setIsFilterOn(isFilterOn);
       setFilterIcon(emoji);
@@ -103,31 +94,17 @@ function Room({
 
     return () => {
       roomSocket.cleanUpRoomListener();
-      chatSocket.cleanUpMessageListener();
       filterSocket.cleanUpFilterListener();
 
       roomSocket.leaveRoom({ roomId });
 
-      resetChat();
       destroyRoom();
       removeVideoStream();
     };
   }, []);
 
   useEffect(() => {
-    if (isChatRoomOpen) return;
-
-    if (chatList.length) {
-      increaseUnreadCount();
-    }
-  }, [chatList, isChatRoomOpen]);
-
-  useEffect(() => {
-    resetUnreadCount();
-  }, [isChatRoomOpen]);
-
-  useEffect(() => {
-    if (!isStreaming) return;
+    if (!isStreaming || !room) return;
 
     for (const member of room.memberList) {
       if (user._id === member._id) continue;
@@ -172,7 +149,12 @@ function Room({
     };
   }, [isStreaming]);
 
-  const copyRoomUrl = () => {
+  useEffect(() => {
+    if (!isFinalGame) return;
+    setTimeout(() => setIsFinalGame(false), 2000);
+  }, [isFinalGame]);
+
+  const copyRoomUrl = useCallback(() => {
     const temp = document.createElement('textarea');
     temp.value = window.location.href;
     document.body.appendChild(temp);
@@ -181,7 +163,7 @@ function Room({
     document.execCommand('copy');
     toast('Url이 복사되었습니다', { type: toast.TYPE.DARK });
     document.body.removeChild(temp);
-  };
+  }, []);
 
   if (!room || error) {
     return <ErrorBox message={error} text='메인으로' />;
@@ -194,17 +176,7 @@ function Room({
         isFilterOn={isFilterOn}
         setIsFilterOn={setIsFilterOn}
       />
-      <Button onClick={() => setIsChatRoomOpen(!isChatRoomOpen)}>
-        <BsFillChatDotsFill size={28} />
-        {!!unreadChatCount && <Badge>{unreadChatCount}</Badge>}
-      </Button>
-      {isChatRoomOpen && (
-        <Chat
-          onSubmit={newChat => chatSocket.sendMessage({ newChat })}
-          chatList={chatList}
-          user={user}
-        />
-      )}
+      <ChatContainer />
       <Header>
         <div>
           <h1>{room.title}</h1>
@@ -217,10 +189,10 @@ function Room({
           <SpeechGame
             roomId={roomId}
             isMyTurn={isMyTurn}
-            setMyTurn={setMyTurn}
+            setIsMyTurn={setIsMyTurn}
             currentTurn={currentTurn}
             setCurrentTurn={setCurrentTurn}
-            setFinalGame={setFinalGame}
+            setIsFinalGame={setIsFinalGame}
           />
         </GameBox>
         <MemberList>
@@ -232,22 +204,20 @@ function Room({
               {currentTurn === member.socketId && isFinalGame && (
                 <img className='explosion' src={explosion} alt='explosion' />
               )}
+              {isFilterOn && <Canvas emoji={filterIcon} />}
               {member.socketId === getMySocketId() ? (
-                <>
-                  {isFilterOn && <Canvas emoji={filterIcon} />}
-                  <StyledVideo
-                    thumbnail={member.photoUrl}
-                    ref={myVideoRef}
-                    autoPlay
-                    playsInline
-                    muted
-                  />
-                </>
+                <StyledVideo
+                  thumbnail={member.photoUrl}
+                  ref={myVideoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                />
               ) : (
-                <>
-                  {isFilterOn && <Canvas emoji={filterIcon} />}
-                  <Video thumbnail={member.photoUrl} peer={peers[member.socketId]} />
-                </>
+                <Video
+                  thumbnail={member.photoUrl}
+                  peer={peers[member.socketId]}
+                />
               )}
               <h3>{member.name}</h3>
             </MemberBlock>
@@ -373,32 +343,14 @@ const MemberBlock = styled.div`
   }
 `;
 
-const Badge = styled.div`
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  background-color: red;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  font-size: 18px;
-  color: ${({ theme }) => theme.red};
-`;
-
 export default Room;
 
 Room.propTypes = {
   user: PropTypes.object,
   room: PropTypes.object,
-  chatList: PropTypes.array,
-  unreadChatCount: PropTypes.number,
   renderRoom: PropTypes.func.isRequired,
   destroyRoom: PropTypes.func.isRequired,
   addMember: PropTypes.func.isRequired,
   deleteMember: PropTypes.func.isRequired,
-  addChat: PropTypes.func.isRequired,
-  resetChat: PropTypes.func.isRequired,
-  increaseUnreadCount: PropTypes.func.isRequired,
-  resetUnreadCount: PropTypes.func.isRequired,
   updateRoomLockingStatus: PropTypes.func.isRequired,
 };
