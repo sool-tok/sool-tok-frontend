@@ -13,6 +13,7 @@ import Button from './Button';
 
 import beerVideo from '../assets/beer.mp4';
 import theme from './styles/theme';
+import { toast } from 'react-toastify';
 
 function Lobby() {
   const history = useHistory();
@@ -27,7 +28,11 @@ function Lobby() {
     return () => roomSocket.cleanUpLobbyListener();
   }, []);
 
-  const moveToRoom = roomId => history.push(`rooms/${roomId}`);
+  const moveToRoom = roomId => {
+    history.push(`rooms/${roomId}`);
+    toast('방에 입장했습니다.', { type: toast.TYPE.DARK });
+  };
+
   const createRoom = roomData => {
     roomSocket.createRoom({ roomData }, ({ roomId }) => moveToRoom(roomId));
   };
