@@ -11,8 +11,10 @@ import CreateRoomForm from './CreateRoomForm';
 import JoinRoomForm from './JoinRoomForm';
 import Button from './Button';
 
-import beerVideo from '../assets/beer.mp4';
 import theme from './styles/theme';
+import beerVideo from '../assets/beer.mp4';
+import logo from '../assets/logo.png';
+
 
 function Lobby() {
   const history = useHistory();
@@ -39,6 +41,7 @@ function Lobby() {
 
   return (
     <Container>
+      <img src={logo} alt='logo' />
       <Tables>
         {tables.map(table => (
           <Table key={table._id} tableInfo={table} />
@@ -75,6 +78,14 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
   background-color: ${({ theme }) => theme.purple};
+
+  img {
+    z-index: 12;
+    position: fixed;
+    top: 24px;
+    left: 24px;
+    width: 100px;
+  }
 
   h1 {
     z-index: 12;

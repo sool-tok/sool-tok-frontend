@@ -7,8 +7,6 @@ import { getRandomEmoji } from '../utils/getRandomEmoji';
 
 function Table({ tableInfo }) {
   const { _id, title } = tableInfo;
-  // const icons = ['😝', '🥰', '😎', '🤢', '🤮', '😭', '😪', '🍹', '🍺', '🍷', '🤗'];
-  // const generateRandomNumber = () => _.random(icons.length - 1);
 
   return (
     <Link to={`/rooms/${_id}`}>
