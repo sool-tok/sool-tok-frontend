@@ -11,10 +11,10 @@ import CreateRoomForm from './CreateRoomForm';
 import JoinRoomForm from './JoinRoomForm';
 import Button from './Button';
 
+import { toast } from 'react-toastify';
 import theme from './styles/theme';
 import beerVideo from '../assets/beer.mp4';
 import logo from '../assets/logo.png';
-
 
 function Lobby() {
   const history = useHistory();
@@ -29,7 +29,11 @@ function Lobby() {
     return () => roomSocket.cleanUpLobbyListener();
   }, []);
 
-  const moveToRoom = roomId => history.push(`rooms/${roomId}`);
+  const moveToRoom = roomId => {
+    history.push(`rooms/${roomId}`);
+    toast('방에 입장했습니다.', { type: toast.TYPE.DARK });
+  };
+
   const createRoom = roomData => {
     roomSocket.createRoom({ roomData }, ({ roomId }) => moveToRoom(roomId));
   };

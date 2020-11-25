@@ -6,15 +6,16 @@ import AddFriendForm from './AddFriendForm';
 import Button from './Button';
 import FriendCell from './FriendCell';
 
+import { toast } from 'react-toastify';
 import theme from './styles/theme';
 import { IoMdCheckmark, IoMdClose } from 'react-icons/io';
 
-function FriendList({ user, list, isRequestList, openModal, onSubmit }) {
+function FriendList({ setModalOpen, user, list, isRequestList, openModal, onSubmit }) {
   return (
     <Wrapper>
       {!isRequestList && (
         <Button
-          onClick={() => openModal(<AddFriendForm user={user} />)}
+          onClick={() => openModal(<AddFriendForm setModalOpen={setModalOpen} user={user} />)}
           color={theme.orange}>
           친구 추가하기
         </Button>
@@ -28,12 +29,18 @@ function FriendList({ user, list, isRequestList, openModal, onSubmit }) {
           {isRequestList && (
             <RequestContolBox>
               <Button
-                onClick={() => onSubmit(user._id, true, member._id)}
+                onClick={() => {
+                  onSubmit(user._id, true, member._id);
+                  toast('친구 요청을 수락했습니다.', { type: toast.TYPE.DARK });
+                }}
                 color={theme.green}>
                 <IoMdCheckmark size={20} />
               </Button>
               <Button
-                onClick={() => onSubmit(user._id, false, member._id)}
+                onClick={() => {
+                  onSubmit(user._id, false, member._id);
+                  toast('친구 요청을 거절했습니다.', { type: toast.TYPE.DARK });
+                }}
                 color={theme.pink}>
                 <IoMdClose size={20} />
               </Button>
@@ -92,5 +99,6 @@ FriendList.propTypes = {
   list: PropTypes.array.isRequired,
   isRequestList: PropTypes.bool.isRequired,
   openModal: PropTypes.func.isRequired,
+  setModalOpen: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
 };

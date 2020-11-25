@@ -95,7 +95,7 @@ const getFriendRequestList = async userId => {
 
 const requestFriend = async (userId, token, email) => {
   try {
-    const { status, data } = await axios.post(
+    const { data } = await axios.post(
       `/users/${userId}/friends/request`,
       { email },
       {
@@ -105,11 +105,9 @@ const requestFriend = async (userId, token, email) => {
       },
     );
 
-    return {
-      message: status === 204 ? '존재하지 않는 유저입니다.' : data.message,
-    };
+    return { message: data.message };
   } catch (err) {
-    throw new Error(err);
+    throw err.response.data;
   }
 };
 
