@@ -21,15 +21,11 @@ function JoinRoomForm({ onSubmit }) {
       <form onSubmit={submitRoomData}>
         <input
           type='url'
-          name='roomUrl'
-          id='roomUrl'
           required
-          placeholder='http://localhost:3000/rooms/'
-          pattern='http://localhost:3000/rooms/.*'
+          placeholder='https://www.sool-tok.live'
+          pattern='https://192.168.0.53:3000/rooms/.*'
           title='The URL must be in a Sool-tok domain.'
           value={input}
-          size='36'
-          max='36'
           onChange={handleInputChange}
         />
         <input type='submit' value='합석하기' />

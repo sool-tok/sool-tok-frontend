@@ -75,6 +75,7 @@ function MyPage({
           list={!isRequestList ? friendList : friendRequestList}
           isRequestList={isRequestList}
           openModal={openModal}
+          setModalOpen={setModalOpen}
           onSubmit={onSubmit}
         />
       )}
