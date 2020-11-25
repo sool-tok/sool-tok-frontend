@@ -1,10 +1,8 @@
 import { takeLatest, put, all, call } from 'redux-saga/effects';
-// takeLates: 이녀석은 요청을 2번 할 경우 가장 최신의 요청만을 처리한다.
 
 import types from './user.actionTypes';
 import * as actions from './user.actions';
 
-// import createRequestSaga from '../../utils/asyncUtils';
 import { userService } from '../../utils/api';
 
 export function* loginUser({ payload }) {
@@ -58,30 +56,46 @@ export function* getFriendRequestList({ payload }) {
   }
 }
 
+export function* responseFriendRequest({ payload }) {
+  try {
+    const { userId, isAccepted, targetUserId } = payload;
+    const friendRequestList = yield userService.responseFriendRequest(
+      userId,
+      isAccepted,
+      targetUserId,
+    );
+    yield put(actions.responseFriendRequestSuccess(friendRequestList));
+  } catch (err) {
+    yield put(actions.responseFriendRequestFailure(err));
+  }
+}
+
 export function* watchLoginUserStart() {
-  yield takeLatest(types.LOGIN_USER_REQUESTED, loginUser);
+  yield takeLatest(types.LOGIN_USER_START, loginUser);
 }
 
 export function* watchLogoutStart() {
-  yield takeLatest(types.LOGOUT_USER_REQUESTED, logoutUser);
+  yield takeLatest(types.LOGOUT_USER_START, logoutUser);
 }
 
-export function* watchGetFriendListStart() {
-  yield takeLatest(types.ADD_FRIEND_LIST_REQUESTED, getFriendList);
+export function* watchFriendListStart() {
+  yield takeLatest(types.ADD_FRIEND_LIST_START, getFriendList);
 }
 
-export function* watchGetFriendRequestListStart() {
-  yield takeLatest(
-    types.ADD_FRIEND_REQUEST_LIST_REQUESTED,
-    getFriendRequestList,
-  );
+export function* watchFriendRequestListStart() {
+  yield takeLatest(types.ADD_FRIEND_REQUEST_LIST_START, getFriendRequestList);
+}
+
+export function* watchResponseFriendRequestStart() {
+  yield takeLatest(types.RESPONSE_FRIEND_REQUEST_START, responseFriendRequest);
 }
 
 export default function* userSagas() {
   yield all([
     call(watchLoginUserStart),
     call(watchLogoutStart),
-    call(watchGetFriendListStart),
-    call(watchGetFriendRequestListStart),
+    call(watchFriendListStart),
+    call(watchFriendRequestListStart),
+    call(watchResponseFriendRequestStart),
   ]);
 }
