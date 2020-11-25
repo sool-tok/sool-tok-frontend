@@ -1,18 +1,13 @@
 import { connect } from 'react-redux';
 
 import * as userSelector from '../redux/user/user.selectors';
-import * as chatSelector from '../redux/chat/chat.selectors';
-
 import * as roomAction from '../redux/room/room.actions';
-import * as chatAction from '../redux/chat/chat.actions';
 
 import Room from '../components/Room';
 
 const mapStateToProps = state => ({
   user: userSelector.selectRequiredInRoom(state),
   room: state.room,
-  chatList: chatSelector.selectChatList(state),
-  unreadChatCount: chatSelector.selectUnreadCount(state),
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -31,14 +26,11 @@ const mapDispatchToProps = dispatch => ({
   updateRoomLockingStatus(isLocked) {
     dispatch(roomAction.updateRoomLockingStatus(isLocked));
   },
-  addChat(chat) {
-    dispatch(chatAction.addChat(chat));
+  turnOnFilter(filter) {
+    dispatch(roomAction.turnOnFilter(filter));
   },
-  increaseUnreadCount() {
-    dispatch(chatAction.increaseUnreadCount());
-  },
-  resetUnreadCount() {
-    dispatch(chatAction.resetUnreadCount());
+  turnOffFilter() {
+    dispatch(roomAction.turnOffFilter());
   },
 });
 

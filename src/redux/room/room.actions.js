@@ -23,3 +23,12 @@ export const updateRoomLockingStatus = isLocked => ({
   type: types.UPDATE_ROOM_LOCKING_STATUS,
   payload: { isLocked },
 });
+
+export const turnOnFilter = filter => ({
+  type: types.TURN_ON_FILTER,
+  payload: { filter },
+});
+
+export const turnOffFilter = () => ({
+  type: types.TURN_OFF_FILTER,
+});

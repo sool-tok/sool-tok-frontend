@@ -1,19 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-
 import _ from 'lodash';
 
-import Button from './Button';
-
 import { gameSocket, getMySocketId } from '../utils/socket';
+
+import Button from './Button';
 
 function SpeechGame({
   roomId,
   isMyTurn,
-  setMyTurn,
+  setIsMyTurn,
   setCurrentTurn,
-  setFinalGame,
+  setIsFinalGame,
 }) {
   const [gameData, setGameData] = useState(null);
   const gameDataRef = useRef();
@@ -45,8 +44,8 @@ function SpeechGame({
 
     setCurrentTurn('');
     setGameData(null);
-    setFinalGame(false);
-    setMyTurn(false);
+    setIsFinalGame(false);
+    setIsMyTurn(false);
 
     clearTimeout(timeout.current);
     timeout.current = null;
@@ -69,7 +68,7 @@ function SpeechGame({
       isMyTurnRef.current = isMyTurn;
 
       setGameData(data);
-      setMyTurn(isMyTurn);
+      setIsMyTurn(isMyTurn);
       setCurrentTurn(initialTurn);
     });
 
@@ -79,7 +78,7 @@ function SpeechGame({
 
       isMyTurnRef.current = isMyTurn;
 
-      setMyTurn(isMyTurn);
+      setIsMyTurn(isMyTurn);
       setCurrentTurn(targetSocketId);
     });
 
@@ -96,16 +95,14 @@ function SpeechGame({
         deleteReconginiton();
 
         if (isMyTurnRef.current) {
-          console.log('게임 종료: 내가 걸렸다..');
           setNotification('내가 걸렸다..💥');
         } else {
-          console.log('게임 종료: 난 걸리지 않았다..');
           setNotification('난 걸리지 않았다😎');
         }
 
         setGameData(null);
         setScript('');
-        setFinalGame(true);
+        setIsFinalGame(true);
 
         clearTimeout(timeout.current);
         timeout.current = null;
@@ -129,8 +126,10 @@ function SpeechGame({
       setScript('');
       setPhrase('');
 
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const SpeechGrammarList = window.SpeechGrammarList || window.webkitSpeechGrammarList;
+      const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+      const SpeechGrammarList =
+        window.SpeechGrammarList || window.webkitSpeechGrammarList;
 
       const randomIndex = _.random(0, gameData.phrases.length - 1);
       const targetPhrase = gameData.phrases[randomIndex];
@@ -160,7 +159,8 @@ function SpeechGame({
         const getSpeechResult = _.debounce((result = '') => {
           if (!gameDataRef.current) return;
 
-          const isAnswer = result.split(' ').join('') === targetPhrase.split(' ').join('');
+          const isAnswer =
+            result.split(' ').join('') === targetPhrase.split(' ').join('');
 
           if (isAnswer) {
             gameSocket.sendGameStatus({
@@ -219,21 +219,19 @@ function SpeechGame({
   return (
     <Wrapper isMyTurn={isMyTurn}>
       <div>
-      {
-        gameData ?
+        {gameData ?
           <p className='turn'>{isMyTurn ? '🙋‍♂️내 차례!🙋‍♀️' : '내 차례 아님..'}</p>
-        :
+          :
           <Button onClick={startGame}>게임 시작</Button>
-      }
+        }
       </div>
-      {
-        !gameData ?
-          <p className='title'>폭탄을 돌려라! 🧨</p>
+      {!gameData ?
+        <p className='title'>폭탄을 돌려라! 🧨</p>
         :
-          <>
-            <p className='phrase'>{phrase}</p>
-            <p className='script'>{script}</p>
-          </>
+        <>
+          <p className='phrase'>{phrase}</p>
+          <p className='script'>{script}</p>
+        </>
       }
       <p className='notification'>{notification}</p>
     </Wrapper>
@@ -251,7 +249,8 @@ const Wrapper = styled.div`
   align-items: center;
   background-color: red;
   color: ${({ theme }) => theme.orange};
-  background-color: ${({ isMyTurn, theme }) => isMyTurn ? theme.pink : theme.darkPurple};
+  background-color: ${({ isMyTurn, theme }) =>
+    isMyTurn ? theme.pink : theme.darkPurple};
   overflow: hidden;
 
   div {
@@ -275,7 +274,7 @@ const Wrapper = styled.div`
 
   .turn {
     font-size: 18px;
-    color: ${({ isMyTurn, theme }) => isMyTurn ? theme.emerald : theme.darkPurple};
+    color: ${({ theme }) => theme.emerald};
   }
 
   .phrase {
@@ -306,9 +305,9 @@ export default SpeechGame;
 
 SpeechGame.propTypes = {
   roomId: PropTypes.string.isRequired,
-  setMyTurn: PropTypes.func.isRequired,
+  setIsMyTurn: PropTypes.func.isRequired,
   isMyTurn: PropTypes.bool.isRequired,
   currentTurn: PropTypes.string.isRequired,
   setCurrentTurn: PropTypes.func.isRequired,
-  setFinalGame: PropTypes.func.isRequired,
+  setIsFinalGame: PropTypes.func.isRequired,
 };

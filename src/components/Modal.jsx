@@ -2,14 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-import Button from './Button';
 import { GrFormClose } from 'react-icons/gr';
+import Button from './Button';
 
 function Modal({ children, setModalOpen }) {
   return (
     <StyledModal>
       {children}
-      <Button color='#ecf0f1' onClick={() => setModalOpen(false)}><GrFormClose size='26px' /></Button>
+      <Button color='#ecf0f1' onClick={() => setModalOpen(false)}>
+        <GrFormClose size='26px' />
+      </Button>
     </StyledModal>
   );
 }

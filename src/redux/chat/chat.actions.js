@@ -5,6 +5,10 @@ export const addChat = chat => ({
   payload: { chat },
 });
 
+export const resetChat = () => ({
+  type: types.RESET_CHAT,
+});
+
 export const increaseUnreadCount = () => ({
   type: types.INCREASE_UNREAD_COUNT,
 });
