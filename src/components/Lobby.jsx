@@ -77,7 +77,7 @@ const Container = styled.div`
   background-color: ${({ theme }) => theme.purple};
 
   h1 {
-    z-index: 1;
+    z-index: 12;
     font-size: 72px;
     font-weight: 700;
     color: ${({ theme }) => theme.orange};
@@ -107,7 +107,10 @@ const Wrapper = styled.div`
 `;
 
 const Tables = styled.div`
+  z-index: 10;
   display: flex;
+  flex-wrap: wrap;
+  width: 100vw;
   position: absolute;
   top: 0;
   left: 0;
