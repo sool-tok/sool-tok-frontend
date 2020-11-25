@@ -53,11 +53,11 @@ function MyPage({
 
   return (
     <Container>
-      {isModalOpen && (
+      {isModalOpen &&
         <ModalPortal>
           <Modal setModalOpen={setModalOpen}>{modalContent}</Modal>
         </ModalPortal>
-      )}
+      }
       <MyInfo>
         <MyInfoWrapper>
           <h3>{user.name}</h3>
@@ -67,17 +67,18 @@ function MyPage({
           로그아웃
         </Button>
       </MyInfo>
-      {loading ? (
+      {loading ?
         <Loading />
-      ) : (
+       :
         <FriendList
           user={user}
           list={!isRequestList ? friendList : friendRequestList}
           isRequestList={isRequestList}
           openModal={openModal}
+          setModalOpen={setModalOpen}
           onSubmit={onSubmit}
         />
-      )}
+      }
       <ListToggle onClick={toggleFriendList}>
         {isRequestList ? '친구 목록 보기' : '요청 목록 보기'}
       </ListToggle>

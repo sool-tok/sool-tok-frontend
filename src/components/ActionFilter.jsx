@@ -2,34 +2,34 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-import { filterSocket } from '../utils/socket';
+import { roomSocket } from '../utils/socket';
 
-function ActionFilter({ roomId, isFilterOn, setIsFilterOn }) {
+function ActionFilter({ roomId, isFilterOn }) {
   const emojiList = ['🤮', '🍺', '❤️', '🤔'];
 
   const filterOn = ev => {
     const { value } = ev.target;
 
-    setIsFilterOn(true);
-    filterSocket.renderFilter({ roomId, isFilterOn: true, emoji: value });
+    roomSocket.renderFilter({ roomId, isFilterOn: true, filter: value });
   };
 
   const filterOff = () => {
-    setIsFilterOn(false);
-    filterSocket.renderFilter({ roomId, isFilterOn: false, emoji: '' });
+    roomSocket.renderFilter({ roomId, isFilterOn: false, filter: null });
   };
 
   return (
     <ActionIconBox>
-    {isFilterOn ?
-      <ActionIconButton onClick={filterOff}>❌</ActionIconButton>
-      :
-      <>
-        {emojiList.map((emoji, i) => (
-          <ActionIconButton key={i} onClick={filterOn} value={emoji}>{emoji}</ActionIconButton>
-        ))}
-      </>
-    }
+      {isFilterOn ?
+        <ActionIconButton onClick={filterOff}>❌</ActionIconButton>
+        :
+        <>
+          {emojiList.map((emoji, i) => (
+            <ActionIconButton key={i} onClick={filterOn} value={emoji}>
+              {emoji}
+            </ActionIconButton>
+          ))}
+        </>
+      }
     </ActionIconBox>
   );
 }
@@ -61,5 +61,4 @@ export default ActionFilter;
 ActionFilter.propTypes = {
   roomId: PropTypes.string.isRequired,
   isFilterOn: PropTypes.bool.isRequired,
-  setIsFilterOn: PropTypes.func.isRequired,
 };

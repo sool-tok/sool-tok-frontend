@@ -8,10 +8,11 @@ const initialState = {
 
 const userReducer = (state = initialState, { type, payload }) => {
   switch (type) {
-    case types.LOGIN_USER_REQUESTED:
-    case types.LOGOUT_USER_REQUESTED:
-    case types.ADD_FRIEND_LIST_REQUESTED:
-    case types.ADD_FRIEND_REQUEST_LIST_REQUESTED:
+    case types.LOGIN_USER_START:
+    case types.LOGOUT_USER_START:
+    case types.ADD_FRIEND_LIST_START:
+    case types.ADD_FRIEND_REQUEST_LIST_START:
+    case types.RESPONSE_FRIEND_REQUEST_START:
       return {
         ...state,
         loading: true,
@@ -41,6 +42,7 @@ const userReducer = (state = initialState, { type, payload }) => {
         error: null,
       };
     case types.ADD_FRIEND_REQUEST_LIST_SUCCESS:
+    case types.RESPONSE_FRIEND_REQUEST_SUCCESS:
       return {
         ...state,
         currentUser: {
@@ -54,6 +56,7 @@ const userReducer = (state = initialState, { type, payload }) => {
     case types.LOGOUT_USER_FAILURE:
     case types.ADD_FRIEND_LIST_FAILURE:
     case types.ADD_FRIEND_REQUEST_LIST_FAILURE:
+    case types.RESPONSE_FRIEND_REQUEST_FAILURE:
       return {
         ...state,
         loading: false,

@@ -1,30 +1,23 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
 import { Link } from 'react-router-dom';
+import styled from 'styled-components';
+
+import { getRandomEmoji } from '../utils/getRandomEmoji';
 
 function Table({ tableInfo }) {
-  const { _id, title, memberList } = tableInfo;
+  const { _id, title } = tableInfo;
+
   return (
     <Link to={`/rooms/${_id}`}>
       <Wrapper>
-        <div />
-        <div />
-        <div className='member'>{memberList[0]?.name}</div>
-        <div />
-        <div />
-        <div className='table'>{title}</div>
-        <div />
-        <div />
-        <div className='member'>{memberList[1]?.name}</div>
-        <div className='member'>{memberList[2]?.name}</div>
-        <div />
-        <div />
-        <div />
-        <div />
-        <div className='member'>{memberList[3]?.name}</div>
-        <div />
-        <div />
+        {Array.from({ length: 18 }).map((_, idx) => {
+          if (idx === 5) return (<div key={idx} className='table'>{title}</div>);
+          if (idx === 2 || idx === 8 || idx === 9 || idx === 14) {
+            return (<div key={idx} className='member'>{getRandomEmoji()}</div>);
+          }
+          return (<div key={idx} />);
+        })}
       </Wrapper>
     </Link>
   );
@@ -43,38 +36,18 @@ const Wrapper = styled.div`
   width: 240px;
   height: 240px;
   margin: 20px;
-  color: #ffd32a;
-  animation: table-spin infinite 2s linear;
-
-  @keyframes table-spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
+  color: ${({ theme }) => theme.orange};
+  animation: table-spin infinite 3s linear;
 
   .table {
     grid-area: t;
-    background-color: rgba(238, 238, 238, 0.3);
-    border-radius: 50%;
+    border-radius: 36%;
     padding: 20px;
     font-size: 20px;
     overflow: hidden;
-    animation: heart-beat infinite 0.5s linear;
-
-    @keyframes heart-beat {
-      0% {
-        transform: scale(0.8);
-      }
-      50% {
-        transform: scale(1);
-      }
-      100% {
-        transform: scale(0.8);
-      }
-    }
+    background-color: ${({ theme }) => theme.purple};
+    border: 2px solid ${({ theme }) => theme.darkPurple};
+    animation: heart-beat infinite 1.6s linear;
   }
 
   .table,
@@ -85,7 +58,28 @@ const Wrapper = styled.div`
   }
 
   .member {
-    font-size: 18px;
+    font-size: 36px;
+  }
+
+  @keyframes table-spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes heart-beat {
+    0% {
+      transform: scale(0.8);
+    }
+    50% {
+      transform: scale(1);
+    }
+    100% {
+      transform: scale(0.8);
+    }
   }
 `;
 

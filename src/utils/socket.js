@@ -37,7 +37,6 @@ const gameSocket = {
   },
 };
 
-
 const roomSocket = {
   createRoom({ roomData }, cb) {
     socket.emit('create room', { roomData }, cb);
@@ -66,6 +65,12 @@ const roomSocket = {
   listenUpdateRoomLockingStatus(cb) {
     socket.on('update room locking status', cb);
   },
+  renderFilter({ roomId, isFilterOn, filter }) {
+    socket.emit('filter', { roomId, isFilterOn, filter });
+  },
+  listenRenderFilter(cb) {
+    socket.on('filter', cb);
+  },
   cleanUpLobbyListener() {
     socket.off('update room list');
   },
@@ -73,6 +78,7 @@ const roomSocket = {
     socket.off('member joined');
     socket.off('member leaved');
     socket.off('update room locking status');
+    socket.off('filter');
   },
 };
 
@@ -85,18 +91,6 @@ const chatSocket = {
   },
   cleanUpMessageListener() {
     socket.off('message');
-  },
-};
-
-const filterSocket = {
-  renderFilter({ roomId, isFilterOn, emoji }) {
-    socket.emit('filter', { roomId, isFilterOn, emoji });
-  },
-  listenRenderFilter(cb) {
-    socket.on('filter', cb);
-  },
-  cleanUpFilterListener() {
-    socket.off('filter');
   },
 };
 
@@ -119,4 +113,4 @@ const peerSocket = {
   },
 };
 
-export { roomSocket, chatSocket, peerSocket, gameSocket, filterSocket };
+export { roomSocket, chatSocket, peerSocket, gameSocket };

@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-import Button from './Button';
-
 import logo from '../assets/logo.png';
+
+import Button from './Button';
 
 function Login({ onLogin }) {
   return (

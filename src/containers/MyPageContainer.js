@@ -3,8 +3,6 @@ import { connect } from 'react-redux';
 import * as userSelector from '../redux/user/user.selectors';
 import * as userAction from '../redux/user/user.actions';
 
-import { userService } from '../utils/api';
-
 import MyPage from '../components/MyPage';
 
 const mapStateToProps = state => ({
@@ -19,18 +17,8 @@ const mapDispatchToProps = dispatch => ({
   addFriendList: userId => dispatch(userAction.addFriendListStart(userId)),
   addFriendRequestList: userId => dispatch(userAction.addFriendRequestListStart(userId)),
   logoutUser: userId => dispatch(userAction.logoutUserStart(userId)),
-  async onSubmit(userId, isAccepted, targetUserId) {
-    try {
-      const friendRequestList = await userService.responseFriendRequest(
-        userId,
-        isAccepted,
-        targetUserId,
-      );
-
-      dispatch(userAction.addFriendRequestListSuccess(friendRequestList));
-    } catch (err) {
-      console.error(err);
-    }
+  onSubmit(userId, isAccepted, targetUserId) {
+    dispatch(userAction.responseFriendRequestStart(userId, isAccepted, targetUserId));
   },
 });
 

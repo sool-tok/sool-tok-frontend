@@ -1,8 +1,7 @@
 import firebase from './firebase';
 import axios from 'axios';
 
-// Test
-// axios.defaults.baseURL = process.env.REACT_APP_PROXY_URL;
+// axios.defaults.baseURL = process.env.REACT_APP_API_URL;
 
 const setToken = token => localStorage.setItem('jwt-token', token);
 const getToken = () => localStorage.getItem('jwt-token');
@@ -79,7 +78,6 @@ const getFriendList = async userId => {
 const getFriendRequestList = async userId => {
   try {
     const token = getToken();
-
     const { data } = await axios.get(`/users/${userId}/friends/request`, {
       headers: {
         'jwt-token': token,
@@ -93,9 +91,10 @@ const getFriendRequestList = async userId => {
   }
 };
 
-const requestFriend = async (userId, token, email) => {
+const requestFriend = async (userId, email) => {
   try {
-    const { status, data } = await axios.post(
+    const token = getToken();
+    const { data } = await axios.post(
       `/users/${userId}/friends/request`,
       { email },
       {
@@ -105,11 +104,9 @@ const requestFriend = async (userId, token, email) => {
       },
     );
 
-    return {
-      message: status === 204 ? '존재하지 않는 유저입니다.' : data.message,
-    };
+    return { message: data.message };
   } catch (err) {
-    throw new Error(err);
+    throw err.response.data;
   }
 };
 

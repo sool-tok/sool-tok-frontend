@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
+import { toast } from 'react-toastify';
 
 import { roomSocket } from '../utils/socket';
 
@@ -11,8 +12,9 @@ import CreateRoomForm from './CreateRoomForm';
 import JoinRoomForm from './JoinRoomForm';
 import Button from './Button';
 
-import beerVideo from '../assets/beer.mp4';
 import theme from './styles/theme';
+import beerVideo from '../assets/beer.mp4';
+import logo from '../assets/logo.png';
 
 function Lobby() {
   const history = useHistory();
@@ -27,7 +29,11 @@ function Lobby() {
     return () => roomSocket.cleanUpLobbyListener();
   }, []);
 
-  const moveToRoom = roomId => history.push(`rooms/${roomId}`);
+  const moveToRoom = roomId => {
+    history.push(`rooms/${roomId}`);
+    toast('방에 입장했습니다.', { type: toast.TYPE.DARK });
+  };
+
   const createRoom = roomData => {
     roomSocket.createRoom({ roomData }, ({ roomId }) => moveToRoom(roomId));
   };
@@ -39,6 +45,7 @@ function Lobby() {
 
   return (
     <Container>
+      <img src={logo} alt='logo' />
       <Tables>
         {tables.map(table => (
           <Table key={table._id} tableInfo={table} />
@@ -57,12 +64,19 @@ function Lobby() {
           URL로 참여하기
         </Button>
       </Wrapper>
-      {isModalOpen && (
+      {isModalOpen &&
         <ModalPortal>
           <Modal setModalOpen={setModalOpen}>{modalContent}</Modal>
         </ModalPortal>
-      )}
-      <video type='video/mp4' src={beerVideo} width='300px' autoPlay loop muted />
+      }
+      <video
+        type='video/mp4'
+        src={beerVideo}
+        width='300px'
+        autoPlay
+        loop
+        muted
+      />
     </Container>
   );
 }
@@ -76,8 +90,16 @@ const Container = styled.div`
   align-items: center;
   background-color: ${({ theme }) => theme.purple};
 
+  img {
+    z-index: 12;
+    position: fixed;
+    top: 24px;
+    left: 24px;
+    width: 100px;
+  }
+
   h1 {
-    z-index: 1;
+    z-index: 12;
     font-size: 72px;
     font-weight: 700;
     color: ${({ theme }) => theme.orange};
@@ -107,7 +129,10 @@ const Wrapper = styled.div`
 `;
 
 const Tables = styled.div`
+  z-index: 10;
   display: flex;
+  flex-wrap: wrap;
+  width: 100vw;
   position: absolute;
   top: 0;
   left: 0;
