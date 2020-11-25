@@ -1,4 +1,3 @@
-import { initial } from 'lodash';
 import types from './chat.actionTypes';
 
 const initialState = {

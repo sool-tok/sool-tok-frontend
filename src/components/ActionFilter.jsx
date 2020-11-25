@@ -9,7 +9,7 @@ function ActionFilter({ roomId, isFilterOn }) {
 
   const filterOn = ev => {
     const { value } = ev.target;
-    console.log('📌   ActionFilter   value', value);
+
     roomSocket.renderFilter({ roomId, isFilterOn: true, filter: value });
   };
 
