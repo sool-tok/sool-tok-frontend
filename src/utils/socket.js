@@ -66,10 +66,10 @@ const roomSocket = {
     socket.on('update room locking status', cb);
   },
   renderFilter({ roomId, isFilterOn, filter }) {
-    socket.emit('filter', { roomId, isFilterOn, filter });
+    socket.emit('video filter', { roomId, isFilterOn, filter });
   },
   listenRenderFilter(cb) {
-    socket.on('filter', cb);
+    socket.on('video filter', cb);
   },
   cleanUpLobbyListener() {
     socket.off('update room list');
@@ -78,7 +78,7 @@ const roomSocket = {
     socket.off('member joined');
     socket.off('member leaved');
     socket.off('update room locking status');
-    socket.off('filter');
+    socket.off('video filter');
   },
 };
 

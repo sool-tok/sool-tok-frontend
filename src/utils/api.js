@@ -8,87 +8,65 @@ const getToken = () => localStorage.getItem('jwt-token');
 const removeToken = () => localStorage.removeItem('jwt-token');
 
 const googleLogin = async () => {
-  try {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+  const provider = new firebase.auth.GoogleAuthProvider();
+  provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
 
-    const { user } = await firebase.auth().signInWithPopup(provider);
-    const userInfo = {
-      email: user.email,
-      name: user.displayName,
-      photoUrl: user.photoURL,
-    };
+  const { user } = await firebase.auth().signInWithPopup(provider);
+  const userInfo = {
+    email: user.email,
+    name: user.displayName,
+    photoUrl: user.photoURL,
+  };
 
-    const { data } = await axios.post('/users/login/google', userInfo);
-    setToken(data.token);
-    return { user: data.user };
-  } catch (err) {
-    throw new Error(err);
-  }
+  const { data } = await axios.post('/users/login/google', userInfo);
+  setToken(data.token);
+
+  return { user: data.user };
 };
 
 const tokenLogin = async () => {
-  try {
-    const token = getToken();
+  const token = getToken();
 
-    if (!token) return { user: null };
+  if (!token) return { user: null };
 
-    const { data } = await axios.post('/users/login/token', { token });
-
-    if (data.result === 'error') throw new Error(data);
-    return { user: data.user };
-  } catch (err) {
-    throw new Error(err);
-  }
+  const { data } = await axios.post('/users/login/token', { token });
+  return { user: data.user };
 };
 
 const logout = async userId => {
-  try {
-    const token = getToken();
+  const token = getToken();
 
-    await axios.post(`/users/${userId}/logout`, null, {
-      headers: {
-        'jwt-token': token,
-      },
-    });
+  await axios.post(`/users/${userId}/logout`, null, {
+    headers: {
+      'jwt-token': token,
+    },
+  });
 
-    removeToken();
-  } catch (err) {
-    throw new Error(err);
-  }
+  removeToken();
 };
 
 const getFriendList = async userId => {
-  try {
-    const token = getToken();
+  const token = getToken();
 
-    const { data } = await axios.get(`/users/${userId}/friends`, {
-      headers: {
-        'jwt-token': token,
-      },
-    });
+  const { data } = await axios.get(`/users/${userId}/friends`, {
+    headers: {
+      'jwt-token': token,
+    },
+  });
 
-    if (data.result === 'error') throw new Error(data);
-    return data.friendList;
-  } catch (err) {
-    throw new Error(err);
-  }
+  return data.friendList;
 };
 
 const getFriendRequestList = async userId => {
-  try {
-    const token = getToken();
-    const { data } = await axios.get(`/users/${userId}/friends/request`, {
-      headers: {
-        'jwt-token': token,
-      },
-    });
+  const token = getToken();
 
-    if (data.result === 'error') throw new Error(data);
-    return data.friendRequestList;
-  } catch (err) {
-    throw new Error(err);
-  }
+  const { data } = await axios.get(`/users/${userId}/friends/request`, {
+    headers: {
+      'jwt-token': token,
+    },
+  });
+
+  return data.friendRequestList;
 };
 
 const requestFriend = async (userId, email) => {
@@ -106,32 +84,27 @@ const requestFriend = async (userId, email) => {
 
     return { message: data.message };
   } catch (err) {
-    throw err.response.data;
+    throw err.response.data.message;
   }
 };
 
 const responseFriendRequest = async (userId, isAccepted, targetUserId) => {
-  try {
-    const token = getToken();
+  const token = getToken();
 
-    const { data } = await axios.put(
-      `/users/${userId}/friends/request`,
-      {
-        isAccepted,
-        target_user_id: targetUserId,
+  const { data } = await axios.put(
+    `/users/${userId}/friends/request`,
+    {
+      isAccepted,
+      target_user_id: targetUserId,
+    },
+    {
+      headers: {
+        'jwt-token': token,
       },
-      {
-        headers: {
-          'jwt-token': token,
-        },
-      },
-    );
+    },
+  );
 
-    if (data.result === 'error') throw new Error(data);
-    return data.friendRequestList;
-  } catch (err) {
-    throw new Error(err);
-  }
+  return data.friendRequestList;
 };
 
 const userService = {
