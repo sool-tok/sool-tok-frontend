@@ -1,7 +1,7 @@
 import firebase from './firebase';
 import axios from 'axios';
 
-// axios.defaults.baseURL = process.env.REACT_APP_API_URL;
+axios.defaults.baseURL = process.env.REACT_APP_API_URL;
 
 const setToken = token => localStorage.setItem('jwt-token', token);
 const getToken = () => localStorage.getItem('jwt-token');

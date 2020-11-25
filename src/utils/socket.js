@@ -1,6 +1,6 @@
 import io from 'socket.io-client';
 
-const socket = io();
+const socket = io(process.env.REACT_APP_API_URL);
 
 export const getMySocketId = () => socket.id;
 
