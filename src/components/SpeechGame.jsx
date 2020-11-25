@@ -219,20 +219,20 @@ function SpeechGame({
   return (
     <Wrapper isMyTurn={isMyTurn}>
       <div>
-        {gameData ? (
+        {gameData ?
           <p className='turn'>{isMyTurn ? '🙋‍♂️내 차례!🙋‍♀️' : '내 차례 아님..'}</p>
-        ) : (
+          :
           <Button onClick={startGame}>게임 시작</Button>
-        )}
+        }
       </div>
-      {!gameData ? (
+      {!gameData ?
         <p className='title'>폭탄을 돌려라! 🧨</p>
-      ) : (
+        :
         <>
           <p className='phrase'>{phrase}</p>
           <p className='script'>{script}</p>
         </>
-      )}
+      }
       <p className='notification'>{notification}</p>
     </Wrapper>
   );

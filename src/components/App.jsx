@@ -44,7 +44,7 @@ function App({ user, loginUserWithToken, loginUserWithGoogle }) {
                 <RoomContainer />
               </Suspense>
             </Wrapper>
-           :
+            :
             <ErrorBox message='로그인 해주세요..' text='로그인 화면으로' />
           }
         </Route>

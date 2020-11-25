@@ -60,11 +60,11 @@ function UtilityBox({ room }) {
           <Button
             color={room.isLocked ? theme.red : theme.lightGray}
             onClick={handleLockingRoom}>
-            {room.isLocked ? (
+            {room.isLocked ?
               <BsLockFill color={theme.lightGray} size={24} />
-            ) : (
+              :
               <BsUnlockFill size={24} />
-            )}
+            }
           </Button>
         )}
         <Button
@@ -72,7 +72,7 @@ function UtilityBox({ room }) {
           onClick={handleAudioTrack}>
           {streamOptions.audio ?
             <FaVolumeUp size={24} />
-           :
+            :
             <FaVolumeMute size={24} />
           }
         </Button>
@@ -81,7 +81,7 @@ function UtilityBox({ room }) {
           onClick={handleVideoTrack}>
           {streamOptions.video ?
             <FaVideo size={24} />
-           :
+            :
             <FaVideoSlash size={24} />
           }
         </Button>

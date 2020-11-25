@@ -21,7 +21,7 @@ function ActionFilter({ roomId, isFilterOn }) {
     <ActionIconBox>
       {isFilterOn ?
         <ActionIconButton onClick={filterOff}>❌</ActionIconButton>
-       :
+        :
         <>
           {emojiList.map((emoji, i) => (
             <ActionIconButton key={i} onClick={filterOn} value={emoji}>
