@@ -288,17 +288,6 @@ const GameBox = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-
-  div {
-    width: 320px;
-    height: 400px;
-    border-radius: 36px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: ${({ isMyTurn, theme }) =>
-      isMyTurn ? theme.orange : theme.darkPurple};
-  }
 `;
 
 const MemberList = styled.div`
