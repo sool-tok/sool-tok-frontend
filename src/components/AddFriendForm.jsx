@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { toast } from 'react-toastify';
 
 import { userService } from '../utils/api';
-
-import { toast } from 'react-toastify';
 
 function AddFriendForm({ setModalOpen, user }) {
   const [input, setInput] = useState('');
@@ -13,8 +12,7 @@ function AddFriendForm({ setModalOpen, user }) {
     ev.preventDefault();
 
     try {
-      const token = localStorage.getItem('jwt-token');
-      const { message } = await userService.requestFriend(user._id, token, input);
+      const { message } = await userService.requestFriend(user._id, input);
 
       toast(message, { type: toast.TYPE.DARK });
       setModalOpen(false);

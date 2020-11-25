@@ -26,6 +26,12 @@ const mapDispatchToProps = dispatch => ({
   updateRoomLockingStatus(isLocked) {
     dispatch(roomAction.updateRoomLockingStatus(isLocked));
   },
+  turnOnFilter(filter) {
+    dispatch(roomAction.turnOnFilter(filter));
+  },
+  turnOffFilter() {
+    dispatch(roomAction.turnOffFilter());
+  },
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Room);

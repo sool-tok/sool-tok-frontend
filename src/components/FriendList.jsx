@@ -1,32 +1,32 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { toast } from 'react-toastify';
 
+import { IoMdCheckmark, IoMdClose } from 'react-icons/io';
 import AddFriendForm from './AddFriendForm';
 import Button from './Button';
 import FriendCell from './FriendCell';
 
-import { toast } from 'react-toastify';
 import theme from './styles/theme';
-import { IoMdCheckmark, IoMdClose } from 'react-icons/io';
 
 function FriendList({ setModalOpen, user, list, isRequestList, openModal, onSubmit }) {
   return (
     <Wrapper>
-      {!isRequestList && (
+      {!isRequestList &&
         <Button
           onClick={() => openModal(<AddFriendForm setModalOpen={setModalOpen} user={user} />)}
           color={theme.orange}>
           친구 추가하기
         </Button>
-      )}
+      }
       {list.map(member => (
         <FriendCell
           key={member._id}
           name={member.name}
           photoUrl={member.photoUrl}
           isOnline={member.isOnline}>
-          {isRequestList && (
+          {isRequestList &&
             <RequestContolBox>
               <Button
                 onClick={() => {
@@ -45,14 +45,14 @@ function FriendList({ setModalOpen, user, list, isRequestList, openModal, onSubm
                 <IoMdClose size={20} />
               </Button>
             </RequestContolBox>
-          )}
+          }
         </FriendCell>
       ))}
-      {!list.length && (
+      {!list.length &&
         <div>
           {!isRequestList ? '친구를 추가해보세요!☀️' : '친구 요청 목록이 없습니다..😢'}
         </div>
-      )}
+      }
     </Wrapper>
   );
 }

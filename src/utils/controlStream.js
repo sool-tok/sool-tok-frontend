@@ -1,13 +1,16 @@
 let stream;
 
-const initVideoStream = async () => {
-  stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+const init = async () => {
+  stream = await navigator.mediaDevices.getUserMedia({
+    audio: true,
+    video: true,
+  });
   return stream;
 };
 
-const getVideoStream = () => stream;
+const get = () => stream;
 
-const removeVideoStream = () => {
+const remove = () => {
   if (!stream) return;
 
   stream.getVideoTracks().forEach(track => {
@@ -16,7 +19,7 @@ const removeVideoStream = () => {
   });
 };
 
-const controlAudioOption = {
+const audioOption = {
   on: () => {
     stream.getAudioTracks().forEach(track => (track.enabled = true));
   },
@@ -25,7 +28,7 @@ const controlAudioOption = {
   },
 };
 
-const controlVideoOption = {
+const videoOption = {
   on: () => {
     stream.getVideoTracks().forEach(track => (track.enabled = true));
   },
@@ -34,10 +37,4 @@ const controlVideoOption = {
   },
 };
 
-export {
-  initVideoStream,
-  getVideoStream,
-  removeVideoStream,
-  controlAudioOption,
-  controlVideoOption,
-};
+export { init, get, remove, audioOption, videoOption };

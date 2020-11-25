@@ -47,13 +47,13 @@ function Chat({
         <BsFillChatDotsFill size={28} />
         {!!unreadCount && <Badge>{unreadCount}</Badge>}
       </Button>
-      {isChatRoomOpen && (
+      {isChatRoomOpen &&
         <ChatRoom
-          onSubmit={newChat => chatSocket.sendMessage({ newChat })}
-          chatList={chatList}
           user={user}
+          chatList={chatList}
+          onSubmit={newChat => chatSocket.sendMessage({ newChat })}
         />
-      )}
+      }
     </>
   );
 }

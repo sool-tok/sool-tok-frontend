@@ -31,6 +31,16 @@ const roomReducer = (state = null, { type, payload }) => {
         ...state,
         isLocked: payload.isLocked,
       };
+    case types.TURN_ON_FILTER:
+      return {
+        ...state,
+        filter: payload.filter,
+      };
+    case types.TURN_OFF_FILTER:
+      return {
+        ...state,
+        filter: null,
+      };
     default:
       return state;
   }

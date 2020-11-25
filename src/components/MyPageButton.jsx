@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 
-import MyPageContainer from '../containers/MyPageContainer';
+import { BiFace } from 'react-icons/bi';
 import FloatingButton from './FloatingButton';
 
-import { BiFace } from 'react-icons/bi';
+import MyPageContainer from '../containers/MyPageContainer';
 
 function MyPageButton() {
   const [isMyPageOpen, setMyPageOpen] = useState(false);

@@ -1,12 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-
 import _ from 'lodash';
 
-import Button from './Button';
-
 import { gameSocket, getMySocketId } from '../utils/socket';
+
+import Button from './Button';
 
 function SpeechGame({
   roomId,
@@ -275,8 +274,7 @@ const Wrapper = styled.div`
 
   .turn {
     font-size: 18px;
-    color: ${({ isMyTurn, theme }) =>
-      isMyTurn ? theme.emerald : theme.darkPurple};
+    color: ${({ theme }) => theme.emerald};
   }
 
   .phrase {

@@ -3,19 +3,28 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
 
-import theme from './styles/theme';
+import { roomSocket } from '../utils/socket';
+import * as controlStream from '../utils/controlStream';
+
 import { IoIosExit } from 'react-icons/io';
 import { BsLockFill, BsUnlockFill } from 'react-icons/bs';
-import { FaVideo, FaVideoSlash, FaVolumeMute, FaVolumeUp } from 'react-icons/fa';
-
-import { roomSocket } from '../utils/socket';
-import { controlAudioOption, controlVideoOption } from '../utils/stream';
+import {
+  FaVideo,
+  FaVideoSlash,
+  FaVolumeMute,
+  FaVolumeUp,
+} from 'react-icons/fa';
 
 import Button from './Button';
 
+import theme from './styles/theme';
+
 function UtilityBox({ room }) {
   const history = useHistory();
-  const [streamOptions, setStreamOptions] = useState({ audio: true, video: true });
+  const [streamOptions, setStreamOptions] = useState({
+    audio: true,
+    video: true,
+  });
 
   const handleLockingRoom = useCallback(() => {
     roomSocket.updateRoomLockingStatus({
@@ -26,20 +35,20 @@ function UtilityBox({ room }) {
 
   const handleAudioTrack = useCallback(() => {
     if (streamOptions.audio) {
-      controlAudioOption.off();
+      controlStream.audioOption.off();
       setStreamOptions(prev => ({ ...prev, audio: false }));
     } else {
-      controlAudioOption.on();
+      controlStream.audioOption.on();
       setStreamOptions(prev => ({ ...prev, audio: true }));
     }
   }, [streamOptions]);
 
   const handleVideoTrack = useCallback(() => {
     if (streamOptions.video) {
-      controlVideoOption.off();
+      controlStream.audioOption.off();
       setStreamOptions(prev => ({ ...prev, video: false }));
     } else {
-      controlVideoOption.on();
+      controlStream.audioOption.on();
       setStreamOptions(prev => ({ ...prev, video: true }));
     }
   }, [streamOptions]);
@@ -61,12 +70,20 @@ function UtilityBox({ room }) {
         <Button
           color={streamOptions.audio ? theme.green : theme.lightGray}
           onClick={handleAudioTrack}>
-          {streamOptions.audio ? <FaVolumeUp size={24} /> : <FaVolumeMute size={24} />}
+          {streamOptions.audio ?
+            <FaVolumeUp size={24} />
+           :
+            <FaVolumeMute size={24} />
+          }
         </Button>
         <Button
           color={streamOptions.video ? theme.green : theme.lightGray}
           onClick={handleVideoTrack}>
-          {streamOptions.video ? <FaVideo size={24} /> : <FaVideoSlash size={24} />}
+          {streamOptions.video ?
+            <FaVideo size={24} />
+           :
+            <FaVideoSlash size={24} />
+          }
         </Button>
         <IoIosExit
           onClick={() => history.push('/')}

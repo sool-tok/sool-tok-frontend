@@ -2,35 +2,25 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { toast } from 'react-toastify';
 import Peer from 'simple-peer';
 
-import {
-  roomSocket,
-  filterSocket,
-  peerSocket,
-  getMySocketId,
-} from '../utils/socket';
-import {
-  initVideoStream,
-  getVideoStream,
-  removeVideoStream,
-} from '../utils/stream';
-
-import { BsUnlockFill, BsLockFill } from 'react-icons/bs';
-import { toast } from 'react-toastify';
+import { roomSocket, peerSocket, getMySocketId } from '../utils/socket';
+import * as controlStream from '../utils/controlStream';
 
 import bomb from '../assets/bomb.png';
 import explosion from '../assets/explosion.gif';
 
-import ChatContainer from '../containers/ChatContainer';
+import { BsUnlockFill, BsLockFill } from 'react-icons/bs';
 
+import ChatContainer from '../containers/ChatContainer';
 import Video, { StyledVideo } from './Video';
 import SpeechGame from './SpeechGame';
 import Button from './Button';
-import ErrorBox from './ErrorBox';
+import UtilityBox from './UtilityBox';
 import ActionFilter from './ActionFilter';
 import Canvas from './Canvas';
-import UtilityBox from './UtilityBox';
+import ErrorBox from './ErrorBox';
 
 function Room({
   user,
@@ -40,6 +30,8 @@ function Room({
   addMember,
   deleteMember,
   updateRoomLockingStatus,
+  turnOnFilter,
+  turnOffFilter,
 }) {
   const { room_id: roomId } = useParams();
 
@@ -53,9 +45,6 @@ function Room({
   const [isMyTurn, setIsMyTurn] = useState(false);
   const [currentTurn, setCurrentTurn] = useState('');
 
-  const [filterIcon, setFilterIcon] = useState('');
-  const [isFilterOn, setIsFilterOn] = useState(false);
-
   useEffect(() => {
     roomSocket.joinRoom({ roomId, user }, async ({ room, message }) => {
       if (!room) return setError(message);
@@ -63,17 +52,13 @@ function Room({
       renderRoom(room);
 
       try {
-        const stream = await initVideoStream();
+        const stream = await controlStream.init();
         myVideoRef.current.srcObject = stream;
         setIsStreaming(true);
       } catch (error) {
         setError(error.message);
       }
     });
-
-    roomSocket.listenUpdateRoomLockingStatus(({ isLocked }) =>
-      updateRoomLockingStatus(isLocked),
-    );
 
     roomSocket.listenMemberJoined(({ newMember }) => addMember(newMember));
     roomSocket.listenMemberLeaved(({ socketId }) => {
@@ -87,19 +72,24 @@ function Room({
       deleteMember(socketId);
     });
 
-    filterSocket.listenRenderFilter(({ isFilterOn, emoji }) => {
-      setIsFilterOn(isFilterOn);
-      setFilterIcon(emoji);
+    roomSocket.listenUpdateRoomLockingStatus(({ isLocked }) =>
+      updateRoomLockingStatus(isLocked),
+    );
+
+    roomSocket.listenRenderFilter(({ isFilterOn, filter }) => {
+      if (isFilterOn) {
+        turnOnFilter(filter);
+      } else {
+        turnOffFilter();
+      }
     });
 
     return () => {
-      roomSocket.cleanUpRoomListener();
-      filterSocket.cleanUpFilterListener();
-
       roomSocket.leaveRoom({ roomId });
+      roomSocket.cleanUpRoomListener();
 
       destroyRoom();
-      removeVideoStream();
+      controlStream.remove();
     };
   }, []);
 
@@ -112,7 +102,7 @@ function Room({
       const peer = new Peer({
         initiator: true,
         trickle: false,
-        stream: getVideoStream(),
+        stream: controlStream.get(),
       });
 
       peer.on('signal', signal => {
@@ -127,7 +117,7 @@ function Room({
       const peer = new Peer({
         initiator: false,
         trickle: false,
-        stream: getVideoStream(),
+        stream: controlStream.get(),
       });
       peer.signal(signal);
 
@@ -171,11 +161,7 @@ function Room({
 
   return (
     <Container>
-      <ActionFilter
-        roomId={roomId}
-        isFilterOn={isFilterOn}
-        setIsFilterOn={setIsFilterOn}
-      />
+      <ActionFilter roomId={roomId} isFilterOn={!!room.filter} />
       <ChatContainer />
       <Header>
         <div>
@@ -198,14 +184,13 @@ function Room({
         <MemberList>
           {room.memberList.map(member => (
             <MemberBlock key={member.socketId}>
-              {currentTurn === member.socketId && !isFinalGame && (
+              {currentTurn === member.socketId && (isFinalGame ?
+                <img className='explosion' src={explosion} alt='explosion' />
+                :
                 <img src={bomb} alt='bomb' />
               )}
-              {currentTurn === member.socketId && isFinalGame && (
-                <img className='explosion' src={explosion} alt='explosion' />
-              )}
-              {isFilterOn && <Canvas emoji={filterIcon} />}
-              {member.socketId === getMySocketId() ? (
+              {room.filter && <Canvas emoji={room.filter} />}
+              {member.socketId === getMySocketId() ?
                 <StyledVideo
                   thumbnail={member.photoUrl}
                   ref={myVideoRef}
@@ -213,12 +198,12 @@ function Room({
                   playsInline
                   muted
                 />
-              ) : (
+               :
                 <Video
                   thumbnail={member.photoUrl}
                   peer={peers[member.socketId]}
                 />
-              )}
+              }
               <h3>{member.name}</h3>
             </MemberBlock>
           ))}
@@ -342,4 +327,6 @@ Room.propTypes = {
   addMember: PropTypes.func.isRequired,
   deleteMember: PropTypes.func.isRequired,
   updateRoomLockingStatus: PropTypes.func.isRequired,
+  turnOnFilter: PropTypes.func.isRequired,
+  turnOffFilter: PropTypes.func.isRequired,
 };

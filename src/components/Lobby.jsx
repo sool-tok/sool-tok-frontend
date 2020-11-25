@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
+import { toast } from 'react-toastify';
 
 import { roomSocket } from '../utils/socket';
 
@@ -11,7 +12,6 @@ import CreateRoomForm from './CreateRoomForm';
 import JoinRoomForm from './JoinRoomForm';
 import Button from './Button';
 
-import { toast } from 'react-toastify';
 import theme from './styles/theme';
 import beerVideo from '../assets/beer.mp4';
 import logo from '../assets/logo.png';
@@ -64,12 +64,19 @@ function Lobby() {
           URL로 참여하기
         </Button>
       </Wrapper>
-      {isModalOpen && (
+      {isModalOpen &&
         <ModalPortal>
           <Modal setModalOpen={setModalOpen}>{modalContent}</Modal>
         </ModalPortal>
-      )}
-      <video type='video/mp4' src={beerVideo} width='300px' autoPlay loop muted />
+      }
+      <video
+        type='video/mp4'
+        src={beerVideo}
+        width='300px'
+        autoPlay
+        loop
+        muted
+      />
     </Container>
   );
 }

@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import styled, { ThemeProvider } from 'styled-components';
 import { Reset } from 'styled-reset';
+import { ToastContainer, Slide } from 'react-toastify';
+
 import { delay } from '../utils/delay';
 
 import Lobby from './Lobby';
@@ -13,7 +15,6 @@ import MyPageButton from './MyPageButton';
 
 import theme from './styles/theme';
 import GlobalStyle from './styles/globalStyle';
-import { ToastContainer, Slide } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const RoomContainer = lazy(async () => {
@@ -37,15 +38,15 @@ function App({ user, loginUserWithToken, loginUserWithGoogle }) {
           {user ? <Lobby /> : <Login onLogin={loginUserWithGoogle} />}
         </Route>
         <Route path='/rooms/:room_id'>
-          {user ? (
+          {user ?
             <Wrapper>
               <Suspense fallback={<Loading />}>
                 <RoomContainer />
               </Suspense>
             </Wrapper>
-          ) : (
+           :
             <ErrorBox message='로그인 해주세요..' text='로그인 화면으로' />
-          )}
+          }
         </Route>
         <Redirect to='/' />
       </Switch>

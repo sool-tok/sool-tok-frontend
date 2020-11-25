@@ -3,8 +3,6 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import format from 'date-fns/format';
 
-import { chatSocket } from '../utils/socket';
-
 function ChatRoom({ user, chatList, onSubmit }) {
   const [input, setInput] = useState('');
   const messageRef = useRef();
@@ -30,7 +28,7 @@ function ChatRoom({ user, chatList, onSubmit }) {
     const newChat = {
       author: user.name,
       photoUrl: user.photoUrl,
-      content: input,
+      content: trimmedInput,
       date: time,
       userId: user._id,
     };
