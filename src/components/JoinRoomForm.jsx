@@ -23,7 +23,7 @@ function JoinRoomForm({ onSubmit }) {
           type='url'
           required
           placeholder='https://www.sool-tok.live'
-          pattern='https://192.168.0.53:3000/rooms/.*'
+          pattern='https://www.sool-tok.live/rooms/.*'
           title='The URL must be in a Sool-tok domain.'
           value={input}
           onChange={handleInputChange}

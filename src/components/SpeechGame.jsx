@@ -7,13 +7,7 @@ import { gameSocket, getMySocketId } from '../utils/socket';
 
 import Button from './Button';
 
-function SpeechGame({
-  roomId,
-  isMyTurn,
-  setIsMyTurn,
-  setCurrentTurn,
-  setIsFinalGame,
-}) {
+function SpeechGame({ roomId, isMyTurn, setIsMyTurn, setCurrentTurn, setIsFinalGame }) {
   const [gameData, setGameData] = useState(null);
   const gameDataRef = useRef();
   const isMyTurnRef = useRef();
@@ -243,6 +237,7 @@ const Wrapper = styled.div`
   width: 320px;
   height: 400px;
   border-radius: 36px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -269,6 +264,7 @@ const Wrapper = styled.div`
 
   p {
     font-size: 21px;
+    line-height: 28px;
     margin-bottom: 20px;
   }
 

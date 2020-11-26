@@ -4,6 +4,8 @@ import { toast } from 'react-toastify';
 
 import { userService } from '../utils/api';
 
+import theme from './styles/theme';
+
 function AddFriendForm({ setModalOpen, user }) {
   const [input, setInput] = useState('');
   const [requestResult, setRequestResult] = useState('');
@@ -30,7 +32,9 @@ function AddFriendForm({ setModalOpen, user }) {
   return (
     <div>
       <h2>친구 요청</h2>
-      {requestResult && <div>{requestResult}</div>}
+      {requestResult && (
+        <p style={{ color: theme.pink, marginBottom: '20px' }}>{requestResult}</p>
+      )}
       <form onSubmit={submitRoomData}>
         <input
           type='email'
