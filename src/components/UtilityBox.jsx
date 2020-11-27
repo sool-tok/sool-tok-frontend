@@ -125,5 +125,9 @@ const Wrapper = styled.div`
 export default UtilityBox;
 
 UtilityBox.propTypes = {
-  room: PropTypes.object.isRequired,
+  room: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    isLocked: PropTypes.bool.isRequired,
+    isHost: PropTypes.bool.isRequired,
+  }).isRequired,
 };

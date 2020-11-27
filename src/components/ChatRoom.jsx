@@ -157,7 +157,11 @@ const Profile = styled.div`
 export default ChatRoom;
 
 ChatRoom.propTypes = {
-  user: PropTypes.object,
+  user: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    photoUrl: PropTypes.string,
+  }).isRequired,
   chatList: PropTypes.array,
   onSubmit: PropTypes.func.isRequired,
 };

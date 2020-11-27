@@ -44,7 +44,7 @@ function Lobby() {
       <img src={logo} alt='logo' />
       <Tables>
         {tables.map(table => (
-          <Table key={table._id} tableInfo={table} />
+          <Table key={table._id} id={table._id} title={table.title} />
         ))}
       </Tables>
       <h1>오늘 밤 친구와 술톡에서!🍺</h1>

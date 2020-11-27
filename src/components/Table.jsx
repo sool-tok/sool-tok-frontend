@@ -5,11 +5,9 @@ import styled, { keyframes } from 'styled-components';
 
 import { getRandomEmoji } from '../utils/getRandomEmoji';
 
-function Table({ tableInfo }) {
-  const { _id, title } = tableInfo;
-
+function Table({ id, title }) {
   return (
-    <Link to={`/rooms/${_id}`}>
+    <Link to={`/rooms/${id}`}>
       <Wrapper>
         {Array.from({ length: 18 }).map((_, idx) => {
           if (idx === 5) return (<div key={idx} className='table'>{title}</div>);
@@ -86,5 +84,6 @@ const Wrapper = styled.div`
 export default Table;
 
 Table.propTypes = {
-  tableInfo: PropTypes.object,
+  id: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
 };

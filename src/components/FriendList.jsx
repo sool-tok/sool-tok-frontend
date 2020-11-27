@@ -15,7 +15,7 @@ function FriendList({ setModalOpen, user, list, isRequestList, openModal, onSubm
     <Wrapper>
       {!isRequestList &&
         <Button
-          onClick={() => openModal(<AddFriendForm setModalOpen={setModalOpen} user={user} />)}
+          onClick={() => openModal(<AddFriendForm setModalOpen={setModalOpen} userId={user._id} />)}
           color={theme.orange}>
           친구 추가하기
         </Button>
