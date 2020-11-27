@@ -305,10 +305,10 @@ const MemberBlock = styled.div`
   }
 
   img {
-    z-index: 10;
+    z-index: 20;
     position: absolute;
-    top: -92px;
-    left: -3px;
+    top: -94px;
+    left: -2px;
     width: 129%;
   }
 

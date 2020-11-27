@@ -27,7 +27,6 @@ const StyledFloatingButton = styled.button`
 
   &:hover {
     filter: brightness(0.7);
-    transform: translateY(-5px);
   }
 `;
 

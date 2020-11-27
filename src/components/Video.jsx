@@ -13,7 +13,7 @@ function Video({ thumbnail, peer }) {
     });
   }, [peer]);
 
-  return <StyledVideo poster={thumbnail} ref={ref} autoPlay playsInline />;
+  return (<StyledVideo poster={thumbnail} ref={ref} autoPlay playsInline />);
 }
 
 export const StyledVideo = styled.video`

@@ -87,7 +87,7 @@ function MyPage({
 }
 
 const Container = styled.div`
-  z-index: 998;
+  z-index: 20;
   position: fixed;
   bottom: 100px;
   right: 24px;
@@ -96,20 +96,7 @@ const Container = styled.div`
   padding-bottom: 64px;
   border-radius: 24px;
   overflow: hidden;
-  animation: slideUp 0.6s ease-in-out forwards;
   background-color: ${({ theme }) => theme.darkPurple};
-
-  @keyframes slideUp {
-    from {
-      transform: translateY(8px);
-      opacity: 0;
-    }
-
-    to {
-      transform: translateY(-2px);
-      opacity: 1;
-    }
-  }
 `;
 
 const MyInfo = styled.div`

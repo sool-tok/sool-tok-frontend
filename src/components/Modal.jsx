@@ -17,7 +17,7 @@ function Modal({ children, setModalOpen }) {
 }
 
 const StyledModal = styled.div`
-  z-index: 998;
+  z-index: 999;
   background: rgba(0, 0, 0, 0.8);
   position: fixed;
   left: 0;

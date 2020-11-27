@@ -59,19 +59,17 @@ function Chat({
 }
 
 const Badge = styled.div`
+  width: 20px;
+  height: 20px;
   position: absolute;
   top: 0px;
   right: 0px;
-
   display: flex;
   justify-content: center;
   align-items: center;
-
-  background-color: red;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
   font-size: 12px;
+  background-color: ${({ theme }) => theme.red};
   color: ${({ theme }) => theme.white};
 `;
 

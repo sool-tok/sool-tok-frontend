@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
-import { toast } from 'react-toastify';
 
 import { roomSocket } from '../utils/socket';
 
@@ -88,7 +87,7 @@ const Container = styled.div`
   background-color: ${({ theme }) => theme.purple};
 
   img {
-    z-index: 12;
+    z-index: 15;
     position: fixed;
     top: 24px;
     left: 24px;
@@ -96,7 +95,7 @@ const Container = styled.div`
   }
 
   h1 {
-    z-index: 12;
+    z-index: 15;
     font-size: 72px;
     font-weight: 700;
     color: ${({ theme }) => theme.orange};
@@ -131,7 +130,7 @@ const Tables = styled.div`
   flex-wrap: wrap;
   width: 100vw;
   position: absolute;
-  top: 0;
+  top: 60px;
   left: 0;
 
   a {

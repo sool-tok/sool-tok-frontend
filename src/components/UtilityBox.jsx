@@ -96,10 +96,8 @@ function UtilityBox({ room }) {
   );
 }
 
-export default UtilityBox;
-
 const Wrapper = styled.div`
-  z-index: 100;
+  z-index: 15;
   width: 100%;
   height: 80px;
   position: fixed;
@@ -123,6 +121,8 @@ const Wrapper = styled.div`
     margin-right: 16px;
   }
 `;
+
+export default UtilityBox;
 
 UtilityBox.propTypes = {
   room: PropTypes.object.isRequired,
