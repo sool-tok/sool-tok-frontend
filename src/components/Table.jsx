@@ -1,15 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 
 import { getRandomEmoji } from '../utils/getRandomEmoji';
 
-function Table({ tableInfo }) {
-  const { _id, title } = tableInfo;
-
+function Table({ id, title }) {
   return (
-    <Link to={`/rooms/${_id}`}>
+    <Link to={`/rooms/${id}`}>
       <Wrapper>
         {Array.from({ length: 18 }).map((_, idx) => {
           if (idx === 5) return (<div key={idx} className='table'>{title}</div>);
@@ -22,6 +20,27 @@ function Table({ tableInfo }) {
     </Link>
   );
 }
+
+const tableSpin = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const heartBeat = keyframes`
+  0% {
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0.8);
+  }
+`;
 
 const Wrapper = styled.div`
   display: grid;
@@ -37,7 +56,7 @@ const Wrapper = styled.div`
   height: 240px;
   margin: 20px;
   color: ${({ theme }) => theme.orange};
-  animation: table-spin infinite 3s linear;
+  animation: ${tableSpin} infinite 3s linear;
 
   .table {
     grid-area: t;
@@ -47,7 +66,7 @@ const Wrapper = styled.div`
     overflow: hidden;
     background-color: ${({ theme }) => theme.purple};
     border: 2px solid ${({ theme }) => theme.darkPurple};
-    animation: heart-beat infinite 1.6s linear;
+    animation: ${heartBeat} infinite 1.6s linear;
   }
 
   .table,
@@ -60,31 +79,11 @@ const Wrapper = styled.div`
   .member {
     font-size: 36px;
   }
-
-  @keyframes table-spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  @keyframes heart-beat {
-    0% {
-      transform: scale(0.8);
-    }
-    50% {
-      transform: scale(1);
-    }
-    100% {
-      transform: scale(0.8);
-    }
-  }
 `;
 
 export default Table;
 
 Table.propTypes = {
-  tableInfo: PropTypes.object,
+  id: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
 };

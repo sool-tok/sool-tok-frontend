@@ -26,6 +26,7 @@ function CreateRoomForm({ onSubmit }) {
         <input
           type='text'
           name='title'
+          minLength='2'
           maxLength='12'
           value={inputs.title}
           onChange={handleInputChange}

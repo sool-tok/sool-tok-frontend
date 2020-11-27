@@ -5,11 +5,13 @@ import styled from 'styled-components';
 import { GrFormClose } from 'react-icons/gr';
 import Button from './Button';
 
+import theme from './styles/theme';
+
 function Modal({ children, setModalOpen }) {
   return (
     <StyledModal>
       {children}
-      <Button color='#ecf0f1' onClick={() => setModalOpen(false)}>
+      <Button color={theme.lightGray} onClick={() => setModalOpen(false)}>
         <GrFormClose size='26px' />
       </Button>
     </StyledModal>
@@ -17,7 +19,7 @@ function Modal({ children, setModalOpen }) {
 }
 
 const StyledModal = styled.div`
-  z-index: 998;
+  z-index: 999;
   background: rgba(0, 0, 0, 0.8);
   position: fixed;
   left: 0;
@@ -89,6 +91,6 @@ const StyledModal = styled.div`
 export default Modal;
 
 Modal.propTypes = {
-  children: PropTypes.node,
   setModalOpen: PropTypes.func.isRequired,
+  children: PropTypes.node,
 };

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
-import { toast } from 'react-toastify';
 
 import { roomSocket } from '../utils/socket';
 
@@ -29,10 +28,7 @@ function Lobby() {
     return () => roomSocket.cleanUpLobbyListener();
   }, []);
 
-  const moveToRoom = roomId => {
-    history.push(`rooms/${roomId}`);
-    toast('방에 입장했습니다.', { type: toast.TYPE.DARK });
-  };
+  const moveToRoom = roomId => history.push(`rooms/${roomId}`);
 
   const createRoom = roomData => {
     roomSocket.createRoom({ roomData }, ({ roomId }) => moveToRoom(roomId));
@@ -48,7 +44,7 @@ function Lobby() {
       <img src={logo} alt='logo' />
       <Tables>
         {tables.map(table => (
-          <Table key={table._id} tableInfo={table} />
+          <Table key={table._id} id={table._id} title={table.title} />
         ))}
       </Tables>
       <h1>오늘 밤 친구와 술톡에서!🍺</h1>
@@ -91,7 +87,7 @@ const Container = styled.div`
   background-color: ${({ theme }) => theme.purple};
 
   img {
-    z-index: 12;
+    z-index: 15;
     position: fixed;
     top: 24px;
     left: 24px;
@@ -99,7 +95,7 @@ const Container = styled.div`
   }
 
   h1 {
-    z-index: 12;
+    z-index: 15;
     font-size: 72px;
     font-weight: 700;
     color: ${({ theme }) => theme.orange};
@@ -134,7 +130,7 @@ const Tables = styled.div`
   flex-wrap: wrap;
   width: 100vw;
   position: absolute;
-  top: 0;
+  top: 60px;
   left: 0;
 
   a {

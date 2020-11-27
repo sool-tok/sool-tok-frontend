@@ -6,7 +6,7 @@ import { userService } from '../utils/api';
 
 import theme from './styles/theme';
 
-function AddFriendForm({ setModalOpen, user }) {
+function AddFriendForm({ setModalOpen, userId }) {
   const [input, setInput] = useState('');
   const [requestResult, setRequestResult] = useState('');
 
@@ -14,7 +14,7 @@ function AddFriendForm({ setModalOpen, user }) {
     ev.preventDefault();
 
     try {
-      const { message } = await userService.requestFriend(user._id, input);
+      const { message } = await userService.requestFriend(userId, input);
 
       toast(message, { type: toast.TYPE.DARK });
       setModalOpen(false);
@@ -52,6 +52,6 @@ function AddFriendForm({ setModalOpen, user }) {
 export default AddFriendForm;
 
 AddFriendForm.propTypes = {
-  user: PropTypes.object.isRequired,
+  userId: PropTypes.string.isRequired,
   setModalOpen: PropTypes.func.isRequired,
 };

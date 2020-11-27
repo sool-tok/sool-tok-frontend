@@ -69,7 +69,7 @@ function MyPage({
       </MyInfo>
       {loading ?
         <Loading />
-       :
+        :
         <FriendList
           user={user}
           list={!isRequestList ? friendList : friendRequestList}
@@ -87,7 +87,7 @@ function MyPage({
 }
 
 const Container = styled.div`
-  z-index: 998;
+  z-index: 20;
   position: fixed;
   bottom: 100px;
   right: 24px;
@@ -96,20 +96,7 @@ const Container = styled.div`
   padding-bottom: 64px;
   border-radius: 24px;
   overflow: hidden;
-  animation: slideUp 0.6s ease-in-out forwards;
   background-color: ${({ theme }) => theme.darkPurple};
-
-  @keyframes slideUp {
-    from {
-      transform: translateY(8px);
-      opacity: 0;
-    }
-
-    to {
-      transform: translateY(-2px);
-      opacity: 1;
-    }
-  }
 `;
 
 const MyInfo = styled.div`
@@ -154,9 +141,14 @@ const ListToggle = styled.a`
 export default MyPage;
 
 MyPage.propTypes = {
+  user: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    email: PropTypes.string.isRequired,
+    photoUrl: PropTypes.string,
+  }).isRequired,
   loading: PropTypes.bool.isRequired,
   error: PropTypes.oneOfType([PropTypes.oneOf([null]), PropTypes.object]),
-  user: PropTypes.oneOfType([PropTypes.oneOf([null]), PropTypes.object]),
   friendList: PropTypes.array,
   friendRequestList: PropTypes.array,
   addFriendList: PropTypes.func.isRequired,

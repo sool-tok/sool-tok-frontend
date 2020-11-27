@@ -27,8 +27,13 @@ function SpeechGame({ roomId, isMyTurn, setIsMyTurn, setCurrentTurn, setIsFinalG
 
   const restartSpeech = () => {
     if (!recognition.current) return;
-    recognition.current.stop();
-    recognition.current.start();
+
+    try {
+      recognition.current.stop();
+      recognition.current.start();
+    } catch (err) {
+      console.warn(err);
+    }
   };
 
   const resetGame = () => {
@@ -150,7 +155,7 @@ function SpeechGame({ roomId, isMyTurn, setIsMyTurn, setCurrentTurn, setIsFinalG
         recognition.current.interimResults = true;
         recognition.current.maxAlternatives = 1;
 
-        const getSpeechResult = _.debounce((result = '') => {
+        const getSpeechResult = (result = '') => {
           if (!gameDataRef.current) return;
 
           const isAnswer =
@@ -165,11 +170,10 @@ function SpeechGame({ roomId, isMyTurn, setIsMyTurn, setCurrentTurn, setIsFinalG
             setNotification('정답입니다.');
             gameSocket.sendNextTurn({ roomId });
           } else {
-            console.warn('Result: 실패');
             setNotification('다시 한번 말 해보세요.💪');
             restartSpeech();
           }
-        }, 500);
+        };
 
         recognition.current.start();
 
@@ -200,7 +204,7 @@ function SpeechGame({ roomId, isMyTurn, setIsMyTurn, setCurrentTurn, setIsFinalG
         };
 
         recognition.current.onerror = ev => {
-          console.error('error', ev.error);
+          console.warn(ev.error);
           deleteReconginiton();
           gameSocket.sendResetGame(roomId);
         };
@@ -211,7 +215,7 @@ function SpeechGame({ roomId, isMyTurn, setIsMyTurn, setCurrentTurn, setIsFinalG
   }, [gameData, isMyTurn]);
 
   return (
-    <Wrapper isMyTurn={isMyTurn}>
+    <Container isMyTurn={isMyTurn}>
       <div>
         {gameData ?
           <p className='turn'>{isMyTurn ? '🙋‍♂️내 차례!🙋‍♀️' : '내 차례 아님..'}</p>
@@ -228,11 +232,11 @@ function SpeechGame({ roomId, isMyTurn, setIsMyTurn, setCurrentTurn, setIsFinalG
         </>
       }
       <p className='notification'>{notification}</p>
-    </Wrapper>
+    </Container>
   );
 }
 
-const Wrapper = styled.div`
+const Container = styled.div`
   position: relative;
   width: 320px;
   height: 400px;
@@ -279,7 +283,6 @@ const Wrapper = styled.div`
   }
 
   .script {
-    /* font-size: 21px; */
     margin-bottom: 40px;
   }
 

@@ -45,10 +45,10 @@ function UtilityBox({ room }) {
 
   const handleVideoTrack = useCallback(() => {
     if (streamOptions.video) {
-      controlStream.audioOption.off();
+      controlStream.videoOption.off();
       setStreamOptions(prev => ({ ...prev, video: false }));
     } else {
-      controlStream.audioOption.on();
+      controlStream.videoOption.on();
       setStreamOptions(prev => ({ ...prev, video: true }));
     }
   }, [streamOptions]);
@@ -96,10 +96,8 @@ function UtilityBox({ room }) {
   );
 }
 
-export default UtilityBox;
-
 const Wrapper = styled.div`
-  z-index: 100;
+  z-index: 15;
   width: 100%;
   height: 80px;
   position: fixed;
@@ -124,6 +122,12 @@ const Wrapper = styled.div`
   }
 `;
 
+export default UtilityBox;
+
 UtilityBox.propTypes = {
-  room: PropTypes.object.isRequired,
+  room: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    isLocked: PropTypes.bool.isRequired,
+    isHost: PropTypes.bool.isRequired,
+  }).isRequired,
 };

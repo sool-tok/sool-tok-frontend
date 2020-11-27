@@ -9,12 +9,12 @@ function MyPageButton() {
   const [isMyPageOpen, setMyPageOpen] = useState(false);
 
   return (
-    <div>
+    <>
       {isMyPageOpen && <MyPageContainer />}
       <FloatingButton onClick={() => setMyPageOpen(!isMyPageOpen)}>
         <BiFace />
       </FloatingButton>
-    </div>
+    </>
   );
 }
 

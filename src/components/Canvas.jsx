@@ -9,13 +9,13 @@ function Canvas({ emoji }) {
 
   useEmojiEffect(canvasRef, emoji);
 
-  return <FilterCanvas ref={canvasRef} />;
+  return (<FilterCanvas ref={canvasRef} />);
 }
 
 const FilterCanvas = styled.canvas`
   position: absolute;
   top: 0;
-  z-index: 999;
+  z-index: 15;
   border-radius: 160px;
 `;
 

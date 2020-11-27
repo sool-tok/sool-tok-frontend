@@ -36,11 +36,11 @@ function ActionFilter({ roomId, isFilterOn }) {
 
 const ActionIconBox = styled.div`
   z-index: 999;
-  width: 240px;
+  width: 180px;
   height: 60px;
   position: absolute;
   bottom: 24px;
-  left: 24px;
+  left: 32px;
   border-radius: 40px;
   display: flex;
   align-items: center;

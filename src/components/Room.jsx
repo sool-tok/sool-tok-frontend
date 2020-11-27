@@ -50,6 +50,7 @@ function Room({
       if (!room) return setError(message);
 
       renderRoom(room);
+      toast('방에 입장했습니다.', { type: toast.TYPE.DARK });
 
       try {
         const stream = await controlStream.init();
@@ -192,15 +193,13 @@ function Room({
               {room.filter && <Canvas emoji={room.filter} />}
               {member.socketId === getMySocketId() ?
                 <StyledVideo
-                  thumbnail={member.photoUrl}
                   ref={myVideoRef}
                   autoPlay
                   playsInline
                   muted
                 />
-               :
+                :
                 <Video
-                  thumbnail={member.photoUrl}
                   peer={peers[member.socketId]}
                 />
               }
@@ -304,10 +303,10 @@ const MemberBlock = styled.div`
   }
 
   img {
-    z-index: 10;
+    z-index: 20;
     position: absolute;
-    top: -92px;
-    left: -3px;
+    top: -94px;
+    left: -2px;
     width: 129%;
   }
 
@@ -320,8 +319,20 @@ const MemberBlock = styled.div`
 export default Room;
 
 Room.propTypes = {
-  user: PropTypes.object,
-  room: PropTypes.object,
+  user: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    photoUrl: PropTypes.string,
+  }).isRequired,
+  room: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    memberList: PropTypes.array.isRequired,
+    maxNum: PropTypes.number.isRequired,
+    title: PropTypes.string.isRequired,
+    isLocked: PropTypes.bool.isRequired,
+    isHost: PropTypes.bool.isRequired,
+    filter: PropTypes.oneOfType([PropTypes.oneOf([null]), PropTypes.string]),
+  }),
   renderRoom: PropTypes.func.isRequired,
   destroyRoom: PropTypes.func.isRequired,
   addMember: PropTypes.func.isRequired,
