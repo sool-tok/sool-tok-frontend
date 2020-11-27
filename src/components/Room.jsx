@@ -193,7 +193,6 @@ function Room({
               {room.filter && <Canvas emoji={room.filter} />}
               {member.socketId === getMySocketId() ?
                 <StyledVideo
-                  thumbnail={member.photoUrl}
                   ref={myVideoRef}
                   autoPlay
                   playsInline
@@ -201,7 +200,6 @@ function Room({
                 />
                 :
                 <Video
-                  thumbnail={member.photoUrl}
                   peer={peers[member.socketId]}
                 />
               }

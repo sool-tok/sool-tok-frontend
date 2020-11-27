@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-function Video({ thumbnail, peer }) {
+function Video({ peer }) {
   const ref = useRef();
 
   useEffect(() => {
@@ -13,7 +13,7 @@ function Video({ thumbnail, peer }) {
     });
   }, [peer]);
 
-  return (<StyledVideo poster={thumbnail} ref={ref} autoPlay playsInline />);
+  return (<StyledVideo ref={ref} autoPlay playsInline />);
 }
 
 export const StyledVideo = styled.video`
@@ -29,6 +29,5 @@ export const StyledVideo = styled.video`
 export default Video;
 
 Video.propTypes = {
-  thumbnail: PropTypes.string.isRequired,
   peer: PropTypes.object,
 };
