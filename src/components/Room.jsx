@@ -186,9 +186,9 @@ function Room({
           {room.memberList.map(member => (
             <MemberBlock key={member.socketId}>
               {currentTurn === member.socketId && (isFinalGame ?
-                  <img className='explosion' src={explosion} alt='explosion' />
+                <img className='explosion' src={explosion} alt='explosion' />
                 :
-                  <img src={bomb} alt='bomb' />
+                <img src={bomb} alt='bomb' />
               )}
               {room.filter && <Canvas emoji={room.filter} />}
               {member.socketId === getMySocketId() ?
@@ -199,7 +199,7 @@ function Room({
                   playsInline
                   muted
                 />
-               :
+                :
                 <Video
                   thumbnail={member.photoUrl}
                   peer={peers[member.socketId]}
