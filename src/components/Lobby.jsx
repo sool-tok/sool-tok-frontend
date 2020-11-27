@@ -29,10 +29,7 @@ function Lobby() {
     return () => roomSocket.cleanUpLobbyListener();
   }, []);
 
-  const moveToRoom = roomId => {
-    history.push(`rooms/${roomId}`);
-    toast('방에 입장했습니다.', { type: toast.TYPE.DARK });
-  };
+  const moveToRoom = roomId => history.push(`rooms/${roomId}`);
 
   const createRoom = roomData => {
     roomSocket.createRoom({ roomData }, ({ roomId }) => moveToRoom(roomId));

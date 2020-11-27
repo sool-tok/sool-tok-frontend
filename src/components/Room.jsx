@@ -50,6 +50,7 @@ function Room({
       if (!room) return setError(message);
 
       renderRoom(room);
+      toast('방에 입장했습니다.', { type: toast.TYPE.DARK });
 
       try {
         const stream = await controlStream.init();
@@ -185,9 +186,9 @@ function Room({
           {room.memberList.map(member => (
             <MemberBlock key={member.socketId}>
               {currentTurn === member.socketId && (isFinalGame ?
-                <img className='explosion' src={explosion} alt='explosion' />
+                  <img className='explosion' src={explosion} alt='explosion' />
                 :
-                <img src={bomb} alt='bomb' />
+                  <img src={bomb} alt='bomb' />
               )}
               {room.filter && <Canvas emoji={room.filter} />}
               {member.socketId === getMySocketId() ?
