@@ -150,7 +150,7 @@ function SpeechGame({ roomId, isMyTurn, setIsMyTurn, setCurrentTurn, setIsFinalG
         recognition.current.interimResults = true;
         recognition.current.maxAlternatives = 1;
 
-        const getSpeechResult = _.debounce((result = '') => {
+        const getSpeechResult = (result = '') => {
           if (!gameDataRef.current) return;
 
           const isAnswer =
@@ -169,7 +169,7 @@ function SpeechGame({ roomId, isMyTurn, setIsMyTurn, setCurrentTurn, setIsFinalG
             setNotification('다시 한번 말 해보세요.💪');
             restartSpeech();
           }
-        }, 500);
+        };
 
         recognition.current.start();
 

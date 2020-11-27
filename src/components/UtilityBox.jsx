@@ -45,10 +45,10 @@ function UtilityBox({ room }) {
 
   const handleVideoTrack = useCallback(() => {
     if (streamOptions.video) {
-      controlStream.audioOption.off();
+      controlStream.videoOption.off();
       setStreamOptions(prev => ({ ...prev, video: false }));
     } else {
-      controlStream.audioOption.on();
+      controlStream.videoOption.on();
       setStreamOptions(prev => ({ ...prev, video: true }));
     }
   }, [streamOptions]);
