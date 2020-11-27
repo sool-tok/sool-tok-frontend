@@ -16,13 +16,6 @@ function ErrorBox({ message, text }) {
   );
 }
 
-export default ErrorBox;
-
-ErrorBox.propTypes = {
-  message: PropTypes.string.isRequired,
-  text: PropTypes.string.isRequired,
-};
-
 const Wrapper = styled.div`
   width: inherit;
   height: 100vh;
@@ -37,3 +30,10 @@ const Wrapper = styled.div`
     color: ${({ theme }) => theme.pink};
   }
 `;
+
+export default ErrorBox;
+
+ErrorBox.propTypes = {
+  message: PropTypes.string.isRequired,
+  text: PropTypes.string.isRequired,
+};

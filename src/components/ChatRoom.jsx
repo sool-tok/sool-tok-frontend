@@ -71,13 +71,13 @@ function ChatRoom({ user, chatList, onSubmit }) {
 }
 
 const Wrapper = styled.div`
-  z-index: 998;
+  z-index: 25;
   background-color: ${({ theme }) => theme.darkPurple};
   width: 400px;
   height: 400px;
   position: fixed;
   right: 100px;
-  bottom: 94px;
+  bottom: 100px;
   border-radius: 24px;
   overflow: hidden;
 `;
@@ -150,8 +150,8 @@ const Profile = styled.div`
   justify-content: center;
   align-items: center;
   padding: 3px 10px;
-  color: #fff;
   font-size: 14px;
+  color: ${({ theme }) => theme.white};
 `;
 
 export default ChatRoom;

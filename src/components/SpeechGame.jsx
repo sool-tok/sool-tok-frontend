@@ -215,7 +215,7 @@ function SpeechGame({ roomId, isMyTurn, setIsMyTurn, setCurrentTurn, setIsFinalG
   }, [gameData, isMyTurn]);
 
   return (
-    <Wrapper isMyTurn={isMyTurn}>
+    <Container isMyTurn={isMyTurn}>
       <div>
         {gameData ?
           <p className='turn'>{isMyTurn ? '🙋‍♂️내 차례!🙋‍♀️' : '내 차례 아님..'}</p>
@@ -232,11 +232,11 @@ function SpeechGame({ roomId, isMyTurn, setIsMyTurn, setCurrentTurn, setIsFinalG
         </>
       }
       <p className='notification'>{notification}</p>
-    </Wrapper>
+    </Container>
   );
 }
 
-const Wrapper = styled.div`
+const Container = styled.div`
   position: relative;
   width: 320px;
   height: 400px;
@@ -283,7 +283,6 @@ const Wrapper = styled.div`
   }
 
   .script {
-    /* font-size: 21px; */
     margin-bottom: 40px;
   }
 
