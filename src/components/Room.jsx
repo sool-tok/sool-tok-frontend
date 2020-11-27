@@ -50,6 +50,7 @@ function Room({
       if (!room) return setError(message);
 
       renderRoom(room);
+      toast('방에 입장했습니다.', { type: toast.TYPE.DARK });
 
       try {
         const stream = await controlStream.init();
@@ -198,7 +199,7 @@ function Room({
                   playsInline
                   muted
                 />
-               :
+                :
                 <Video
                   thumbnail={member.photoUrl}
                   peer={peers[member.socketId]}

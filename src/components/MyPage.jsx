@@ -69,7 +69,7 @@ function MyPage({
       </MyInfo>
       {loading ?
         <Loading />
-       :
+        :
         <FriendList
           user={user}
           list={!isRequestList ? friendList : friendRequestList}
