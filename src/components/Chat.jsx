@@ -76,9 +76,13 @@ const Badge = styled.div`
 export default Chat;
 
 Chat.propTypes = {
-  user: PropTypes.object.isRequired,
-  chatList: PropTypes.array,
-  unreadCount: PropTypes.number,
+  user: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    photoUrl: PropTypes.string,
+  }).isRequired,
+  chatList: PropTypes.array.isRequired,
+  unreadCount: PropTypes.number.isRequired,
   addChat: PropTypes.func.isRequired,
   resetChat: PropTypes.func.isRequired,
   increaseUnreadCount: PropTypes.func.isRequired,

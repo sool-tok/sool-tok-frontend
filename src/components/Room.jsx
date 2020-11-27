@@ -319,8 +319,20 @@ const MemberBlock = styled.div`
 export default Room;
 
 Room.propTypes = {
-  user: PropTypes.object,
-  room: PropTypes.object,
+  user: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    photoUrl: PropTypes.string,
+  }).isRequired,
+  room: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    memberList: PropTypes.array.isRequired,
+    maxNum: PropTypes.number.isRequired,
+    title: PropTypes.string.isRequired,
+    isLocked: PropTypes.bool.isRequired,
+    isHost: PropTypes.bool.isRequired,
+    filter: PropTypes.oneOfType([PropTypes.oneOf([null]), PropTypes.string]),
+  }),
   renderRoom: PropTypes.func.isRequired,
   destroyRoom: PropTypes.func.isRequired,
   addMember: PropTypes.func.isRequired,

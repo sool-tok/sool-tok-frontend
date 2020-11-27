@@ -141,9 +141,14 @@ const ListToggle = styled.a`
 export default MyPage;
 
 MyPage.propTypes = {
+  user: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    email: PropTypes.string.isRequired,
+    photoUrl: PropTypes.string,
+  }).isRequired,
   loading: PropTypes.bool.isRequired,
   error: PropTypes.oneOfType([PropTypes.oneOf([null]), PropTypes.object]),
-  user: PropTypes.oneOfType([PropTypes.oneOf([null]), PropTypes.object]),
   friendList: PropTypes.array,
   friendRequestList: PropTypes.array,
   addFriendList: PropTypes.func.isRequired,
