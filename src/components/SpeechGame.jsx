@@ -27,8 +27,13 @@ function SpeechGame({ roomId, isMyTurn, setIsMyTurn, setCurrentTurn, setIsFinalG
 
   const restartSpeech = () => {
     if (!recognition.current) return;
-    recognition.current.stop();
-    recognition.current.start();
+
+    try {
+      recognition.current.stop();
+      recognition.current.start();
+    } catch (err) {
+      console.warn(err);
+    }
   };
 
   const resetGame = () => {
@@ -165,7 +170,6 @@ function SpeechGame({ roomId, isMyTurn, setIsMyTurn, setCurrentTurn, setIsFinalG
             setNotification('정답입니다.');
             gameSocket.sendNextTurn({ roomId });
           } else {
-            console.warn('Result: 실패');
             setNotification('다시 한번 말 해보세요.💪');
             restartSpeech();
           }
@@ -200,7 +204,7 @@ function SpeechGame({ roomId, isMyTurn, setIsMyTurn, setCurrentTurn, setIsFinalG
         };
 
         recognition.current.onerror = ev => {
-          console.error('error', ev.error);
+          console.warn(ev.error);
           deleteReconginiton();
           gameSocket.sendResetGame(roomId);
         };

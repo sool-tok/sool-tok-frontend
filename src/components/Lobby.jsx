@@ -40,7 +40,6 @@ function Lobby() {
 
   const openModal = modalContent => {
     setmodalContent(modalContent);
-    console.log(modalContent);
     setModalOpen(true);
   };
 
